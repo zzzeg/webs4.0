@@ -1,0 +1,66 @@
+<template>
+  <div class="base_msg blockContent">
+
+
+    <div class="subItems">
+      <h3 style="margin-top:10px;">
+        <!-- <a href="javascript:;" @click="changeEdit('true', 'isEdit1')" class="editBtn"><i class="el-icon-edit-outline"></i></a> -->
+        化疗效益分析
+      </h3>
+
+      
+      <img :src="formData.jsonValue.chemoImages" alt="" style="max-width:60%; display:block; margin:0 auto;">
+      
+      <p><small>上图的结果得自一项 651 名乳腺癌患者的临床研究数据，患者被随机分组分别接受他莫昔芬单药或者他莫昔芬+化疗（CMF/MF）的治疗方案。对于复发分数≥31 的患者，如果只接受他莫昔芬单药的治疗方案，其 10 年平均远期复发率为 40％（95% CI: 25%-54%），如果接受他莫昔芬+化疗（CMF/MF）的治疗方案，其 10 年平均远期复发率下降至 12％（95% CI: 6%-18%），获益显著。而对于复发分数＜31的患者，两种治疗方案的平均远期复发率并无显著差异。 </small></p>
+
+    </div>
+
+
+  </div>
+</template>
+<script>
+  export default {
+    props: {
+        formDatas:{
+            type:Object
+        }
+    },
+    created() {
+    },
+    data () {
+      return {
+        isEdit1: false,
+        isEdit2: false,
+        formData: {},
+        formData1: {}
+        // pageSize: 10
+      }
+    },
+    methods: {
+      changeEdit(val, editorName) {
+        let that = this
+        that[editorName] = val == 'true' ?  true : false
+      },
+      cancerChange(editorName) {
+        let that = this
+        that[editorName] = false
+        // 重新给formData赋值    取消的时候，重置内容
+        let n = Object.assign({}, that.formDatas)
+        that.formData1 = n
+      },
+      saveChange (vale, editorName) {
+      	let that = this
+      	this[editorName] = false
+      	let n = Object.assign({}, that.formData1)
+      	this.formData = n
+        this.$emit('saveChange', vale)
+      }
+    },
+    watch: {
+      formDatas: function(newVal,oldVal){
+        this.formData = newVal
+        this.formData1 = JSON.parse(JSON.stringify(this.formData))
+      }
+    }
+  }
+</script>

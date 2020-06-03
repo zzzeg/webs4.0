@@ -1,0 +1,241 @@
+<template>
+	<div class="base_msg blockContent">
+		<div class="subItems">
+			<div class="subname">
+				<span>拷贝数变异检出情况</span>
+			</div>
+			<div class="search-wrapper" style="margin: -10px 0 10px 0;">
+				<el-form :inline="true" :model="formInline" class="demo-form-inline query-form">
+					<el-form-item label="基因">
+						<!-- <el-input size="medium" v-model="formInline.gene" placeholder="请输入名称"></el-input> -->
+						<el-autocomplete class="inline-input" v-model="formInline.gene" :fetch-suggestions="querySearch" placeholder="请输入名称"
+						 :trigger-on-focus="false"></el-autocomplete>
+					</el-form-item>
+					<el-form-item>
+						<el-button type="primary" size="medium" @click="blockSearch(formInline)">查询</el-button>
+					</el-form-item>
+				</el-form>
+			</div>
+			<div class="addBar" style="padding:0px 0 23px; text-align:right;">
+				<el-button type="primary" size="medium" @click="goAdd()">添加</el-button>
+				<el-button type="primary" size="medium" @click="">发送邮件</el-button>
+			</div>
+			<div class="">
+				<el-table class="tableList hasLine" :data="formData1.list" border stripe style="width: 100%">
+					<el-table-column prop="gene" label="基因名称" width="280" align="center">
+						<template slot-scope="scope">
+							<span v-if="!scope.row.isAdd">{{ scope.row.gene }}</span>
+							<el-input v-if="scope.row.isAdd" v-model="scope.row.gene" placeholder=""></el-input>
+						</template>
+					</el-table-column>
+					<el-table-column prop="variant" label="变异类型">
+						<template slot-scope="scope">
+							<span v-if="!scope.row.isEdit || !scope.row.isAdd">{{ scope.row.variant }}</span>
+							<el-select v-if="scope.row.isEdit || scope.row.isAdd" v-model="scope.row.variant">
+								<el-option label="请选择" value="请选择"></el-option>
+								<el-option label="拷贝数正常" value="拷贝数正常"></el-option>
+								<el-option label="高拷贝" value="高拷贝"></el-option>
+								<el-option label="拷贝数增加" value="拷贝数增加"></el-option>
+								<el-option label="拷贝数缺失" value="拷贝数缺失"></el-option>
+							</el-select>
+						</template>
+					</el-table-column>
+					<!--<el-table-column prop="clinsig" label="临床意义">
+              <template slot-scope="scope">
+                <span v-if="!scope.row.isEdit || !scope.row.isAdd">{{ scope.row.clinsig }}</span>
+                <el-select v-if="scope.row.isEdit || scope.row.isAdd" v-model="scope.row.clinsig">
+                  <el-option label="请选择" value="请选择"></el-option>
+                  <el-option label="可能致病" value="可能致病"></el-option>
+                </el-select>
+              </template>
+            </el-table-column>-->
+
+					<el-table-column label="操作" width="80">
+						<template slot-scope="scope">
+							<a href="javascript:;" v-if="scope.row.isAdd || scope.row.isEdit" @click="cancerChange(scope.$index, scope.row)"
+							 class="editBtn"><i class="el-icon-circle-close-outline"></i></a>
+							<a href="javascript:;" v-if="!scope.row.isEdit && !scope.row.isAdd" @click="changeEdit('true', scope.$index)"
+							 class="editBtn"><i class="el-icon-edit-outline"></i></a>
+							<a href="javascript:;" v-if="!scope.row.isEdit && !scope.row.isAdd" @click="pushListItem('del', scope.row.code)"
+							 class="editBtn"><i class="el-icon-delete"></i></a>
+							<a href="javascript:;" v-if="scope.row.isAdd || scope.row.isEdit" @click="saveChange(scope.row, scope.row.code)"
+							 class="editBtn"><i class="el-icon-circle-check-outline"></i></a>
+						</template>
+					</el-table-column>
+				</el-table>
+			</div>
+
+		</div>
+
+
+	</div>
+</template>
+<script>
+	export default {
+		props: {
+			formDatas: {
+				type: Object
+			},
+			formInline: {
+				type: Object
+			}
+		},
+		created() {},
+		data() {
+			return {
+				isEdit1: false,
+				isEdit2: false,
+				code: this.$route.params.id,
+				needAddsList: {
+					"allelicDepth": "",
+					"annotationTranscript": "",
+					"bicClinicalSignificance": "",
+					"cdnaChange": "",
+					"chromosomeSite": "",
+					"clinicalSignificancePrediction": "",
+					"clinsig": "",
+					"clinvarClinicalSignificance": "",
+					"code": "",
+					"cosmicId": "",
+					"cosmicOverlappingMutations": "",
+					"describe": "",
+					"ensemblSoTerm": "",
+					"excludedType": '',
+					"fusionType": "",
+					"gdnaChange": "",
+					"gene": "",
+					"geneType": "",
+					"hasInOncokb": '',
+					"hgmdCancer": "",
+					"hgmdDmDp": "",
+					"hgvsCodingDnaChange": "",
+					"hgvsProteinChange": "",
+					"hzInfo": "",
+					"lovdClinicalSignificance": "",
+					"mutationType": '',
+					"mutationalLoad": "",
+					"nature": "",
+					"nccnCscoCount": '',
+					"otherTranscripts": "",
+					"parpInfluence": "",
+					"projectCode": "",
+					"proteinChange": "",
+					"rsId": "",
+					"siteNote": "",
+					"transcriptExon": "",
+					"transcriptType": '',
+					"type": "",
+					"utahClinicalSignificance": "",
+					"variant": "",
+					"variantClassification": "",
+					"variantType": "拷贝数变异",
+					"wildType": '',
+					'isAdd': true,
+					"isEdit": true
+				},
+				formData: {},
+				formData1: {},
+				restaurants: [],
+				restaurantsList: []
+			}
+		},
+		methods: {
+			showMsg(index, obj) {
+				let that = this
+				console.log(index)
+				that.formData1.list.splice(index + 1, 0, obj)
+				console.log(that.formData1.list)
+			},
+			changeEdit(val, index) {
+				let that = this
+				// that.formData1.list[index].isEdit = val == 'true' ?  true : false
+				that.$set(that.formData1.list[index], 'isEdit', true)
+			},
+			cancerChange(index, scope) {
+				let that = this
+				if (scope.code == '') {
+					that.formData1.list.splice(index, 1)
+				} else {
+					// that.formData1.list[index].isEdit = false
+					that.$set(that.formData1.list[index], 'isEdit', false)
+					// 重新给formData赋值    取消的时候，重置内容
+					let n = Object.assign({}, that.formDatas)
+					that.formData1 = n
+				}
+			},
+			saveChange(vale, code) {
+				let that = this
+				if (vale.isAdd) {
+					that.pushListItem('add', '0', that.formData1.list[0])
+				} else {
+					let n = {}
+					n['clinsig'] = vale.clinsig
+					n['variant'] = vale.variant
+					n['code'] = code
+					n['projectCode'] = that.code
+					that.$emit('saveChange', n)
+				}
+			},
+			goAdd() {
+				let that = this
+				that.formData1.list.splice(0, 0, that.needAddsList)
+			},
+			pushListItem(type, code) {
+				// 添加，删除 的操作
+				let that = this
+				if (type == 'add') {
+					if (that.formData1.list[0]['gene'] == '' || that.formData1.list[0]['variant'] == '') {
+						that.$message({
+							type: 'error',
+							message: '添加失败：基因、突变不能为空',
+							duration: 1000
+						})
+						return false
+					} else {
+						delete that.needAddsList.isAdd
+						delete that.needAddsList.isEdit
+						that.needAddsList['variantType'] = '拷贝数变异'
+						that.$emit('pushListItem', type, code, that.needAddsList)
+					}
+				} else if (type == 'del') {
+					that.$emit('pushListItem', type, code)
+				}
+			},
+			blockSearch(formInline) {
+				// 查询
+				let that = this
+				that.$emit('search', formInline)
+			},
+			inputSub(itemCode, keyName, keyValue) {
+				// 修改
+				let that = this
+				that.$emit('saveChange', that.formDatas.code, itemCode, keyName, keyValue)
+			},
+			querySearch(queryString, cb) {
+				let restaurants = this.restaurants
+				let results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants
+				// 调用 callback 返回建议列表的数据
+				cb(results)
+			},
+			createFilter(queryString) {
+				return (restaurant) => {
+					return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
+				}
+			}
+		},
+		watch: {
+			formDatas: function(newVal, oldVal) {
+				let that = this
+				this.formData = newVal
+				this.formData1 = JSON.parse(JSON.stringify(this.formData))
+				for (let i in that.formData1.list) {
+					// that.formData1.list[i]['isEdit'] = false
+					that.$set(that.formData1.list[i], 'isEdit', false)
+				}
+			}
+		},
+		computed: {
+
+		}
+	}
+</script>

@@ -1,0 +1,118 @@
+<template>
+	<div class="base_msg blockContent">
+		<div class="subItems">
+			<div class="subtable dtitleBg" style="margin: 15px 0px 10px 0px;">
+				<span>检测结果总览</span>
+			</div>
+			<el-table :data="formData1" style="width: 100%" border stripe>
+				<el-table-column prop="geneVariant" label="检测项目" width="180">
+				</el-table-column>
+				<!-- <el-table-column prop="gene" label="基因" width="80">
+	      		<template slot-scope="scope">
+					<span v-if="!scope.row.isEdit">{{ scope.row.gene }}</span>
+					<el-input v-if="scope.row.isEdit" v-model="scope.row.gene" placeholder=""></el-input>
+	      		</template>
+	      	</el-table-column>
+	      	<el-table-column prop="variant" label="变异" width="100">
+	      		<template slot-scope="scope">
+					<span v-if="!scope.row.isEdit">{{ scope.row.variant }}</span>
+					<el-input v-if="scope.row.isEdit" v-model="scope.row.variant" placeholder=""></el-input>
+	      		</template>
+	      	</el-table-column> -->
+				<el-table-column prop="testData" label="检测数据" width="200">
+					<template slot-scope="scope">
+						<span v-if="!scope.row.isEdit">{{ scope.row.testData }}</span>
+						<el-input v-if="scope.row.isEdit" v-model="scope.row.testData" placeholder="检测数据"></el-input>
+					</template>
+				</el-table-column>
+				<el-table-column prop="testResult" label="结果" width="180">
+					<template slot-scope="scope">
+						<span v-if="!scope.row.isEdit">{{ scope.row.testResult }}</span>
+						<el-select v-model="scope.row.testResult" v-if="scope.row.isEdit" placeholder="请选择">
+							<el-option v-for="(item, index) in relapselist" :key="index" :label="item.label" :value="item.value"></el-option>
+						</el-select>
+					</template>
+				</el-table-column>
+				<el-table-column prop="tips" label="提示">
+				</el-table-column>
+				<el-table-column label="操作" width="130">
+					<template slot-scope="scope">
+						<el-button type="text" v-if="!scope.row.isEdit" @click="changeEdit('true', scope.$index)" class="editBtn"><i
+							 class="el-icon-edit-outline" style="font-size: 18px;"></i></el-button>
+						<el-button type="text" v-if="scope.row.isEdit" @click="cancerChange(scope.$index)" class="editBtn"><i class="el-icon-circle-close-outline"
+							 style="font-size: 18px;"></i></el-button>
+						<el-button type="text" v-if="scope.row.isEdit" @click="saveChange(formData1, scope.$index)" class="editBtn"><i
+							 class="el-icon-circle-check-outline" style="font-size: 18px;"></i></el-button>
+					</template>
+				</el-table-column>
+			</el-table>
+		</div>
+	</div>
+</template>
+<script>
+	export default {
+		props: {
+			formDatas: {
+				type: Object
+			}
+		},
+		created() {},
+		data() {
+			return {
+				isEdit1: false,
+				isEdit2: false,
+				formData: [],
+				formData1: [],
+				relapselist:[{
+					value: '高',
+					label: '高'
+				},{
+					value: '中偏高',
+					label: '中偏高'
+				},{
+					value: '中',
+					label: '中'
+				},{
+					value: '中偏低',
+					label: '中偏低'
+				},{
+					value: '低风险',
+					label: '低风险'
+				}]
+			}
+		},
+		methods: {
+			changeEdit(val, index) {
+				let that = this
+				that.$set(that.formData1[index], 'isEdit', true)
+			},
+			cancerChange(index) {
+				let that = this
+				that.$set(that.formData1[index], 'isEdit', false)
+				// 重新给formData赋值    取消的时候，重置内容
+				let n = Object.assign({}, that.formDatas)
+				that.formData1 = n
+			},
+			saveChange(vale, index) {
+				let that = this
+				that.$set(that.formData1[index], 'isEdit', false)
+				let n = Object.assign({}, that.formData1)
+				that.formData = n
+				that.$emit('saveChange', vale)
+			}
+		},
+		watch: {
+			formDatas: function(newVal, oldVal) {
+				let that = this
+				this.formData = newVal
+				this.formData1 = JSON.parse(JSON.stringify(this.formData))
+				for (let i in that.formData1) {
+					that.$set(that.formData1[i], 'isEdit', false)
+				}
+			}
+		},
+		computed: {
+
+		}
+	}
+</script>

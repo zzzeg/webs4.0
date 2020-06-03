@@ -1,0 +1,260 @@
+<template>
+	<div class="list">
+		<div class="contentTitle pdlr20">审核phramGKB</div>
+
+		<div class="knowledge_tab" style="display:inline-block; vertical-align:middle; margin-left:20px;">
+			<span :class="{'active': status === 1}" @click="changeSelect(1)">待审核</span>
+			<span :class="{'active': status === 2}" @click="changeSelect(2)">审核中</span>
+			<span :class="{'active': status === 3}" @click="changeSelect(3)">已完成</span>
+			<span :class="{'active': status === 99}" @click="changeSelect(99)">已作废</span>
+			<span :class="{'active': status === 1000}" @click="changeSelect(1000)">已入库</span>
+		</div>
+		<div class="search-wrapper" style="display:inline-block; vertical-align:middle;">
+			<el-form :inline="true" :model="formInline" class="demo-form-inline">
+				<el-form-item label="ID">
+					<el-input v-model="formInline.id" size="medium" placeholder="请输入ID号" style="width:150px"></el-input>
+				</el-form-item>
+				<el-form-item label="基因">
+					<el-input v-model="formInline.gene" size="medium" placeholder="请输入基因名" style="width:140px"></el-input>
+				</el-form-item>
+				<el-form-item label="RS号">
+					<el-input v-model="formInline.location" size="medium" placeholder="请输入rsid" style="width:140px"></el-input>
+				</el-form-item>
+				<el-form-item label="疾病">
+					<el-input v-model="formInline.diseaseName" size="medium" placeholder="请输入疾病名" style="width:140px"></el-input>
+				</el-form-item>
+				<el-form-item label="药物">
+					<el-input v-model="formInline.drugName" size="medium" placeholder="请输入药物名" style="width:150px"></el-input>
+				</el-form-item>
+				<el-form-item>
+					<el-button type="primary" size="medium" @click="search(status)">查询</el-button>
+					<el-button type="success" size="medium" @click="add()">添加</el-button>
+				</el-form-item>
+			</el-form>
+		</div>
+		<div class="table-data">
+			<el-table :data="tableData" v-loading="loading" style="width: 100%" stripe>
+				<el-table-column width="20" ></el-table-column>
+				<el-table-column label="ID" prop="code"></el-table-column>
+				<el-table-column prop="gene" label="基因"></el-table-column>
+				<el-table-column prop="location" label="rsId"></el-table-column>
+				<el-table-column prop="relatedDiseases" label="疾病">
+					<template slot-scope="scope">
+						{{ scope.row.relatedDiseases }}
+					</template>
+				</el-table-column>
+				<el-table-column prop="drug" label="药物">
+					<template slot-scope="scope">
+						{{ scope.row.drug }}
+					</template>
+				</el-table-column>
+				<el-table-column prop="createTime" :formatter="dateFormat" v-if="status === 1" label="时间" width="160"></el-table-column>
+				<el-table-column prop="auditorName" v-if="status === 1" width="140" label="当前审核人"></el-table-column>
+				<el-table-column v-if="status !== 1000" width="140" label="申请类型">
+					<template slot-scope="scope">
+						{{ scope.row.applyType === 1 ? '新增申请' : scope.row.applyType === 2 ? '变更申请' :  scope.row.applyType === 3 ? '失效申请' : '' }}
+					</template>
+				</el-table-column>
+				<el-table-column v-else-if="status === 1000" width="140" label="状态">
+					<template slot-scope="scope">
+						{{ scope.row.status === 1 ? '启用' : scope.row.status === 99 ? '失效' : '状态出错' }}
+					</template>
+				</el-table-column>
+				<el-table-column label="操作" width="200">
+					<template slot-scope="scope">
+						<el-button type="text" v-if="scope.row.status !== 3 && scope.row.status !== 2" @click="goinfo(scope.row.code)">修改</el-button>
+						<el-button type="text" v-if="scope.row.status === 3 || scope.row.status === 2" @click="goDetail(scope.row.code)">查看</el-button>
+					</template>
+				</el-table-column>
+			</el-table>
+		</div>
+		<!-- 分页 -->
+		<pager :current-page="currentPage" v-on:handleSizeChange="handelCurrent" :pageSize="pageSize" :total-count="totalCount"
+		 v-on:handleCurrentChange="(val)=>getListData(val, status)"></pager>
+	</div>
+</template>
+<script>
+	import URL from '@/common/js/URL.js'
+	import Pager from '@/components/common/pager'
+	import axios from 'axios'
+	import moment from 'moment'
+	export default {
+		created() {
+			let that = this
+			let n = JSON.parse(localStorage.getItem('serach_items'))
+			let s = JSON.parse(localStorage.getItem('serach_status'))
+			that.status = s ? s : that.status
+			that.formInline = n ? n : that.formInline
+			this.getListData(this.$route.params.pager, this.formInline.status)
+		},
+		data() {
+			return {
+				formInline: {
+					id: '',
+					gene: '',
+					location: null,
+					mutaion: '',
+					diseaseName: '',
+					drugName: '',
+					status: 1
+				},
+				status: 1,
+				dialogVisible: false,
+				tableData: [],
+				currentPage: 1,
+				pageSize: 10,
+				pageNum: 0,
+				totalCount: 0,
+				loading: false
+			}
+		},
+		components: {
+			Pager: Pager
+		},
+		methods: {
+			search(status) {
+				if (this.currentPage > 1) {
+					this.currentPage = 1
+				} else {
+					this.formInline.status = status
+					this.getListData(this.currentPage, status)
+				}
+			},
+			handelCurrent(val) {
+				let that = this
+				that.pageSize = val
+				that.getListData(that.currentPage, that.status)
+			},
+			getListData(num, status) {
+				// console.log(num)
+				let that = this
+				this.currentPage = parseInt(num)
+				let url = '',
+					n = {}
+				// 别问我为什么这样写，因为程序员懒，一个页面俩人参与，各写了一个接口，又不愿意去合并，然后把锅推给没地位的前端，辣鸡代码都是他们逼我写的！
+				// 1000是我自己定义的，用来区分两个接口
+				if (status === 1000) {
+					url = 'cloud/knowledge/pharmgkbAnnotaion/listByPage'
+					n = {
+						params: {
+							id: that.formInline.id,
+							gene: that.formInline.gene,
+							rsId: that.formInline.location,
+							diseaseEnName: that.formInline.diseaseName,
+							drugEnName: that.formInline.drugName,
+							pageSize: that.pageSize,
+							pageNumber: num
+						}
+					}
+				} else {
+					url = 'cloud/project/getPharmGKBAudits'
+					n = {
+						params: {
+							state: status,
+							code: that.formInline.id,
+							rsId: that.formInline.location,
+							gene: that.formInline.gene,
+							disease: that.formInline.diseaseName,
+							drug: that.formInline.drugName,
+							pageSize: that.pageSize,
+							pageNumber: num
+						}
+					}
+				}
+				// url = status === 1000 ? 'cloud/pharmgkbAnnotaion/listByPage' : 'cloud/project/getPharmGKBAudits'
+				that.loading = true
+
+				axios.get(URL.api_name + url, n).then(function(respose) {
+					that.loading = false
+					if (respose.data.code === '100') {
+						let data = respose.data
+						that.tableData = data.data.list
+						that.totalCount = data.data.total
+					} else {
+						that.$message({
+							type: 'error',
+							message: '查询失败：' + respose.data.message,
+							duration: 1000
+						})
+					}
+					localStorage.removeItem('serach_items')
+					localStorage.removeItem('serach_status')
+					// }
+				}, function(error) {
+					// console.log(error)
+					that.loading = false
+					that.$message({
+						type: 'error',
+						message: '查询失败',
+						duration: 1000
+					})
+				})
+			},
+			add() {
+				this.$router.push({
+					path: '/ExaminephramGKBAdd' + '/' + this.currentPage
+				})
+			},
+			goinfo(code) {
+				let that = this
+				localStorage.setItem('serach_items', JSON.stringify(that.formInline))
+				localStorage.setItem('serach_status', JSON.stringify(that.status))
+				let n = that.status
+				this.$router.push({
+					path: '/ExaminephramGKBEdit/' + code + '/' + this.currentPage + '/' + n
+				})
+			},
+			goDetail(code) {
+				let that = this
+				localStorage.setItem('serach_items', JSON.stringify(that.formInline))
+				localStorage.setItem('serach_status', JSON.stringify(that.status))
+				let n = that.status
+				this.$router.push({
+					path: '/ExaminephramGKBDetial/' + code + '/' + this.currentPage + '/' + n
+				})
+			},
+			dateFormat(row, column) {
+				let date = row[column.property]
+				if (date === undefined) {
+					return ''
+				}
+				return moment(date).format('YYYY-MM-DD HH:mm:ss')
+			},
+			changeSelect(n) {
+				let that = this
+				that.status = n
+				that.formInline.status = n
+				that.getListData(1, n)
+			}
+		}
+	}
+</script>
+<style lang="less" scoped>
+	.knowledge_tab {
+	   height: 38px;
+	}
+	
+	.knowledge_tab span {
+		border: 1px solid #D5D8D9;
+		margin: 0 0px -1px 0;
+		display: inline-block;
+		padding: 10px 17px;
+		cursor: pointer;
+		background: #eee;
+		color: #4A4A4A;
+		font-size: 16px;
+		border-top: solid 1px #D5D8D9;
+		margin-right: -6px;
+	}
+	
+	.knowledge_tab span:first-child {
+		margin: 0 -5px -1px 0;
+	}
+	
+	.knowledge_tab span:hover,
+	.knowledge_tab span.active {
+		background: #fff;
+		color: #008AFF;
+		border-top: solid 2px #288DF5;
+	}
+</style>

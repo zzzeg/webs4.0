@@ -1,0 +1,428 @@
+<template>
+	<div class="base_msg">
+		<div class="subtable dtitleBg">重要突变位点解析</div>
+		<div class="detailsreat">
+			<el-form :inline="true" :model="formInline" class="demo-form-inline">
+				<el-form-item label="基因">
+					<el-input v-model="formInline.gene" placeholder="请输入基因" clearable></el-input>
+				</el-form-item>
+				<el-form-item label="变异">
+					<el-input v-model="formInline.variant" placeholder="请输入变异" clearable></el-input>
+				</el-form-item>
+				<el-form-item>
+					<el-button type="primary" size="medium" @click="blockSearch(formInline)">查询</el-button>
+				</el-form-item>
+				<el-form-item style="float: right;">
+					<el-button type="primary" size="medium" @click="getListData(1)">添加</el-button>
+					<el-button type="primary" size="medium" @click="opentoggle('open')">全部展开</el-button>
+					<el-button type="primary" size="medium" @click="opentoggle('close')">全部收起</el-button>
+				</el-form-item>
+			</el-form>
+		</div>
+		<div class="details_cont" v-for="(formList, index) in formData1.list" :key="index">
+			<div class="details_title">
+				<div class="sleft">
+					<div @click="formList.isOpen = !formList.isOpen" style="margin-right:5px;"><i class="el-icon-caret-right" :style="'font-size:18px;transform:rotate(' + (formList.isOpen ? '90' : '0') + 'deg)'"></i></div>
+					<div class="indexs">{{index + 1}} 、</div>
+					<div class="fa">{{formList.reportVariant.gene  + ' ' + formList.reportVariant.variant}}</div>
+				</div>
+				<div class="btn" style="margin:5px 10px 0 0">
+					<div class="saveico" v-if="formList.isEdit" @click.stop="saveChange(formList, index)"><!-- 保存 --></div>
+					<div class="cancel" v-if="formList.isEdit" @click.stop="cancerChange(index)"><!-- 取消 --></div>
+					<div class="delico" v-if="!formList.isEdit" @click.stop="pushListItem('del', formList.code)"><!-- 删除 --></div>
+					<div class="bjimg" v-if="!formList.isEdit" @click.stop="formList.isEdit = true,formList.isOpen = true"><!-- 编辑 --></div>
+				</div>
+			</div>
+
+			<div class="details_content" v-show="formList.isOpen" style="padding: 0 20px 0px 20px;">
+
+				<h4 class="hasLine">位点注释：</h4>
+				<p v-if="!formList.isEdit">{{formList.siteNote}}</p>
+				<p v-if="formList.isEdit" style="margin-left:28px;">
+					<el-input
+					  type="textarea"
+					  :autosize="{ minRows: 2, maxRows: 4}"
+					  placeholder="请输入内容"
+					  v-model="formList.siteNote">
+					</el-input>
+				</p>
+				<h4 class="hasLine">临床注释：</h4>
+				<p style="margin-left:14px;">基因介绍</p>
+				<p style="margin-left:14px;" v-if="!formList.isEdit">{{formList.geneNote}}</p>
+				<p style="margin-left:40px;" v-if="formList.isEdit">
+					<el-input
+					  type="textarea"
+					  :autosize="{ minRows: 2, maxRows: 4}"
+					  placeholder="请输入内容"
+					  v-model="formList.geneNote">
+					</el-input>
+				</p>
+				<br>
+				<p style="margin-left:14px;">预后指导</p>
+				<p  style="margin-left:14px;" v-if="!formList.isEdit">{{ formList.prognosisClinicalNotes }}</p>
+        <p style="margin-left:40px;" v-if="formList.isEdit">
+          <el-input
+            type="textarea"
+            :autosize="{ minRows: 2, maxRows: 4}"
+            placeholder="请输入内容"
+            v-model="formList.prognosisClinicalNotes">
+          </el-input>
+        </p>
+				<p style="margin-left:14px;">疾病指导</p>
+				<p  style="margin-left:14px;" v-if="!formList.isEdit">{{ formList.pathogenesisClinicalNotes }}</p>
+        <p style="margin-left:40px;" v-if="formList.isEdit">
+          <el-input
+            type="textarea"
+            :autosize="{ minRows: 2, maxRows: 4}"
+            placeholder="请输入内容"
+            v-model="formList.pathogenesisClinicalNotes">
+          </el-input>
+        </p>
+				<p style="margin-left:14px;">参考文献</p>
+				<div class="mmpd" style="margin-left:14px" v-for="(mmd,xxx) in formList.bloodClinicalRef" :key="xxx">
+					<div style="display:inline-block; width:40px; vertical-align:middle;"><p>　{{ xxx + 1 }}、</p></div>
+					<div style="display:inline-block; width:calc(70% - 80px); vertical-align:middle;"><p>{{ mmd.title }}</p></div>
+					<div style="display:inline-block; width:calc(30% - 30px); margin-left:20px; vertical-align:top;"><p>{{ mmd.url }}</p></div>
+				</div>
+
+				<h4 class="hasLine">用药指导：</h4>
+				<p v-if="!formList.isEdit">{{formList.drugClinicalNotes}}</p>
+        <p style="margin-left:40px;" v-if="formList.isEdit">
+          <el-input
+            type="textarea"
+            :autosize="{ minRows: 2, maxRows: 4}"
+            placeholder="请输入内容"
+            v-model="formList.drugClinicalNotes">
+          </el-input>
+        </p>
+
+			</div>
+		</div>
+		<!-- 模态框 -->
+		<el-dialog  :visible.sync="dialogTableVisible" width="90%">
+			<div class="searchInput">
+				<el-form :inline="true" :model="formInline2" class="demo-form-inline">
+					<el-form-item label="基因">
+						<el-input v-model="formInline2.gene" placeholder="请输入基因" clearable></el-input>
+					</el-form-item>
+					<el-form-item label="变异">
+						<el-input v-model="formInline2.variant" placeholder="请输入变异" clearable></el-input>
+					</el-form-item>
+					<el-form-item label="药物">
+						<el-input v-model="formInline2.drugSearchName" placeholder="请输入药物" clearable></el-input>
+					</el-form-item>
+					<el-form-item>
+						<el-button type="primary" size="medium" @click="blockSearch(formInline)">查询</el-button>
+					</el-form-item>
+				</el-form>
+			</div>
+
+			<div class="table-data" v-loading="loading" element-loading-text="拼命加载中">
+			  <el-table :data="tableData" style="width: 100%" stripe>
+			    <el-table-column property="gene" label="基因" width="100"></el-table-column>
+			    <el-table-column property="variant" label="变异" width="160"></el-table-column>
+			    <el-table-column property="drugName" label="药物" width="200"></el-table-column>
+			    <el-table-column property="cancerName" label="癌种" width="200"></el-table-column>
+			    <el-table-column property="prognosis" label="预后" width="100"></el-table-column>
+			    <el-table-column property="pathogenesis" label="疾病相关" width="120"></el-table-column>
+			    <el-table-column property="clinicalNote" label="临床注释"></el-table-column>
+			    <el-table-column property="siteNote" label="位点注释"></el-table-column>
+			    <el-table-column label="选择" align="center" width="80">
+					<template slot-scope="scope">
+						<el-checkbox v-model="scope.row.checkedNames"></el-checkbox>
+					</template>
+				</el-table-column>
+		  	</el-table>
+			</div>
+			<!-- 分页 -->
+			<pager :current-page="currentPage" v-on:handleSizeChange="handelCurrent" :pageSize="pageSize" :total-count="totalCount"
+			v-on:handleCurrentChange="getListData"></pager>
+			<div style="text-align:center">
+				<el-button size="medium" @click="cancerChange()">取消</el-button>
+				<span style="margin-right:10px;"></span>
+				<el-button type="primary" size="medium" @click="addBatch()">确定</el-button>
+			</div>
+		</el-dialog>
+	</div>
+</template>
+<script>
+	import { formatDate } from '@/common/js/Utils.js'
+	import axios from 'axios'
+	import URL from '@/common/js/URL.js'
+	import Pager from '@/components/common/pager'
+	import moment from 'moment'
+	export default {
+		props: {
+			formDatas: {
+				type: Object
+			},
+			formInline: {
+				type: Array
+			}
+		},
+		created() {},
+		data() {
+			return {
+				code: this.$route.params.id, // projectCode
+				checked: true,
+				isEdit: false,
+				formData: [],
+				formData1: [],
+				tableData: [],
+				loading:false,
+				dialogTableVisible: false,
+				currentPage: 1,
+				pageSize: 10,
+				pageNumber: 1,
+				totalCount: 0,
+				formInline2: {//查询条件
+					gene: '',
+					variant: '',
+					drugSearchName: '',
+					variantType:''
+				},
+				drugName:[],
+				//治疗方案
+				schemeType: [{
+					value: 1,
+					label: '治疗方案'
+				},
+				{
+					value: 2,
+					label: '潜在位点临床用药'
+				}],
+				//证据来源
+				clinicalNoteType:[{
+					value: 0,
+					label: 'NCCN'
+				},
+				{
+					value: 1,
+					label: 'CSCO'
+				},
+				{
+					value: 2,
+					label: 'FDA'
+				},
+				{
+					value: 3,
+					label: 'CFDA'
+				},{
+					value: 4,
+					label: 'ASCO'
+				},
+				{
+					value: 5,
+					label: 'ESMO'
+				},
+				{
+					value: 6,
+					label: 'ACMG'
+				},
+				{
+					value: 7,
+					label: 'EMA'
+				},
+				{
+					value: 8,
+					label: 'PMDA'
+				},
+				{
+					value: 9,
+					label: 'HCSC'
+				},
+				{
+					value: 10,
+					label: 'PMID'
+				},
+				{
+					value: 11,
+					label: 'PRECLINICAL'
+				},
+				{
+					value: 12,
+					label: 'PRECLINICAL_CANCER'
+				},
+				{
+					value: 13,
+					label: 'FUNCTIONAL_PREDICTION'
+				},
+				{
+					value: 14,
+					label: 'PHARMGKB'
+				}],
+				//响应
+				prognosis:[{
+					value: '好',
+					label: '好 '
+				},
+				{
+					value: '差',
+					label: '差 '
+				},
+				{
+					value:  '意义未明',
+					label: '意义未明'
+				},
+				{
+					value: '可能差',
+					label: '可能差 '
+				},
+				{
+					value: '可能无影响',
+					label: '可能无影响'
+				}],
+			}
+		},
+		methods: {
+			goshit(obj) {
+				let that = this
+				alert(obj)
+			},
+			changeEdit(val, editorName) {// 编辑
+				let that = this
+				that[editorName] = val == 'true' ? true : false
+				// that.$set(that.formData1[index], 'isEdit', true)
+			},
+			cancerChange(index) {// 取消
+				let that = this
+				that.dialogTableVisible = false
+				that.$set(that.formData1.list[index], 'isEdit', false)
+				let n = Object.assign({}, that.formDatas)
+	    		that.formData1 = n
+	    		that.$set(that.formData1.list[index], 'isOpen', true)
+			},
+			saveChange (vale, index) {// 保存
+				// return false
+				let that = this
+				vale.reportVariant.projectCode = that.code
+				that.$emit('saveChange', vale)
+		    },
+			pushListItem(type, code) {// 添加，删除 的操作
+				let that = this
+				that.$emit('pushListItem', type, code)
+			},
+			blockSearch(formInline) {// 查询
+				let that = this
+				that.$emit('search', formInline)
+			},
+			handelCurrent(val) {//分页
+				let that = this
+				that.currentPage = val
+				that.getListData(that.currentPage)
+			},
+			getListData(num) {//添加列表
+				let that = this
+				that.dialogTableVisible = true
+				that.loading = true
+				that.currentPage = parseInt(num)
+				axios.get(URL.api_name + 'cloud/knowledge/getTherapyEfficacyList', {
+					params: {
+						projectCode:that.code,
+						pageSize: that.pageSize,
+						pageNumber: parseInt(num),
+						drugName:that.formInline.drugSearchName,
+						gene:that.formInline.gene,
+						variant:that.formInline.variant,
+						variantType:that.formInline.variantType
+					}
+				}).then(function(respose) {
+					that.loading = false
+					if (respose.data.code === '100') {
+						that.tableData = []
+						that.tableData = respose.data.data.list
+						for(let i in that.tableData) {
+							that.$set(that.tableData[i], 'checkedNames', false)
+							// that.tableData[i].checkedNames = false
+						}
+						that.totalCount = respose.data.data.total
+					}
+					that.$message({
+						type: 'success',
+						message: res.data.message,
+						duration: 1000
+					})
+				}, function(error) {
+					console.log(error)
+					that.loading = false
+					that.$message({
+						type: 'error',
+						message: '查询失败',
+						duration: 1000
+					})
+				})
+			},
+			addBatch() {//勾选后提交
+				let that = this
+				let url = 'report/clinicalNote/addImportantMutationDetail'
+				let project = {
+					therapyEfficacyVoList: [],
+					projectCode: that.code
+				}
+				for (let i in that.tableData) {
+					if(that.tableData[i].checkedNames) {
+						project.therapyEfficacyVoList.push(that.tableData[i])
+					}
+				}
+				axios.post(URL.api_name + url, project).then(function(res) {
+					if (res.data.code === '100') {
+						that.loading = false
+						that.$message({
+							type: 'success',
+							message: '提交成功',
+							duration: 1000,
+							onClose: function() {
+								that.dialogTableVisible = false
+								that.blockSearch(formInline)
+							}
+						})
+					} else {
+						that.$message({
+							type: 'error',
+							message: '提交失败：' + res.data.message,
+							duration: 2000
+						})
+					}
+					that.loading = false
+				}, function(error) {
+					console.log(error)
+					that.$message({
+						type: 'error',
+						message: '发送失败',
+						duration: 1000
+					})
+				})
+			},
+			opentoggle(statue) {// 全部展开、隐藏
+				let that = this
+				let n = statue == 'open' ? true : false
+				for(let i in that.formData1.list) {
+					that.$set(that.formData1.list[i], 'isOpen', n)
+					that.$set(that.formData1.list[i], 'isEdit', false)
+				}
+			}
+		},
+		watch: {
+			formDatas: function(newVal, oldVal) {
+				let that = this
+				this.formData = newVal
+				this.formData1 = JSON.parse(JSON.stringify(this.formData))
+				for(let i in that.formData1.list) {
+					that.$set(that.formData.list[i], 'isEdit', false)
+					that.$set(that.formData.list[i], 'isOpen', false)
+					that.$set(that.formData1.list[i], 'isEdit', false)
+					that.$set(that.formData1.list[i], 'isOpen', false)
+				}
+			}
+		},
+		filters: {
+			formatDate(time) {
+				let date = new Date(time)
+				return formatDate(date, 'yyyy-MM-dd')
+			},
+		},
+		components: {
+			Pager: Pager
+		}
+	}
+</script>

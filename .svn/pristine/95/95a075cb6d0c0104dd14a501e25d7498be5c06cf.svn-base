@@ -1,0 +1,1887 @@
+<template>
+  <div class="list" style="position:relative; height:100%; background:none;">
+    <div class="leftNav">
+      <el-collapse v-model="navActive" class="examine_navList" accordion>
+        <el-collapse-item :title="i.blockName" v-for="(i,index) in navList" v-if="i.businessBlockVos.length > 0" :key="index" :name="index">
+          <a :class="n.isCheck == '0' ? 'nav_items check' : 'nav_items'" href="javascript:;" @click="selectNav(n, 1)" v-for="(n, num) in i.businessBlockVos" :key="num">{{n.blockName}}</a>
+        </el-collapse-item>
+        <p href="javscript:;" v-else><a :class="i.isCheck == '0' ? 'nav_items check' : 'nav_items'" href="javascript:;" @click="selectNav(i, 1)">{{i.blockName}}</a></p>
+				<!-- <p>1212</p> -->
+      </el-collapse>
+    </div>
+    <div class="rightContent" v-loading="blockLoading" style="position:relative; height:calc(100%);">
+
+      <div class="subBtns">
+        <span style="color:#7F8493">审核人&nbsp;&nbsp;</span>
+        <span  style="width: 160px;">
+          <el-select clearable v-model="nextPeople"  :disabled="buttonloading" placeholder="请选择下一审核人">
+            <el-option v-for="(items, index) in userlist" :value="items.code" :label="items.nickName" :key="index"></el-option>
+          </el-select>
+        </span>&nbsp;&nbsp;&nbsp;&nbsp;
+        <el-button type="primary" :disabled="buttonloading" @click="subSummary('formData')">提交</el-button>&nbsp;&nbsp;&nbsp;
+        <el-button type="success" :disabled="buttonloading" @click="overReport">完结</el-button>&nbsp;&nbsp;&nbsp;
+        <el-button type="warning" :loading="buttonloading" @click="creatWord">生成word</el-button>&nbsp;&nbsp;&nbsp;
+        <el-button type="warning" :disabled="buttonloading" @click="wordList = true, getWordList()">附件下载</el-button>
+      </div>
+
+      <basicMsgt4 :formDatas="reportData" @saveChange="saveChange" v-if="navItemSession.blockCode == '01'"><!--基本信息--></basicMsgt4>
+
+      <basicMsgtX1 :formDatas="reportData" @saveChange="saveChange" v-if="navItemSession.blockCode == 'x1'"><!--基本信息21--></basicMsgtX1>
+
+      <basicMsgCTC :formDatas="reportData" @saveChange="saveChange" v-else-if="navItemSession.blockCode == 'x4'"><!--基本信息CTC--></basicMsgCTC>
+
+      <sampleMsg :formDatas="reportData" @saveChange="saveChange" v-else-if="navItemSession.blockCode == '03'"><!--样本信息--></sampleMsg>
+
+      <jcnr :formDatas="reportData" @saveChange="saveChange" v-else-if="navItemSession.blockCode == '04'"><!--检测内容--></jcnr>
+
+      <sampleMsgCTC :formDatas="reportData" @saveChange="saveChange" v-else-if="navItemSession.blockCode == 'x6'"><!--样本信息CTC--></sampleMsgCTC>
+
+      <jcjgzlCTC :formDatas="reportData" @saveChange="saveChange" v-else-if="navItemSession.blockCode == 'x7'"><!--检测内容--></jcjgzlCTC>
+
+      <jytbjcqk :formDatas="reportData" :popData="popData" :formInline="formInline" @saveChange="saveChange" @pushListItem="pushListItem" @search="SearchForminline" @sWindow="searchWindowData" @sendEmail="sendEmail" v-else-if="navItemSession.blockCode == '06' || navItemSession.blockCode == '15302351683171404'"><!--基因突变--></jytbjcqk>
+
+      <jcjgzl :formDatas="reportData" @saveChange="saveChange" v-else-if="navItemSession.blockCode == '61'"><!--检测结果总览--></jcjgzl>
+
+      <jcjggs :formDatas="reportData" @saveChange="saveChange" v-else-if="navItemSession.blockCode == '63'"><!--检测结果总览--></jcjggs>
+
+			<brca :formDatas="reportData"  @saveChange="saveChange" @pushListItem="pushListItem"  v-else-if="navItemSession.blockCode == '65'"><!--BRCA参考文献--></brca>
+
+      <qtbyzl :formDatas="reportData" v-else-if="navItemSession.blockCode == '15453588068923527'"><!--其他变异--></qtbyzl>
+
+      <yjbxgrd :formDatas="reportData" @showDetial="showDetial" v-else-if="navItemSession.blockCode == '15354584564085552'"><!--与疾病相关--></yjbxgrd>
+
+      <knyjbxgrd :formDatas="reportData" v-else-if="navItemSession.blockCode == '15354584564085663'"><!--与疾病相关--></knyjbxgrd>
+
+      <jyrh :formDatas="reportData" :formInline="formInline" @saveChange="saveChange" @pushListItem="pushListItem"  @search="SearchForminline" v-else-if="navItemSession.blockCode == '07'"><!--基因融合--></jyrh>
+
+      <jybd :formDatas="reportData" :formInline="formInline" @saveChange="saveChange" @pushListItem="pushListItem"  @search="SearchForminline" v-else-if="navItemSession.blockCode == '43'"><!--基因表达--></jybd>
+
+      <jycpxf :formDatas="reportData" @saveChange="saveChange" v-else-if="navItemSession.blockCode == '50'"><!--基因错配修复--></jycpxf>
+
+      <wwxwdx :formDatas="reportData" @saveChange="saveChange" v-else-if="navItemSession.blockCode == '11'"><!--微卫星不稳定--></wwxwdx>
+
+      <kbsby :formDatas="reportData" :formInline="formInline" @saveChange="saveChange" @pushListItem="pushListItem"  @search="SearchForminline" v-else-if="navItemSession.blockCode == '10'"><!--拷贝数变异--></kbsby>
+
+      <zltbfh :formDatas="reportData" @saveChange="saveChange" v-else-if="navItemSession.blockCode == '24'"><!--肿瘤突变负荷--></zltbfh>
+
+      <cjyybzw :formDatas="reportData" v-else-if="navItemSession.blockCode == '15336939611434715'"><!--常见用药标志--></cjyybzw>
+
+      <bxzlxgjczl :formDatas="reportData" v-else-if="navItemSession.blockCode == '15354584560658242'"><!--靶向治疗相关检测结果总览--></bxzlxgjczl>
+
+      <myzlxgjcjgzl :formDatas="reportData" v-else-if="navItemSession.blockCode == '15354584560811834'"><!--免疫治疗相关检测结果总览--></myzlxgjcjgzl>
+
+      <hlxgjcjgzl :formDatas="reportData" v-else-if="navItemSession.blockCode == '15354584564084442'"><!--化疗相关检测结果总览--></hlxgjcjgzl>
+
+      <wxgyw :formDatas="reportData" :formInline="formInline" @saveChange="saveChange" @pushListItem="pushListItem" @search="SearchForminline" @sWindow="searchWindowData" :popData="popData" v-else-if="navItemSession.blockCode == '15417437080903271'"><!--无相关药物--></wxgyw>
+
+      <bxlcrztj :formDatas="reportData" :formInline="formInline" @saveChange="saveChange" @dialogSearch="dialogSearch" @updateClinical="updateRecommended" @pushListItem="pushListItem" v-else-if="navItemSession.blockCode == '16'"><!--靶向临床入组治疗方案详情--></bxlcrztj>
+
+      <zlmyzllcrztj :formDatas="reportData" :formInline="formInline" @saveChange="saveChange" @dialogSearch="dialogSearch" @updateClinical="updateRecommended" @pushListItem="pushListItem" v-else-if="navItemSession.blockCode == '21'"><!--靶向临床入组治疗方案详情--></zlmyzllcrztj>
+
+      <jcjylb :formDatas="reportData" v-else-if="navItemSession.blockCode == '48'"><!--检测基因列表--></jcjylb>
+
+      <rxaxgjyjbxyw :formDatas="reportData" @saveChange="saveChange" @pushListItem="pushListItem" v-else-if="navItemSession.blockCode == '64'"></rxaxgjyjbxyw>
+
+      <ckwx :formDatas="reportData" @saveChange="saveChange" @pushListItem="pushListItem" v-else-if="navItemSession.blockCode == '22'"></ckwx>
+
+      <ycfxjx :formDatas="reportData" @saveChange="saveChange" v-else-if="navItemSession.blockCode == '62'"></ycfxjx>
+
+      <yhqkfx :formDatas="reportData" @saveChange="saveChange" v-else-if="navItemSession.blockCode == '58'"></yhqkfx>
+
+      <hlxyfx :formDatas="reportData" @saveChange="saveChange" v-else-if="navItemSession.blockCode == '59'"></hlxyfx>
+			
+			<arrar :formDatas="reportData" @saveChange="saveChange" v-else-if="navItemSession.blockCode == '60'"><!--复发风险评估结果分析--></arrar>
+
+      <fffxpgjgfx :formDatas="reportData" @saveChange="saveChange" v-else-if="navItemSession.blockCode == '9991'"></fffxpgjgfx>
+
+      <bxzlxgjgfx :formDatas="reportData" @saveChange="saveChange" v-else-if="navItemSession.blockCode == '9992'"></bxzlxgjgfx>
+
+      <hlzlxgjgfx :formDatas="reportData" @saveChange="saveChange" v-else-if="navItemSession.blockCode == '9993'"></hlzlxgjgfx>
+
+      <zlfags :formDatas="reportData" :formInline="formInline" @saveChange="saveChange" @pushListItem="pushListItem" @search="SearchForminline" @sWindow="searchWindowData"  v-else-if="navItemSession.blockCode == '41'"><!--治疗方案概述--></zlfags>
+
+      <bxzlfaxq :formDatas="reportData" :formInline="formInline" @saveChange="saveChange" @pushListItem="pushListItem" @search="SearchForminline" v-else-if="navItemSession.blockCode == '55'"><!--靶向治疗方案详情--></bxzlfaxq>
+
+      <myzlfaxq :formDatas="reportData" :formInline="formInline" @saveChange="saveChange" @pushListItem="pushListItem" @search="SearchForminline" v-else-if="navItemSession.blockCode == '56'"><!--免疫治疗方案详情--></myzlfaxq>
+
+      <hlzlfaxq :formDatas="reportData" :formInline="formInline" @saveChange="saveChange" @pushListItem="pushListItem" @search="SearchForminline" v-else-if="navItemSession.blockCode == '57'"><!--化疗治疗方案详情--></hlzlfaxq>
+
+			<qtbxzlfaxq :formDatas="reportData" :formInline="formInline" @saveChange="saveChange" @pushListItem="pushListItem" @search="SearchForminline" v-else-if="navItemSession.blockCode == '27'"><!--其他 / 靶向治疗方案详情--></qtbxzlfaxq>
+
+			<qtmyzlfaxq :formDatas="reportData" :formInline="formInline" @saveChange="saveChange" @pushListItem="pushListItem" @search="SearchForminline" v-else-if="navItemSession.blockCode == '35'"><!--其他 / 免疫治疗方案详情--></qtmyzlfaxq>
+
+			<qthlzlfaxq :formDatas="reportData" :formInline="formInline" @saveChange="saveChange" @pushListItem="pushListItem" @search="SearchForminline" v-else-if="navItemSession.blockCode == '29'"><!--其他 / 化疗治疗方案详情--></qthlzlfaxq>
+
+			<qtyhxgxxxq :formDatas="reportData" :formInline="formInline" @saveChange="saveChange" @pushListItem="pushListItem" @search="SearchForminline" v-else-if="navItemSession.blockCode == '40' || navItemSession.blockCode == '15'"><!--其他 / 预后相关信息详情--></qtyhxgxxxq>
+
+      <qtzytbwdjx :formDatas="reportData" :formInline="formInline" @saveChange="saveChange" @pushListItem="pushListItem" @search="SearchForminline" v-else-if="navItemSession.blockCode == '15453588068923678'"><!--其他 / 重要突变位点解析详情--></qtzytbwdjx>
+
+      <pager v-if="totalCount > 0" :current-page="pageNum" v-on:handleSizeChange="(val) => handelCurrent(navItemSession, val, reportData.sort, reportData.sortType)" :pageSize="pageSize" :total-count="totalCount" v-on:handleCurrentChange="(val) => blockSearch(navItemSession, val, formInline.sort, formInline.sortType)"></pager>
+    </div>
+
+
+    <!--悬浮小按钮-->
+    <div class="orderDialogs">
+      <div :class="orderVisable ? 'iorder active' : 'iorder'" @click="openDialog('orderVisable')">
+        <i class="icons icorder"></i><small>订单</small>
+      </div>
+      <div :class="mafVisable ? 'imafs active' : 'imafs'">
+        <a target="_blank" :href="url + 'report/downloadMafFile?projectCode=' + code + '&token=' + token"><!-- @click="openDialog('mafVisable')"-->
+        <i class="icons icomafs"></i><small>maf</small>
+        </a>
+      </div>
+    </div>
+
+    <!--订单详情-->
+    <div class="orderDetial" v-if="orderVisable" style="top:100px;right:100px;">
+      <h4><span class="fr" @click="orderVisable = false"><i class="icons closedico"></i></span>订单信息</h4>
+      <div class="odcontent">
+        <h5>基本信息</h5>
+        <el-row>
+          <el-col :span="12"><label>订单号：</label>2414630994202460</el-col>
+          <el-col :span="12"><label>下单时间：</label>2018-10-29 07:28:00</el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12"><label>订单金额：</label>￥8000.00</el-col>
+          <el-col :span="12"><label>支付状态：</label>已支付</el-col>
+        </el-row>
+
+        <h5>送检信息</h5>
+        <el-row>
+          <el-col :span="12"><label>送检单位：</label>深圳市南山人民医院</el-col>
+          <el-col :span="12"><label>送检科室：</label>检验科</el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12"><label>送检医生：</label>李明</el-col>
+          <el-col :span="12"><label>联系电话：</label>15012341234</el-col>
+        </el-row>
+
+        <h5>受检人信息</h5>
+        <el-row>
+          <el-col :span="12"><label>姓名：</label>张三</el-col>
+          <el-col :span="12"><label>性别：</label>男</el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12"><label>籍贯：</label>河南</el-col>
+          <el-col :span="12"><label>联系电话：</label>15012341234</el-col>
+        </el-row>
+
+        <h5>检测项目</h5>
+        <el-row>
+          <el-col :span="12"><label>检测项目：</label>非小细胞肺癌基因检测</el-col>
+          <el-col :span="12"><label>产品名称：</label>泛癌肿基因辅助诊疗(组织版)</el-col>
+        </el-row>
+
+        <h5>备注</h5>
+        <el-row>
+          <el-col :span="24">无</el-col>
+        </el-row>
+
+        <h5>附件</h5>
+        <div class="filesPic">
+          <div class="imgParent">
+            <div class="xx" :style="'background:url(https://ww3.sinaimg.cn/mw690/6f26315cgw1ejbg4tg69xj21kw11xtwz.jpg) no-repeat; width:' + imgWidth + ';height:' + imgHeight + '; transform: rotate(' + rotate + 'deg); background-size:100% auto;'" @mousedown="move"></div>
+          </div>
+
+          <div class="rotateBtn" @click="rotateBtn"></div>
+          <div class="silderAdd" @click="silderAdd">+</div>
+          <el-slider
+            v-model="imgPencent"
+            vertical
+            :step="10"
+            height="90px">
+          </el-slider>
+          <div class="silderReduce" @click="silderReduce">-</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="mafList" v-if="mafVisable">
+
+    </div>
+
+    <el-dialog title="附件列表" :visible.sync="wordList" width="50%">
+      <el-table :data="wordlistdata">
+        <el-table-column label="word名称" prop="wordDownName">
+        </el-table-column>
+        <!-- <el-table-column label="审核人" prop="name">
+        </el-table-column> -->
+        <el-table-column label="时间" width="180" :formatter="dateFormat" prop="lastModifyTime">
+        </el-table-column>
+        <el-table-column label="操作" width="100">
+          <template slot-scope="scope">
+            <a target="_blank" :href="url + 'report/downloadFile?code=' + scope.row.code + '&token=' + token"><el-button size="small" type="primary">下载</el-button></a>
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-table :data="pdflistdata">
+        <el-table-column label="pdf名称">
+          <template slot-scope="scope">
+            {{ scope.row.fileName + '.' + scope.row.fileSuf }}
+          </template>
+        </el-table-column>
+        <!-- <el-table-column label="审核人" prop="name">
+        </el-table-column> -->
+        <el-table-column label="时间" width="180" :formatter="dateFormat" prop="createTime">
+        </el-table-column>
+        <el-table-column label="操作" width="100">
+          <template slot-scope="scope">
+            <a target="_blank" :href="url + 'report/file/download?code=' + scope.row.code + '&token=' + token"><el-button size="small" type="primary">下载</el-button></a>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
+
+    <!--临床入组选择框-->
+    <el-dialog title="临床入组选择" :visible.sync="clinicalTrialsDialog" width="80%">
+      <div class="search-wrapper">
+        <el-form :inline="true" :model="searchWrapper" class="demo-form-inline" style="position:relative">
+          <el-form-item label="疾病：">
+            <el-input v-model="searchWrapper.condition" placeholder=""></el-input>
+          </el-form-item>
+          <el-form-item label="药物：">
+            <el-input v-model="searchWrapper.drug" placeholder=""></el-input>
+          </el-form-item>
+          <el-form-item label="招募国家地区：">
+            <el-input v-model="searchWrapper.recruitCountry" placeholder=""></el-input>
+          </el-form-item>
+          <el-form-item label="nctId：">
+            <el-input v-model="searchWrapper.nctId" placeholder=""></el-input>
+          </el-form-item>
+          <div class="xx" v-show="searchShow === true">
+            <el-form-item label="年龄段范围：">
+              <el-select  v-model="searchWrapper.ageRange" style="width:100%" clearable placeholder="请选择">
+                <el-option v-for="item in ageList" :key="item.value" :label="item.label" :value="item.value"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="试验分期：">
+              <el-select  v-model="searchWrapper.phase" style="width:100%" clearable placeholder="请选择">
+                <el-option v-for="item in phaseList" :key="item.value" :label="item.label" :value="item.value"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="人群：" v-if="navItemSession.blockCode !== '51'">
+              <el-input v-model="searchWrapper.population" placeholder=""></el-input>
+            </el-form-item>
+            <el-form-item label="赞助商：" v-if="navItemSession.blockCode !== '51'">
+              <el-input v-model="searchWrapper.sponsor" placeholder=""></el-input>
+            </el-form-item>
+            <el-form-item label="实验国家地区：" v-if="navItemSession.blockCode !== '51'">
+              <el-input v-model="searchWrapper.trialCountry" placeholder=""></el-input>
+            </el-form-item>
+          </div>
+          <div class="leftMore">
+            <span class="el-tag el-tag--danger" @click="searchShow = true" v-if="navItemSession.blockCode !== '51' && searchShow === false">高级搜索</span>
+            <span class="el-tag el-tag--danger" @click="searchShow = false" v-if="navItemSession.blockCode !== '51' && searchShow === true">简单搜索</span>
+          </div>
+          <div>
+          <el-form-item>
+            <el-button type="primary" :loading="listLoading" @click="getClinicalTrialsList(1, isDomestic)">{{ listLoading ? '正在查询' : '查询' }}</el-button>
+          </el-form-item>
+          </div>
+        </el-form>
+      </div>
+      <div class="clinicalTrialsData">
+        <el-table :data="clinicalTrialsData" v-loading="listLoading" border style="width: 100%">
+          <el-table-column label="nctId" prop="nctId" width="140">
+          </el-table-column>
+          <el-table-column label="临床题目" prop="title" width="200">
+            <!-- <template slot-scope="scope">
+              <a :href="'https://clinicaltrials.gov/ct2/show/' + scope.row.nctId">{{ scope.row.briefTitle }}</a>
+            </template> -->
+          </el-table-column>
+          <el-table-column label="临床阶段" prop="phase" width="90">
+            <!-- <template slot-scope="scope">
+              {{ scope.row.country }}{{ scope.row.state }}{{ scope.row.city }}
+            </template> -->
+          </el-table-column>
+          <el-table-column label="药物/治疗方案" prop="interventionName" width="160">
+            <!-- <template slot-scope="scope">
+              <div v-html="scope.row.intervention_name"></div>
+            </template> -->
+          </el-table-column>
+          <el-table-column label="疾病/适应症" prop="indications" width="140">
+          </el-table-column>
+          <el-table-column label="招募地点">
+            <template slot-scope="scope">
+              <p v-for="(item, ee) in scope.row.tumorTralsContacts" :key="ee">{{item.recruitPlace}}</p>
+            </template>
+          </el-table-column>
+          <el-table-column label="联系方式" prop="contact_information" width="180">
+            <template slot-scope="scope">
+              <p v-for="(item, ee) in scope.row.tumorTralsContacts" :key="ee">{{item.contacInformation}}</p>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="100">
+            <template slot-scope="scope">
+              <el-button type="success" size="small"  v-loading='addLoading' @click="pushListItem('add', '无用占位', scope.row)">添加</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      <pager :current-page="currentPage1" :pageSize="pageSize1" :total-count="totalCount1" v-on:handleCurrentChange="(val)=>getClinicalTrialsList(val, isDomestic)"></pager>
+    </el-dialog>
+
+    <!--cosmic数据详情-->
+    <el-dialog title="cosmic信息" :visible.sync="cosmicDialog" width="80%">
+      <el-table :data="cosmicDialogData.cosmicInfos">
+        <el-table-column label="cosmic" prop="mutationId" width="120">
+        </el-table-column>
+        <el-table-column label="组织位置" prop="primarySite">
+        </el-table-column>
+        <el-table-column label="组织"  prop="primaryHistology">
+        </el-table-column>
+        <el-table-column label="亚型"  prop="histologySubtype1">
+        </el-table-column>
+        <el-table-column label="功能预测" prop="fathmmPrediction">
+        </el-table-column>
+        <el-table-column label="c点" prop="mutationCds">
+        </el-table-column>
+        <el-table-column label="p点" prop="mutationAa">
+        </el-table-column>
+        <el-table-column label="转录本" prop="transcriptName">
+        </el-table-column>
+        <el-table-column label="文献id" prop="pubmedPmid"  width="120">
+        </el-table-column>
+        <el-table-column label="是否明确" prop="pubmedPmid"  width="120">
+          <template slot-scope="scope">
+              {{ scope.row.type == '1' ? '明确' : '不明确' }}
+          </template>
+        </el-table-column>
+      </el-table>
+      <p>&nbsp;</p>
+      <p>Drug Name：{{ cosmicDialogData.cosmicResistanceDrugs }}</p>
+    </el-dialog>
+
+  </div>
+</template>
+
+<script>
+  import URL from '@/common/js/URL.js'
+  import axios from 'axios'
+  import moment from 'moment'
+  import Pager from '@/components/common/pager'
+  import {formatDate} from '@/common/js/Utils.js'
+  import '@/common/css/Zstyle.css'
+  import basicMsgt4 from '@/components/examine/examineModel/basicMsgt4'
+  import basicMsgtX1 from '@/components/examine/examineModel/basicMsgtX1'
+  import sampleMsg from '@/components/examine/examineModel/sampleMsg'
+  import jcjgzl from '@/components/examine/examineModel/jcjgzl'
+  import yhqkfx from '@/components/examine/examineModel/yhqkfx'
+  import hlxyfx from '@/components/examine/examineModel/hlxyfx'
+  import fffxpgjgfx from '@/components/examine/examineModel/fffxpgjgfx'
+  import bxzlxgjgfx from '@/components/examine/examineModel/bxzlxgjgfx'
+  import hlzlxgjgfx from '@/components/examine/examineModel/hlzlxgjgfx'
+  import basicMsgCTC from '@/components/examine/examineModel/basicMsgCTC'
+  import sampleMsgCTC from '@/components/examine/examineModel/sampleMsgCTC'
+  import jcjgzlCTC from '@/components/examine/examineModel/jcjgzlCTC'
+  import jcnr from '@/components/examine/examineModel/jcnr'
+  import jytbjcqk from '@/components/examine/examineModel/jytbjcqk'
+  import jcjggs from '@/components/examine/examineModel/jcjggs'
+  import ckwx from '@/components/examine/examineModel/ckwx'
+  import ycfxjx from '@/components/examine/examineModel/ycfxjx'
+  import rxaxgjyjbxyw from '@/components/examine/examineModel/rxaxgjyjbxyw'
+  import jyrh from '@/components/examine/examineModel/jyrh'
+  import jybd from '@/components/examine/examineModel/jybd'
+  import jycpxf from '@/components/examine/examineModel/jycpxf'
+  import wwxwdx from '@/components/examine/examineModel/wwxwdx'
+  import kbsby from '@/components/examine/examineModel/kbsby'
+  import zltbfh from '@/components/examine/examineModel/zltbfh'
+  import cjyybzw from '@/components/examine/examineModel/cjyybzw'
+  import bxzlxgjczl from '@/components/examine/examineModel/bxzlxgjczl'
+  import wxgyw from '@/components/examine/examineModel/wxgyw'
+  import bxlcrztj from '@/components/examine/examineModel/bxlcrztj'
+  import zlmyzllcrztj from '@/components/examine/examineModel/zlmyzllcrztj'
+  import myzlxgjcjgzl from '@/components/examine/examineModel/myzlxgjcjgzl'
+  import hlxgjcjgzl from '@/components/examine/examineModel/hlxgjcjgzl'
+  // 治疗方案详情
+  import bxzlfaxq from '@/components/examine/examineModel/bxzlfaxq'
+  import myzlfaxq from '@/components/examine/examineModel/myzlfaxq'
+  import hlzlfaxq from '@/components/examine/examineModel/hlzlfaxq'
+  import zlfags from '@/components/examine/examineModel/zlfags'
+	// 其他治疗方案
+	import qtbxzlfaxq from '@/components/examine/examineModel/qtbxzlfaxq'
+	import qtmyzlfaxq from '@/components/examine/examineModel/qtmyzlfaxq'
+	import qthlzlfaxq from '@/components/examine/examineModel/qthlzlfaxq'
+	import qtyhxgxxxq from '@/components/examine/examineModel/qtyhxgxxxq'
+  import qtzytbwdjx from '@/components/examine/examineModel/qtzytbwdjx'
+  // 检测基因列表
+  import jcjylb from '@/components/examine/examineModel/jcjylb'
+  import qtbyzl from '@/components/examine/examineModel/qtbyzl'
+  import yjbxgrd from '@/components/examine/examineModel/yjbxgrd'
+  import knyjbxgrd from '@/components/examine/examineModel/knyjbxgrd'
+  import brca from '@/components/examine/examineModel/brca'
+	import arrar from '@/components/examine/examineModel/arrar'
+  export default{
+    created() {
+      this.getNavList()
+      this.getUserList()
+    },
+    name: 'app',
+    data() {
+      return {
+        code: this.$route.params.id, // projectCode
+        // restaurants 是autocomplate的备选项列表
+        restaurants: [],
+        pager: this.$route.params.pager,
+        // projectRecordCode
+        pcode: this.$route.params.pcode,
+        sourceOrderNo: this.$route.params.sourceOrderNo,
+				productType: this.$route.params.productType,
+        shapeType: this.$route.params.shapeType,
+        url: URL.api_name,
+        token: JSON.parse(localStorage.getItem('authtoken')),
+        language: 'CN',
+        navActive: 0,
+        navList: [],
+        blockLoading: false,
+        navItemSession: {}, // 当前点击的nav item 信息
+        pageNum: 1,         // 页码
+        pageSize: 10,
+        totalCount: 1,
+        reportData: {
+          "blockCode":"01",
+          "blockKey":"subjectInformation",
+          "blockName":"基本信息",
+          "code":"15438087588260429",
+          "createTime":1543808759000,
+          "describe":"",
+          jsonValue:'{"age":"46 岁","clinicalDiagnosis":"左乳中央区浸润性导管癌 I期pT1cN0M0 (PR+，ER+，HER2-)","examinerCode":"15438087008446009","gender":2,"hospitalCode":"1","id":"15438087588260428","laboratory":"1","userName":"张贤"}',
+          "langType":"CN",
+          "lastModifyTime":1543808761000,
+          "projectCode":"15438087008446009",
+          "sort":10
+        },
+        formInline: { // 查询条件
+          code: '',
+          drug: '',
+          gene: '',
+          mutation: '',
+          sourceEvidence: '',
+          langType: '',
+          sortType: '',
+          sort: '',
+          projectCode: '',
+          transcriptExon: '',
+          clinicalSignificance: '',
+          variantClassification: '',
+          hgmdDmDp: '',
+          checkItem: '',
+          interventionName: '',
+          nctId: ''
+        },
+        wordList: false,
+        wordlistdata: [],
+        buttonloading: false,
+        pdflistdata:[],
+        imgPencent: 0,
+        addpencent: 5,//倍率 5是50%
+        rotate: 0, // 旋转
+        orderVisable: false,
+        mafVisable: false,
+        userlist: [],
+        nextPeople: '',
+        // 临床入组
+        searchWrapper: {
+          ageRange: '',
+          condition: '',
+          drug: '',
+          nctId: '',
+          phase: '',
+          population: '',
+          recruitCountry: '',
+          sponsor: '',
+          trialCountry: '',
+          nctId: ''
+        },
+        ageList: [{
+          label: '小于等于17岁',
+          value: '1'
+        }, {
+          label: '18-65岁',
+          value: '2'
+        }, {
+          label: '65岁以上',
+          value: '3'
+        }],
+        phaseList: [{
+          label: 'N/A',
+          value: 'N/A'
+        }, {
+          label: '早期I期',
+          value: 'Early Phase 1'
+        }, {
+          label: 'I期',
+          value: 'Phase 1'
+        }, {
+          label: 'II期',
+          value: 'Phase 2'
+        }, {
+          label: 'II/III期',
+          value: 'phase 2/Phase 3'
+        }, {
+          label: 'III期',
+          value: 'phase 3'
+        }, {
+          label: 'IV期',
+          value: 'phase 4'
+        }],
+        isDomestic: 2,
+        clinicalTrialsDialog: false,
+        searchShow: false,
+        currentPage1: 1,
+        totalCount1: 0,
+        pageSize1: 10,
+        listLoading: false,
+        addLoading: false,
+        clinicalTrialsData: [],
+        popData: {
+          headList: [],
+          datas: {
+            cancers: {},
+            desc: '',
+            drugControls: [],
+            gene: '',
+            listReportVariant: [],
+            molecularNetworkImg: '',
+            panels: [],
+            pathwayInfos: [],
+            termsImg: ''
+          }
+        },
+        vcfData: [],
+        cosmicDialog: false,
+        cosmicDialogData: {},
+        drugTypeList: [],
+      }
+    },
+    methods: {
+      // all of function
+      move(e){
+        // 图片拖动
+        let odiv = e.target;// 获取目标元素
+        console.log(odiv.id + '/////')
+        //计算出鼠标相对点击元素的位置,e.clientX获取的是鼠标的位置，OffsetLeft是元素相对于外层元素的位置
+        let x = e.clientX - odiv.offsetLeft;
+        let y = e.clientY - odiv.offsetTop;
+        console.log(odiv.offsetLeft,odiv.offsetTop)
+        document.onmousemove = (e) => {
+          // 获取拖拽元素的位置
+          let left = e.clientX - x;
+          let top = e.clientY - y;
+          this.positionX = left;
+          this.positionY = top;
+          //console.log(document.documentElement.clientHeight,odiv.offsetHeight)
+          // 把拖拽元素 放到 当前的位置
+          // if (left <= 0) {
+          //   left = 0;
+          // } else if (left >= document.documentElement.clientWidth - odiv.offsetWidth){
+          //   //document.documentElement.clientWidth 屏幕的可视宽度
+          //   left = document.documentElement.clientWidth - odiv.offsetWidth;
+          // }
+          // if (top <= 0) {
+          //   top = 0;
+          // } else if (top >= document.documentElement.clientHeight - odiv.offsetHeight){
+          //   // document.documentElement.clientHeight 屏幕的可视高度
+          //   top = document.documentElement.clientHeight - odiv.offsetHeight
+          // }
+          odiv.style.left = left + "px";
+          odiv.style.top = top + "px"
+        }
+        // 为了防止 火狐浏览器 拖拽阴影问题
+        document.onmouseup = (e) => {
+          document.onmousemove = null;
+          document.onmouseup = null
+        }
+      },
+      getUserList() {
+        // 获取用户列表  ————  用在提交下一个审核员
+        let that = this
+        axios.get(URL.api_name + 'cloud/get_auditlist').then(function (respose) {
+          that.userlist = respose.data.data
+        }, function (error) {
+          // console.log(error)
+          that.loading = false
+          that.$message({
+            type: 'error',
+            message: '查询失败',
+            duration: 1000
+          })
+        })
+      },
+      getNavList () {
+        // 获取导航列表
+        let that = this
+        let url = URL.api_name + 'report/examine_info'
+        axios.get(url, {
+          params: {
+            langType: that.language,
+            projectCode: that.code
+          }
+        }).then(function (res) {
+          if (res.data.code === '100') {
+            that.navList = res.data.data
+            that.$set(that.navList[0].businessBlockVos[0], 'isCheck', '0')
+            that.navChange(that.navList[0].businessBlockVos[0], that.pageNum)
+            // 增加默认第一选项的code，用于修改后的跳转当前页的itemText
+            that.navItemSession = that.navList[0].businessBlockVos[0]
+						if(that.productType == '21') {
+              let n = [{
+                blockCode: "9992",
+                blockEnName: "Chemotherapy effect analysis",
+                blockKey: "testResultSummary",
+                blockName: "靶向治疗相关结果分析",
+                businessBlockVos: [],
+                businessCode: "",
+                code: "",
+                eventCode: "",
+                isDuplicate: "",
+                makeSort: 530,
+                parentCode: "10",
+                sort: 530,
+                sortBlock: "",
+                status: 0,
+                stringParents: []
+              },{
+                blockCode: "9993",
+                blockEnName: "Chemotherapy effect analysis",
+                blockKey: "testResultSummary",
+                blockName: "化疗治疗相关结果分析",
+                businessBlockVos: [],
+                businessCode: "",
+                code: "",
+                eventCode: "",
+                isDuplicate: "",
+                makeSort: 530,
+                parentCode: "10",
+                sort: 530,
+                sortBlock: "",
+                status: 0,
+                stringParents: []
+              }]
+              that.navList.push.apply(that.navList, n)
+            }
+          } else {
+            that.$message({
+              type: 'error',
+              message: '列表查询失败',
+              duration: 1000
+            })
+          }
+        }, function (error) {
+          console.log(error)
+          that.$message({
+            type: 'error',
+            message: '查询失败',
+            duration: 1000
+          })
+        })
+      },
+      // 点击左侧导航栏目切换内容
+      selectNav(navItems, pageNum) {
+        let that = this
+        that.pageSize = 10
+        that.navItemSession = navItems
+        // 点击触发赋值，触发查询
+        that.navChange(that.navItemSession, pageNum)
+      },
+      navChange(itemText, num, sort, sortType) {
+        // 点击左侧模块导航，请求右侧详情|| 点击分页
+        // itemText参数为 blockInfo  整块内容
+        // num 为当前页
+        // sort 为当前排序的字段keyName
+        // sortType 为当前排序的类型  asc、desc、''
+        let that = this
+        // that.blockLoading = true
+        that.pageNum = num
+        that.totalCount = 0
+        that.reportData = {}
+        // 初始化查询的基因列表
+        that.restaurants = []
+        // 给所有的模块导航添加一个选中状态
+        for (let i = 0; i < that.navList.length; i++) {
+          that.navList[i].isCheck = '1'
+          for (let q = 0; q < that.navList[i].businessBlockVos.length; q++) {
+            that.navList[i].businessBlockVos[q].isCheck = "1"
+          }
+        }
+        if (itemText.isCheck === "1") {
+          itemText.isCheck = "0"
+        }
+        // 重置查询条件内容
+        for (let key in that.formInline) {
+          that.formInline[key] = ''
+        }
+        that.blockSearch(itemText, num, sort, sortType)
+      },
+      // 模块查询请求
+      blockSearch (itemText, num, sort, sortType) {
+        // 模块搜索
+        let that = this
+        that.blockLoading = true
+        num = num === undefined ? 1 : num
+        that.pageNum = num
+        // if (itemText.sort === '' || itemText.sort == null || itemText.sort == undefined) {
+        //   that.formInline.sort = ''
+        // }
+        // if (itemText.sortType === '' || itemText.sortType == null || itemText.sortType == undefined) {
+        //   that.formInline.sortType = ''
+        // }
+        // 有查询的模块，isser为1，没有查询的模块为空
+
+        let geturls = ''
+        let condition = {}
+        switch(itemText.blockCode) {
+          case '01': //基本信息
+            geturls = 'cloud/report/viewSubjectInfo'
+            condition = {
+              projectCode: that.code
+            }
+            break
+          case '03': //样本信息
+            geturls = 'cloud/report/viewSampleInfo'
+            condition = {
+              projectCode: that.code
+            }
+            break
+          case '04': //检测内容
+            geturls = 'cloud/report/viewDetectionInfo'
+            condition = {
+              projectCode: that.code
+            }
+            break
+          case 'x4': //CTC基本信息
+            geturls = 'cloud/report/viewSubjectInfo'
+            condition = {
+              projectCode: that.code
+            }
+            break
+          case 'x6': //CTC样本信息
+            geturls = 'cloud/report/viewSampleInfo'
+            condition = {
+              projectCode: that.code
+            }
+            break
+					 case 'x7': //检测结果总览
+					  geturls = 'cloud/report/viewSampleInfo'
+					  condition = {
+					    projectCode: that.code
+					  }
+					  break
+          case '06': //基因突变
+            geturls = 'report/variant/geneMutation'
+            condition = {
+              clinsig: '', // 临床意义
+              direction: that.formInline.sortType, // 升序还是降序
+              gene: that.formInline.gene,
+              hgmdDmDp: that.formInline.hgmdDmDp,
+              orderBy: that.formInline.sort,
+              pageNum: num,
+              pageSize: that.pageSize,
+              projectCode: that.code,
+              transcriptExon: that.formInline.transcriptExon, //外显子
+              variant: that.formInline.mutation,
+              variantClassification: that.formInline.variantClassification // 变异类型
+            }
+            break
+          case '15302351683171404': //过滤的基因突变查询
+            geturls = 'report/variant/excludedGeneMutation'
+            condition = {
+              clinsig: '', // 临床意义
+              direction: sortType, // 升序还是降序
+              gene: that.formInline.gene,
+              hgmdDmDp: that.formInline.hgmdDmDp,
+              orderBy: sort,
+              pageNum: num,
+              pageSize: that.pageSize,
+              projectCode: that.code,
+              transcriptExon: that.formInline.transcriptExon, //外显子
+              variant: that.formInline.mutation,
+              variantClassification: that.formInline.variantClassification // 变异类型
+            }
+            break
+          case '07': //基因融合
+            geturls = 'report/variant/geneFusion'
+            condition = {
+              projectCode: that.code,
+              pageNumber: num,
+              pageSize: that.pageSize
+            }
+            break
+          case '43': // 基因表达
+            geturls = 'report/variant/geneExpression'
+            condition = {
+              projectCode: that.code,
+              pageNumber: num,
+              pageSize: that.pageSize
+            }
+            break
+          case '50': // 基因错配修复
+            geturls = 'report/variant/geneInstabilityMmr'
+            condition = {
+              projectCode: that.code,
+              pageNumber: num,
+              pageSize: that.pageSize
+            }
+            break
+          case '11': // 微卫星不稳定
+            geturls = 'report/variant/geneInstabilityMsi'
+            condition = {
+              projectCode: that.code
+            }
+            break
+          case '10': // 拷贝数变异
+            geturls = 'report/variant/copyNumberVariations'
+            condition = {
+              projectCode: that.code,
+              pageNumber: num,
+              pageSize: that.pageSize
+            }
+            break
+          case '24': // 肿瘤突变负荷
+            geturls = 'report/variant/tumorLoad'
+            condition = {
+              projectCode: that.code,
+              type: 2
+            }
+            break
+          case '16': // 靶向临床入组推荐
+            geturls = 'cloud/report/viewClinicalAdmission'
+            condition = {
+              interventionName: that.formInline.interventionName,
+              nctId: that.formInline.nctId,
+              pageNumber: num,
+              pageSize: that.pageSize,
+              projectCode: that.code,
+              type: 1
+            }
+            break
+          case '21': // 肿瘤免疫临床入组推荐
+            geturls = 'cloud/report/viewClinicalAdmission'
+            condition = {
+              pageNumber: num,
+              pageSize: that.pageSize,
+              projectCode: that.code,
+              type: 2
+            }
+            break
+           case '15336939611434715': // 常见用药标志物检测结果
+            geturls = 'report/detectionResultsOfCommonDrugRelatedGenes'
+            condition = {
+              projectCode: that.code
+            }
+            break
+          case '15417437080903271': // 无相关药物检测
+            geturls = 'report/variant/noDrugOverview'
+            condition = {
+              projectCode: that.code,
+              pageNumber: num,
+              pageSize: that.pageSize,
+              clinsig: '', // 临床意义
+              direction: that.formInline.sortType, // 升序还是降序
+              gene: that.formInline.gene,
+              hgmdDmDp: that.formInline.hgmdDmDp,
+              orderBy: that.formInline.sort, //哪个字段排序
+              transcriptExon: that.formInline.transcriptExon, //外显子
+              variant: that.formInline.mutation,
+              variantClassification: that.formInline.variantClassification // 变异类型
+            }
+            break
+          case '48':
+            geturls = "cloud/report/viewDetectionGene" // 检测基因列表
+            condition = {
+              projectCode: that.code
+            }
+            break
+          case '22':
+            geturls = "report/liberature/pageProjectLiberature"  // 参考文献
+            condition = {
+              pageSize: that.pageSize,
+              pageNum: num,
+              projectCode: that.code
+            }
+             break
+          case '55':
+            geturls = "report/therapy/recommendedTargetDetails"  // 靶向治疗方案详情
+            condition = {
+              projectCode: that.code,
+              gene: that.formInline.gene,
+              drugSearchName: that.formInline.drugSearchName,
+              variant:that.formInline.variant
+
+            }
+            break
+          case '56':
+            geturls = "report/therapy/recommendedInhibitorsDetails"  // 免疫治疗方案详情
+            condition = {
+              projectCode: that.code,
+              gene: that.formInline.gene,
+              drugSearchName: that.formInline.drugSearchName,
+              variant:that.formInline.variant
+            }
+            break
+          case '57':
+              geturls = "report/therapy/recommendedChemotherpyDetails"  // 化疗治疗方案详情
+              condition = {
+                projectCode: that.code,
+                gene: that.formInline.gene,
+                drugSearchName: that.formInline.drugSearchName,
+                variant:that.formInline.variant
+              }
+              break
+          case '27':
+              geturls = "report/therapy/otherTargetDetails"  // 其他 / 靶向治疗方案详情
+              condition = {
+                projectCode: that.code,
+                gene: that.formInline.gene,
+                drugSearchName: that.formInline.drugSearchName,
+                variant:that.formInline.variant
+              }
+              break
+          case '35':
+              geturls = "report/therapy/otherInhibitorsDetails"  // 其他 / 免疫治疗方案详情
+              condition = {
+                projectCode: that.code,
+                gene: that.formInline.gene,
+                drugSearchName: that.formInline.drugSearchName,
+                variant:that.formInline.variant
+              }
+              break
+           case '29':
+              geturls = "report/therapy/otherChemotherpyDetails"  // 其他 / 化疗治疗方案详情
+              condition = {
+                projectCode: that.code,
+                gene: that.formInline.gene,
+                drugSearchName: that.formInline.drugSearchName,
+                variant:that.formInline.variant
+              }
+              break
+          case '40':
+              geturls = "report/clinicalNote/listProjectPrognosisDetail"  // 其他 / 预后相关信息详情
+              condition = {
+                projectCode: that.code,
+              }
+              break
+          case '15':
+              geturls = "report/clinicalNote/listProjectPrognosisDetail"  // 其他 / 预后相关信息详情
+              condition = {
+                projectCode: that.code,
+              }
+              break
+          case '41':
+              geturls = "report/variant/listDetected"  // 其他 / 治疗方案详情- 概述
+              condition = {
+                projectCode: that.code,
+              }
+              break
+					case '58':
+							geturls = "report/twentyone/getTwentyOneTestingResults"  // 预后情况分析
+							condition = {
+								projectCode: that.code,
+							}
+							break
+					case '59':
+							geturls = "report/twentyone/getTwentyOneTestingResults"  // 化疗效益分析
+							condition = {
+								projectCode: that.code,
+							}
+							break
+					case '60':
+							geturls = "report/twentyone/getTwentyOneTestingResults" // 复发风险评估结果分析
+							condition = {
+								projectCode: that.code,
+							}
+							break
+					case '9992':
+							geturls = "report/twentyone/getTestingProgramResults" // 靶向治疗相关结果分析
+							condition = {
+								projectCode: that.code,
+							}
+							break
+					case '9993':
+							geturls = "report/twentyone/getTestingProgramResults" // 化疗治疗相关结果分析
+							condition = {
+								projectCode: that.code,
+							}
+							break
+					case '61':
+							geturls = "report/twentyone/getTestingProgramResults" // 检测结果总览
+							condition = {
+								projectCode: that.code,
+							}
+							break
+					case '62':	
+					    geturls = "report/getBrcaTestingResults"  // 遗传风险解析
+					    condition = {
+					      projectCode: that.code,
+					    }
+					    break
+					case '63':
+					    geturls = "report/getBrcaTestingResults"  // 检测结果概述
+					    condition = {
+					      projectCode: that.code,
+					    }
+					    break
+					case '65':
+					    geturls = "report/getBrcaReferences"  // 检测结果概述
+					    condition = {
+								pageNumber: num,
+								pageSize: that.pageSize
+					    }
+					    break
+          case '15354584560658242':
+            geturls = "report/clinicalNote/loadTargetVariantOverview"  // 靶向治疗相关检测结果总览
+            condition = {
+              projectCode: that.code,
+              pageNum: num,
+              pageSize: that.pageSize
+            }
+            break
+          case '15354584560811834':
+            geturls = "report/clinicalNote/loadCheckpointInhibitorVariantOverview"  // 免疫治疗相关检测结果总览
+            condition = {
+              projectCode: that.code
+            }
+            break
+          case '15354584564084442':
+            geturls = "report/clinicalNote/loadChemoVariantOverview"  // 化疗相关检测结果总览
+            condition = {
+              projectCode: that.code
+            }
+            break
+          case '15453588068923527':
+            geturls = 'report/variant/otherVariantOverview' // 其他变异
+            condition = {
+              clinsig: '', // 临床意义
+              direction: that.formInline.sortType, // 升序还是降序
+              gene: that.formInline.gene,
+              hgmdDmDp: that.formInline.hgmdDmDp,
+              orderBy: that.formInline.sort,
+              pageNum: num,
+              pageSize: that.pageSize,
+              projectCode: that.code,
+              transcriptExon: that.formInline.transcriptExon, //外显子
+              variant: that.formInline.mutation,
+              variantClassification: that.formInline.variantClassification // 变异类型
+            }
+            break
+          case '15354584564085552':
+            geturls = 'report/variant/pathogenesisHotSpotMutation' // 与疾病相关的热点检测结果
+            condition = {
+              clinsig: '', // 临床意义
+              direction: that.formInline.sortType, // 升序还是降序
+              gene: that.formInline.gene,
+              hgmdDmDp: that.formInline.hgmdDmDp,
+              orderBy: that.formInline.sort,
+              pageNum: num,
+              pageSize: that.pageSize,
+              projectCode: that.code,
+              transcriptExon: that.formInline.transcriptExon, //外显子
+              variant: that.formInline.mutation,
+              variantClassification: that.formInline.variantClassification // 变异类型
+            }
+            break
+           case '15354584564085663':
+            geturls = 'report/variant/possiblyPathogenesisHotSpotMutation' // 可能与疾病相关的热点检测结果
+            condition = {
+              clinsig: '', // 临床意义
+              direction: that.formInline.sortType, // 升序还是降序
+              gene: that.formInline.gene,
+              hgmdDmDp: that.formInline.hgmdDmDp,
+              orderBy: that.formInline.sort,
+              pageNum: num,
+              pageSize: that.pageSize,
+              projectCode: that.code,
+              transcriptExon: that.formInline.transcriptExon, //外显子
+              variant: that.formInline.mutation,
+              variantClassification: that.formInline.variantClassification // 变异类型
+            }
+            break
+           case '15453588068923678':
+            geturls = 'report/clinicalNote/importantMutationDetail' // 重要突变位点解析
+            condition = {
+              cancerCode: '', // 临床意义
+              gene: that.formInline.gene,
+              projectCode: that.code,
+              variant: that.formInline.mutation
+            }
+            break
+          default:
+            geturls = 'report/examine_detail'
+            condition = {
+							blockCode: itemText.blockCode.substring(0, 3) == '999' ? '61' : itemText.blockCode == '64' ? '06' : itemText.blockCode,
+							blockKey: itemText.blockCode == '64' ? 'geneMutation' :itemText.blockKey,
+              blockCode: itemText.blockCode,
+              blockKey: itemText.blockKey,
+              code: itemText.code,
+              drug: that.formInline.drug,
+              gene: that.formInline.gene,
+              drugSearchName: that.formInline.drugSearchName,
+              variant: that.formInline.variant,
+              mutation: that.formInline.mutation,
+              transcriptExon: that.formInline.transcriptExon,
+              sourceEvidence: that.formInline.sourceEvidence,
+              clinicalSignificance: that.formInline.clinicalSignificance,
+              langType: that.language,
+              projectCode: that.code,
+              checkItem: that.formInline.checkItem,
+              sort: sort,
+              sortType: sortType,
+              pageNum: num,
+              pageSize: that.pageSize
+            }
+        }
+        axios.get(URL.api_name + geturls, {
+          params: condition
+        }).then((res) => {
+          if (res.data.code === '100') {
+            that.reportData = JSON.parse(JSON.stringify(res.data.data)) instanceof Array ? [] : {}
+            that.blockLoading = false
+            if (res.data.data == null) {return false}
+            that.reportData = JSON.parse(JSON.stringify(res.data.data))
+            // that.totalCount = res.data.data.total
+            // 如果有jsonValue，则是单表格
+            if (res.data.data.jsonValue) {
+              that.reportData.jsonValue = JSON.parse(res.data.data.jsonValue)
+            } else if (res.data.data.list) {
+              that.totalCount = res.data.data.total
+            }
+            // geneList
+            if (itemText.blockCode === '04') {
+              that.geneList = []
+              for (let s in that.reportData.jsonValue.genes) {
+                // that.geneList = that.geneList + s + ','
+                that.geneList.push({
+                  value: s,
+                  checkOut: that.reportData.jsonValue.genes[s]
+                })
+              }
+              for (let n = 0; n < that.sequencingPlatforms.length; n++) {
+                if (that.reportData.jsonValue.sequencing_platform === that.sequencingPlatforms[n].value) {
+                  that.reportData.jsonValue.sequencing_platform = that.sequencingPlatforms[n].label
+                }
+              }
+              for (let n = 0; n < that.analysisVersions.length; n++) {
+                if (that.reportData.jsonValue.analysis_version === that.analysisVersions[n].value) {
+                  that.reportData.jsonValue.analysis_version = that.analysisVersions[n].label
+                }
+              }
+            }
+            if(itemText.blockKey=='specimenInformation'){
+               for (let n = 0; n < that.sampleAttributes.length; n++) {
+                if (that.reportData.jsonValue.sample_attribute === that.sampleAttributes[n].value) {
+                  that.reportData.jsonValue.sample_attribute = that.sampleAttributes[n].label
+                }
+              }
+            }
+            // 小结
+            // if (itemText.blockCode === '41') {
+            //   for (let n = 0; n < that.reportData.jsonValue.summarys.length; n++) {
+            //     that.reportData.jsonValue.summarys[n].arrays = []
+            //     for (let sss = 0; sss < that.reportData.jsonValue.summarys[n].drugList.length; sss++) {
+            //       that.reportData.jsonValue.summarys[n].arrays.push(that.reportData.jsonValue.summarys[n].drugList[sss].drugEnName + '(' + that.reportData.jsonValue.summarys[n].drugList[sss].drugName + ')')
+            //     }
+            //   }
+            // }
+            // 查询__基因 备选 列表
+            if (that.reportData.geneList) {
+              for (let iee = 0; iee < that.reportData.geneList.length; iee++) {
+                that.restaurants.push({
+                  value: that.reportData.geneList[iee]
+                })
+              }
+            } else {
+              that.restaurants = []
+              // alert('没的')
+            }
+            // 2019-03-26 手动给所有的block_reportData增加blockCode
+            that.reportData['blockCode'] = that.navItemSession.blockCode
+
+            // return false
+          } else {
+            // 报错了
+            that.blockLoading = false
+          }
+          // that.$set(that.reportData,)
+        }).catch((error) => {
+          that.blockLoading = false
+        })
+      },
+      // 切换页码
+      handelCurrent(codeObj, val, ssort, ssortType) {
+        // 改变每页显示条数pagesize
+        let that = this
+        that.pageSize = val
+        that.blockSearch(codeObj, that.pageNum, ssort, ssortType)
+      },
+      saveChange(val) {
+        // 所有修改的接口
+        let that = this
+        let url = ''
+        if (that.navItemSession.blockCode == '01' || that.navItemSession.blockCode == 'x4') {
+          url = 'cloud/report/updateSubjectInfo' // 基本信息
+        } else if (that.navItemSession.blockCode == '03' || that.navItemSession.blockCode == 'x6' || that.navItemSession.blockCode == 'x7') {
+          url = 'cloud/report/updateSampleInfo' // 样本信息
+        } else if (that.navItemSession.blockCode == '15417437080903271' || that.navItemSession.blockCode == '06' || that.navItemSession.blockCode == '15302351683171404') {
+          url = 'report/variant/geneMutation/update' // 无变异相关，基因突变，修改的
+        } else if (that.navItemSession.blockCode == '07') {
+          url = 'report/variant/geneFusion/update' // 基因融合
+        } else if (that.navItemSession.blockCode == '50') {
+          url = 'report/variant/geneInstabilityMmr/update' //基因错配修复 更新
+        } else if (that.navItemSession.blockCode == '24') {
+          url = 'report/variant/tumorLoad/update' // 肿瘤突变负荷
+        } else if (that.navItemSession.blockCode == '43') {
+          url = 'report/variant//geneExpression/update' // 基因表达
+        } else if (that.navItemSession.blockCode == '10') {
+          url = 'report/variant/copyNumberVariations/update' // 拷贝数变异
+        } else if (that.navItemSession.blockCode == '55' || that.navItemSession.blockCode == '56' || that.navItemSession.blockCode == '57' || that.navItemSession.blockCode == '27' || that.navItemSession.blockCode == '35' || that.navItemSession.blockCode == '29' || that.navItemSession.blockCode == '40') {
+          url = 'report/therapy/modifyReportTherapyDetail' // 治疗方案详情
+        }else if(that.navItemSession.blockCode == '41') {
+					url = 'report/therapy/modifyRecommendTherapyRemark' // 治疗方案详情 化疗附加说明
+				} else if (that.navItemSession.blockCode == '15453588068923678') {  // 重要位点突变解析
+          url = 'report/clinicalNote/modifyImportantMutationDetail'
+        } else if (that.navItemSession.blockCode == '62' || that.navItemSession.blockCode == '63') {  // 遗传风险解析
+          url = 'report/editBrcaTestingResult'
+        } else if (that.navItemSession.blockCode == '65') {  // 遗传风险解析
+          url = 'report/editBrcaReference'
+        } else if (that.navItemSession.blockCode == '58' || that.navItemSession.blockCode == '59' || that.navItemSession.blockCode == '60') {  // 遗传风险解析
+          url = 'report/twentyone//editTwentyOneTestingResult' //化疗效益分析 、预后情况分析、复发风险评估结果分析
+        }
+        axios.post(URL.api_name + url, val).then(function(res) {
+          that.addLoading = false
+          if(res.data.code == '100') {
+            // 成功 重新查询
+            that.blockSearch(that.navItemSession, that.pageNum, that.reportData.sort, that.reportData.sortType)
+            // that.reportData = JSON.parse(JSON.stringify(res.data.data))   不能用重新赋值，瓜皮程序员把list和obj 做同一类型返回了
+            that.$message({
+              type: 'success',
+              message: res.data.message,
+              duration: 1000
+            })
+          } else {
+            // 失败,重新查询
+            that.$message({
+              type: 'error',
+              message: res.data.message,
+              duration: 1000
+            })
+            that.blockSearch(that.navItemSession, that.pageNum, that.reportData.sort, that.reportData.sortType)
+          }
+        }).catch(function(res){
+          // 接口报错了
+        })
+        // that.inputSub(dataCode,itemCode,keyName,keyValue)
+      },
+      inputSub (code, filecode, filedName, filedValue) {
+        // 单个修改提交
+        let that = this
+        if (filecode === '0') {
+          filecode = ''
+        }
+        that.addLoading = true
+        axios.post(URL.api_name + 'report/field_update', {
+          blockCode: that.reportData.blockCode,
+          blockKey: that.reportData.blockKey,
+          projectCode: that.code,
+          blockInstanceCode: code,
+          pageSize: that.pageSize,
+          fieldCode: filecode,
+          fieldName: filedName,
+          fieldValue: filedValue
+        }).then(function (res) {
+          if (res.data.code === '100') {
+            that.addLoading = false
+            // 写了这条会重新渲染表格，导致错位
+            // that.reportData = res.data.data
+            if (res.data.data.jsonValue) {
+              that.reportData.jsonValue = JSON.parse(res.data.data.jsonValue)
+            } else if (res.data.data.list) {
+              that.totalCount = res.data.data.total
+            }
+            if (that.reportData.blockCode === '01') {
+              // 重设"基本信息"里的 race 种族的显示文本内容
+              for (let n = 0; n < that.races.length; n++) {
+                if (that.reportData.jsonValue.race === that.races[n].value) {
+                  that.reportData.jsonValue.race = that.races[n].label
+                }
+              }
+            }
+            // geneList
+            if (that.reportData.blockCode === '04') {
+              that.geneList = []
+              for (let s in that.reportData.jsonValue.genes) {
+                // that.geneList = that.geneList + s + ','
+                that.geneList.push({
+                  value: s,
+                  checkOut: that.reportData.jsonValue.genes[s]
+                })
+              }
+            }
+            // 小结
+            // if (that.reportData.blockCode === '41') {
+            //   for (let n = 0; n < that.reportData.jsonValue.summarys.length; n++) {
+            //     that.reportData.jsonValue.summarys[n].arrays = []
+            //     for (let sss = 0; sss < that.reportData.jsonValue.summarys[n].drugList.length; sss++) {
+            //       that.reportData.jsonValue.summarys[n].arrays.push(that.reportData.jsonValue.summarys[n].drugList[sss].drugName)
+            //     }
+            //   }
+            // }
+            // 修改完，回到当前页
+            // console.log('xe')
+            that.blockSearch(that.navItemSession, that.pageNum, that.reportData.sort, that.reportData.sortType)
+            // 修改完毕提示成功信息
+            that.$message({
+              type: 'success',
+              message: res.data.message,
+              duration: 1000
+            })
+          } else {
+            // console.log(error)
+            that.$message({
+              type: 'error',
+              message: '修改失败：' + res.data.message,
+              duration: 1000
+            })
+            that.addLoading = false
+          }
+        }, function (error) {
+          console.log(error)
+          that.$message({
+            type: 'error',
+            message: '提交失败',
+            duration: 1000
+          })
+        })
+        that.addLoading = false
+      },
+      getWordList() {
+        let that = this
+        // 查询word列表
+        axios.get(URL.api_name + 'report/getWordList', {
+          params: {
+            projectCode: that.code,
+            langType: that.language
+          }
+        }).then(function (res) {
+          if (res.data.code === '100') {
+            that.wordlistdata = res.data.data
+            // console.log(that.wordlistdata)
+          }
+        }, function (error) {
+          console.log(error)
+          that.$message({
+            type: 'error',
+            message: '查询失败',
+            duration: 1000
+          })
+        })
+        // pdf List
+        axios.get(URL.api_name + 'report/file/list', {
+          params: {
+            projectCode: that.code,
+            langType: that.language
+          }
+        }).then(function (res) {
+          if (res.data.code === '100') {
+            that.pdflistdata = res.data.data
+            // console.log(that.pdflistdata)
+          }
+        }, function (error) {
+          console.log(error)
+          that.$message({
+            type: 'error',
+            message: '查询失败',
+            duration: 1000
+          })
+        })
+      },
+      downWord() {
+        // 下载word
+        var that = this
+        axios.get(URL.api_name + 'report/report_info', {
+          params: {
+            projectCode: that.code,
+            langType: that.language
+          }
+        }).then(function (res) {
+          if (res.data.code === '100') {
+            let tokenVal = JSON.parse(localStorage.getItem('authtoken'))
+            // that.htmlUrlF = URL.api_name + 'report/view/' + that.language + '/' + that.code + '.html'+'?token=' + tokenVal
+            // that.pdfUrlF =  URL.api_name + 'report/view/' + that.language + '/' + that.code + '.pdf'+'?token=' + tokenVal
+            if (res.data.data.wordUrl !== null) {
+              that.wordUrlF = URL.api_name + 'report/downloadFile?langType=' + res.data.data.langType + '&projectCode=' + res.data.data.projectCode + '&token=' + tokenVal
+            }
+            // if (res.data.data.wordUrl !== null || res.data.data.wordUrl !== '') {
+            //   that.wordUrlF = res.data.data.wordUrl
+            // }
+            console.log(that.wordUrlF)
+          }
+        }, function (error) {
+          console.log(error)
+          that.$message({
+            type: 'error',
+            message: '查询失败',
+            duration: 1000
+          })
+        })
+      },
+      creatWord() {
+        // 生成word
+        let that = this
+        let n = {}
+        that.buttonloading = true
+        n['langType'] = that.language
+        n['projectCode'] = that.reportData.projectCode
+        axios.post(URL.api_name + 'report/generateWord', n).then(function (res) {
+          that.buttonloading = false
+          if (res.data.code === '100') {
+            // 显示返回数据
+            that.$message({
+              type: 'success',
+              message: '生成成功',
+              duration: 2000
+            })
+            // that.downWord()
+          } else {
+            that.$message({
+              type: 'error',
+              message: '生成失败：' + res.data.message,
+              duration: 2000
+            })
+          }
+        })
+      },
+      overReport() {
+        // 完结
+        let that = this
+        let n = {}
+        n['code'] = that.code
+        n['projectRecordCode'] = that.pcode
+        axios.post(URL.api_name + 'report/subReportFinish', n).then(function (res) {
+          if (res.data.code === '100') {
+            // 显示返回数据
+            that.$message({
+              type: 'success',
+              message: '提交成功',
+              duration: 2000,
+              onClose: function () {
+                that.$router.push({
+                  path: '/examineAlready/' + that.pager
+                })
+              }
+            })
+          } else {
+            that.$message({
+              type: 'error',
+              message: '提交失败：' + res.data.message,
+              duration: 2000,
+              onClose: function () {
+              }
+            })
+          }
+        })
+      },
+      dateFormat (row, column) {
+        let date = row[column.property]
+        if (date === undefined) {
+          return ''
+        }
+        return moment(date).format('YYYY-MM-DD HH:mm:ss')
+      },
+      pushListItem(type, listCode, givesRow) {
+        // 添加删除操作
+        let that = this
+        that.blockLoading = true
+        let postParame = {}
+        let urls = ''
+        if (type === 'add' && givesRow === undefined) {
+          // 一般添加为添加空行
+        } else if (type === 'del') {
+          // that.navItemSession
+          postParame['projectCode'] = that.code
+          if (that.navItemSession.blockCode == '06') {
+            urls = 'report/variant/geneMutation/delete'
+            postParame['code'] = listCode
+          } else if (that.navItemSession.blockCode == '15302351683171404') {
+            urls = 'report/variant/excludedGeneMutation/delete'
+            postParame['code'] = listCode
+          } else if (that.navItemSession.blockCode == '07'|| that.navItemSession.blockCode == '10' || that.navItemSession.blockCode == '24'|| that.navItemSession.blockCode == '43') {
+            urls = 'report/variant/delete'
+            postParame['code'] = listCode
+          } else if (that.navItemSession.blockCode == '22') {
+            // urls = 'report/liberature/delete'
+          } else if (that.navItemSession.blockCode == '16' || that.navItemSession.blockCode == '21') {
+            urls = 'cloud/report/delClinicalAdmission' //临床入组
+            postParame['code'] = listCode
+          } else if (that.navItemSession.blockCode == '15417437080903271') {
+            urls = 'report/variant/deleteNoDrugOverview'
+            postParame['code'] = listCode
+          } else if (that.navItemSession.blockCode == '55' || that.navItemSession.blockCode == '56' || that.navItemSession.blockCode == '57' || that.navItemSession.blockCode == '27' || that.navItemSession.blockCode == '35' || that.navItemSession.blockCode == '29' || that.navItemSession.blockCode == '40') {
+            urls = 'report/therapy/delete' //治疗方案详情 、其他治疗方案详情
+            postParame['reportTherapyCode'] = listCode
+            postParame['projectCode'] = that.code
+          } else if (that.navItemSession.blockCode == '65') {
+            urls = 'report/addBrcaReference' // Brca文献信息
+            postParame['code'] = listCode
+          }
+        } else if (type === 'add' && givesRow !== undefined) {
+          // 添加一行的时候，会给一整个有具体内容的obj
+          for (let ne in givesRow) {
+            postParame[ne] = givesRow[ne]
+          }
+          postParame['projectCode'] = that.code
+          if (that.navItemSession.blockCode == '06' || that.navItemSession.blockCode == '07'|| that.navItemSession.blockCode == '10'|| that.navItemSession.blockCode == '43') {
+            urls = '/report/variant/variant/add' // 融合，突变，拷贝数变异，扩增(暂无)，表达
+          } else if (that.navItemSession.blockCode == '16' || that.navItemSession.blockCode == '21') {
+            urls = 'cloud/report/addClinicalAdmission'
+            postParame['type'] = that.navItemSession.blockCode == '16' ? 1 : 2
+            postParame['isManualAdd'] = 1
+            postParame['projectCode'] = that.code
+          }
+        }
+        axios.post(URL.api_name + urls, postParame).then(function (res) {
+          if (res.data.code === '100') {
+            that.$message({
+              type: 'success',
+              message: '操作成功:' + res.data.message,
+              duration: 4000
+            })
+            // 刷新一道
+            that.blockSearch(that.navItemSession, that.pageNum, that.reportData.sort, that.reportData.sortType)
+            that.reportData = res.data.data
+            that.blockLoading = false
+          } else {
+            that.blockLoading = false
+              that.$message({
+              type: 'error',
+              message: '提交失败：' + res.data.message,
+              duration: 1000
+            })
+          }
+        })
+      },
+      SearchForminline(forminline) {
+        let that = this
+        that.formInline = forminline
+        console.log('xxxxx')
+        console.log(that.formInline)
+        that.blockSearch(that.reportData)
+      },
+      silderReduce() {
+        // 缩小
+        let that = this
+        that.imgPencent = that.imgPencent >= 10 ? (that.imgPencent - 10) : 0
+      },
+      silderAdd() {
+        // 放大
+        let that = this
+        that.imgPencent = that.imgPencent < 100 ? (that.imgPencent + 10) : 100
+      },
+      rotateBtn() {
+        // 旋转
+        let that = this
+        that.rotate = that.rotate < 270 ? that.rotate + 90 : 0
+      },
+      openDialog(obj) {
+        let that = this
+        console.log(obj)
+        if(obj == 'orderVisable') {
+          that.orderVisable = that.orderVisable == true ? false : true
+        } else {
+          that.mafVisable = that.mafVisable == true ? false : true
+          axios.get(URL.api_name + 'report/variant/loadMafVariant', {
+            params: {
+              projectCode: that.code
+            }
+          }).then(function(res) {
+            if(res.data.code == '100') {
+              // 成功
+              that.vcfData = res.data.data
+            }
+          }).catch(function () {
+            // 接口错了
+          })
+        }
+      },
+      dialogSearch(val) {
+        let that = this
+        that.clinicalTrialsAdd(val)
+      },
+      clinicalTrialsAdd(isDomestic) {
+        // 临床入组添加
+        let that = this
+        that.clinicalTrialsDialog = true
+        // searchWrapper 清理一遍
+        for (let n in that.searchWrapper) {
+          that.searchWrapper[n] = ''
+        }
+        isDomestic == 1 ? that.isDomestic = isDomestic : that.isDomestic = 2
+        that.getClinicalTrialsList(that.currentPage1, that.isDomestic)
+      },
+      getClinicalTrialsList(num, isDomestic) {
+        // 临床入组 查询
+        let that = this
+        that.listLoading = true
+        that.clinicalTrialsData = []
+        that.totalCount1 = 0
+        let url =  isDomestic != 1 ? 'report/get_clinical_info' : 'report/get_china_clinical_info'
+        axios.get(URL.api_name + url, {
+          params: {
+            projectCode: that.code,
+            ageRange: that.searchWrapper.ageRange,
+            condition: that.searchWrapper.condition,
+            drug: that.searchWrapper.drug,
+            nctId: that.searchWrapper.nctId,
+            phase: that.searchWrapper.phase,
+            population: that.searchWrapper.population,
+            recruitCountry: that.searchWrapper.recruitCountry,
+            sponsor: that.searchWrapper.sponsor,
+            trialCountry: that.searchWrapper.trialCountry,
+            // nctId: 'NCT02297698',
+            isDomestic: isDomestic != 1 ? 2 : 1,
+            pageNumber: num,
+            pageSize: that.pageSize1
+          }
+        }).then(function (res) {
+          // console.log(res.data.data)
+          if (res.data.code === '100') {
+            that.clinicalTrialsData = res.data.data.list
+            /*jsonValue处理成Array*/
+            for(let xxx in that.clinicalTrialsData) {
+              that.clinicalTrialsData[xxx].tumorTralsContacts = JSON.parse(that.clinicalTrialsData[xxx].tumorTralsContacts)
+            }
+            that.totalCount1 = res.data.data.total
+            that.listLoading = false
+          } else {
+            that.listLoading = false
+            that.$message({
+              type: 'error',
+              message: '查询失败：' + res.data.message,
+              duration: 1000
+            })
+          }
+        })
+      },
+      updateRecommended (type) {
+        // 更新临床入组治疗方案
+        let that = this
+        that.$confirm('确定更新临床入组吗？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          that.isLoading = true
+          axios.get(URL.api_name + 'cloud/report/make_clinicalTrails', {
+            params: {
+              projectCode: that.code,
+              type: type
+            }
+          }).then(function (res) {
+            if (res.data.code === '100') {
+              that.$message({
+                type: 'success',
+                message: '更新成功',
+                duration: 1000
+              })
+            } else {
+              that.$message({
+                type: 'error',
+                message: '更新失败：' + res.data.message,
+                duration: 1000
+              })
+            }
+            that.isLoading = false
+          }, function (error) {
+            console.log(error)
+            that.$message({
+              type: 'error',
+              message: '请求失败',
+              duration: 1000
+            })
+          })
+        }).catch(() => {})
+      },
+      searchWindowData(type, searchKey) {
+        // 查询 pop 弹窗
+        let that = this
+        let url = ''
+        let param = {}
+        that.popData = {
+          headList: [],
+          datas: {
+            cancers: {},
+            desc: '',
+            drugControls: [],
+            gene: '',
+            listReportVariant: [],
+            molecularNetworkImg: '',
+            panels: [],
+            pathwayInfos: [],
+            termsImg: ''
+          }
+        }
+        if(type == 'gene') {
+          url = 'report/getGeneDetails'
+          param = {
+            gene: searchKey,
+            projectCode: that.code
+          }
+          that.popData.headList = [{
+            label: '基本信息',
+            canClose: false,
+            mark: 'base',
+            checkNum: true
+          },{
+            label: '检出变异',
+            canClose: false,
+            mark: 'mutation',
+            checkNum: false
+          },{
+            label: 'Pathway',
+            canClose: false,
+            mark: 'pathway',
+            checkNum: false
+          },{
+            label: '检测Panel',
+            canClose: false,
+            mark: 'panel',
+            checkNum: false
+          }]
+        } else if (type == 'disease') {
+          // 疾病的
+          url = 'report/getDiseaseDetails'
+          param = {
+            diseaseEnName: searchKey
+          }
+          that.popData.headList = [{
+            label: '基本信息',
+            canClose: false,
+            mark: 'base',
+            checkNum: true
+          },{
+            label: '治疗方案',
+            canClose: false,
+            mark: 'cure',
+            checkNum: false
+          }]
+        } else if (type == 'drug') {
+          // 药物
+          url = 'report/getDrugDetails'
+          param = {
+            drugEnName: searchKey
+          }
+        } else if(type == 'variant'){
+          url = 'report/getVariantDetails' // 变异
+          param = {
+            code: searchKey
+          }
+          that.popData.headList = [{
+            label: '基本信息',
+            canClose: false,
+            mark: 'base2',
+            checkNum: true
+          },{
+            label: '治疗方案',
+            canClose: false,
+            mark: 'zlfn',
+            checkNum: false
+          }]
+        }
+        axios.get(URL.api_name + url, {
+          params: param
+        }).then(function (res) {
+          if (res.data.code === '100') {
+            console.log('ccccccccccccccccccc')
+            // that.popData.datas = res.data.data
+            that.$set(that.popData, 'datas', res.data.data)
+            console.log(that.popData.datas)
+            // that.$message({
+            //   type: 'success',
+            //   message: '查询成功',
+            //   duration: 1000
+            // })
+          } else {
+            that.$message({
+              type: 'error',
+              message: '信息查询失败：' + res.data.message,
+              duration: 1000
+            })
+          }
+          that.btnloading = false
+        }, function (error) {
+          that.loading = false
+          that.$message({
+            type: 'error',
+            message: '提交失败：' + error,
+            duration: 1000
+          })
+        })
+      },
+      showDetial(scope) {
+        // cosmic的弹窗详情
+        let that = this
+        that.cosmicDialog = true
+        that.cosmicDialogData = {}
+        that.cosmicDialogData = scope
+      },
+      sendEmail() {
+        let that = this
+        let url = 'report/variant/sendReportVariantValidate'
+        axios.post(URL.api_name + url, {
+          projectCode: that.$route.params.id
+        }).then(function(res){
+          if (res.data.code == '100') {
+            // 成功
+            that.$message({
+              type: 'success',
+              message: '发送成功',
+              duration: 1000
+            })
+          }
+        })
+      }
+    },
+    components: {
+      Pager: Pager,
+      basicMsgtX1,basicMsgt4,sampleMsg,jcjgzl,yhqkfx,hlxyfx,fffxpgjgfx,bxzlxgjgfx,hlzlxgjgfx,basicMsgCTC,sampleMsgCTC,jcjgzlCTC,jcnr,jytbjcqk,
+      jcjggs,ckwx,ycfxjx,rxaxgjyjbxyw,jyrh,jybd,jycpxf,wwxwdx,kbsby,zltbfh,cjyybzw,bxlcrztj,zlmyzllcrztj,wxgyw,bxzlfaxq,myzlfaxq,hlzlfaxq,zlfags,
+      jcjylb,qtbxzlfaxq,qtmyzlfaxq,qthlzlfaxq,qtyhxgxxxq,bxzlxgjczl,myzlxgjcjgzl,hlxgjcjgzl,qtbyzl,yjbxgrd,knyjbxgrd,qtzytbwdjx,brca,arrar
+    },
+    computed: {
+      uploadHeader () {
+        return {
+          token: JSON.parse(localStorage.getItem('authtoken'))
+        }
+      },
+      imgWidth () {
+        let that = this
+        return that.imgPencent * that.addpencent + 100 + '%'
+      },
+      imgHeight () {
+        let that = this
+        return that.imgPencent * that.addpencent + 100 + '%'
+      }
+    },
+    filters: {
+      formatDate (time) {
+        if (time !== undefined && time !== null && time !== '') {
+          let date = new Date(time)
+          return formatDate(date, 'yyyy-MM-dd')
+        } else {
+          return ''
+        }
+      },
+      hasName (data, param) {
+        let isOK = false
+        for (let i in param) {
+          if (param[i] == data) {
+            isOK = true
+            break
+          }
+        }
+        console.log(isOK)
+        return isOK
+      }
+    }
+  }
+</script>

@@ -1,0 +1,74 @@
+[
+    {
+        "blockCode": "06",
+        "blockKey": "geneMutation",
+        "blockName": "基因突变",
+        "blockNameEn": "Gene Mutations",
+        "code": "245f2d15194d42deb9c3b1c57c413511",
+        "createTime": 1514314084000,
+        "langType": "cn",
+        "isCheck": 1,
+        "lastModifyTime": 1514314084000,
+        "projectCode": "0c4dab14d379442c9cbcbe17e4374303"
+    },
+    {
+        "blockCode": "08",
+        "blockKey": "geneExpression",
+        "blockName": "基因（mRNA/蛋白）表达",
+        "blockNameEn": "Genes (mRNA/Protein) Expression",
+        "code": "29daf50b5ef84512afa52ed957324a57",
+        "createTime": 1514315306000,
+        "langType": "cn",
+        "isCheck": 1,
+        "lastModifyTime": 1514315306000,
+        "projectCode": "0c4dab14d379442c9cbcbe17e4374303"
+    },
+    {
+        "blockCode": "24",
+        "blockKey": "tumorLoad",
+        "blockName": "肿瘤负荷",
+        "blockNameEn": "Tumor burden",
+        "code": "2c32b30c40c7490c94818f9cc81c84d0",
+        "createTime": 1514251775000,
+        "langType": "cn",
+        "isCheck": 1,
+        "lastModifyTime": 1514251775000,
+        "projectCode": "0c4dab14d379442c9cbcbe17e4374303"
+    },
+    {
+        "blockCode": "07",
+        "blockKey": "geneFusion",
+        "blockName": "基因融合",
+        "blockNameEn": "Gene Fusion",
+        "code": "47142967145341c2b74f3009de1fffac",
+        "createTime": 1514314195000,
+        "langType": "cn",
+        "isCheck": 1,
+        "lastModifyTime": 1514314195000,
+        "projectCode": "0c4dab14d379442c9cbcbe17e4374303"
+    },
+    {
+        "blockCode": "11",
+        "blockKey": "geneInstability",
+        "blockName": "基因微卫星不稳定性和错配修复",
+        "blockNameEn": "Gene Microsatellite Instability(MSI) and Mismatch Repair(MMR)",
+        "code": "4a1bfe8c9ef447e78a14946404694060",
+        "createTime": 1514252708000,
+        "langType": "cn",
+        "isCheck": 1,
+        "lastModifyTime": 1514252708000,
+        "projectCode": "0c4dab14d379442c9cbcbe17e4374303"
+    },
+    {
+        "blockCode": "25",
+        "blockKey": "hLAGene",
+        "blockName": "HLA基因",
+        "blockNameEn": "HLA gene",
+        "code": "ced787f693684566b01eaa09dd28160a",
+        "createTime": 1514251800000,
+        "langType": "cn",
+        "isCheck": 1,
+        "lastModifyTime": 1514251800000,
+        "projectCode": "0c4dab14d379442c9cbcbe17e4374303"
+    }
+]

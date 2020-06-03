@@ -1,0 +1,158 @@
+<template>
+  <div id="app">
+    <div class="content">
+      <div class="header-content" v-if="$route.path !== '/' && isshowNav === -1">
+        <Headers></Headers>
+      </div>
+      <div :class="{'nav-content closed': isCollapse , 'nav-content' : !isCollapse}" v-if="$route.path !== '/' && isshowNav === -1">
+        <Navgates></Navgates>
+      </div>
+      <div :class="{'main-content': !isCollapse, 'main-content reports': isCollapse}">
+        <transition name="fade">
+          <transition name="fade" mode="out-in"><router-view></router-view></transition>
+        </transition>
+      </div>
+    </div>
+    <div class="copyright" v-if="$route.path !== '/' && isshowNav === -1">
+      <!-- <p><a href="javascript:;">免责声明</a><a href="javascript:;">免责声明</a><a href="javascript:;">免责声明</a><a href="javascript:;">免责声明</a><a href="javascript:;">免责声明</a></p> -->
+      <p>© 2019 bainuo international To.ltd copyright</p>
+    </div>
+  </div>
+</template>
+
+<script>
+import Header from '@/components/header'
+import Navgate from '@/components/navgate'
+export default {
+  name: 'app',
+  components: {
+    Headers: Header,
+    Navgates: Navgate
+  },
+  computed: {
+    isshowNav() {
+      return this.$route.path.indexOf("/heal/")
+      // 监测是否是健康体检报告的路径
+      // indexOf('/xxx')   true: 0 , false: -1
+    },
+    isCollapse() {
+     return this.$store.getters.isOpened
+    }
+  }
+}
+</script>
+
+<style lang="less">
+ #app, body, html, .content{
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+  }
+  body{
+    font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+    background:rgba(247,248,251,1);
+  }
+  .header-content{
+    line-height: 50px;
+    height: 50px;
+    text-align: center;
+    /*background: #288DF5;*/
+    background: #fff;
+    color: #fff;
+    box-shadow:0px 1px 3px 0px rgba(204,204,204,0.15);
+  }
+  .nav-content{
+    display: block;
+    position: absolute;
+    width: 230px;
+    left: 0;
+    top: 0px;
+    bottom: 0;
+    transition: all .5s;
+    background-image:url(common/images/dw.png);
+    background-color: #008AFF;
+    background-size: 95%;
+    background-position-y: bottom;
+    box-sizing: border-box;
+    /*overflow-y: scroll;
+    overflow-x: hidden;*/
+    overflow: auto;
+    background-repeat: no-repeat;
+    &::-webkit-scrollbar
+     {
+       width: 1px;
+       height: 1px;
+     }
+  }
+  .nav-content.closed {
+    width:65px;
+  }
+  .main-content{
+    position: absolute;
+    left: 230px;
+    right: 0;
+    top: 50px;
+    bottom: 0;
+    width: 100%;
+    padding: 20px 20px 0 20px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    transition: all .5s;
+    width: calc(~"100% - 230px");
+    height:calc(~"100% - 100px");
+  }
+  .main-content.reports{
+    left:65px;top:50px;
+    width: calc(~"100% - 65px");
+  }
+  .tc{
+    text-align: center;
+  }
+  .fade-enter-active, .fade-leave-active{
+    transition: opacity .3s
+  }
+  .fade-enter, .fade-leave-active{
+    opacity: 0;
+  }
+  .form-data{
+    padding-top: 15px;
+    background-color: #F5F8FA;
+    border: 1px solid #ebebeb;
+  }
+  .crumbs{
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ebebeb;
+    margin-bottom: 25px;
+  }
+  .search-content{
+    padding-left: 12px;
+    padding-right: 12px;
+    padding-top: 10px;
+    margin-bottom: 15px;
+    background-color: #F5F8FA;
+    .el-form-item{
+      margin-bottom: 10px;
+    }
+  }
+  .page-pagination{
+    padding:20px 0;
+    overflow: hidden;
+  }
+  .el-pagination{
+    // float: right;
+  }
+  .el-button+.el-button{
+    margin-left: 0;
+  }
+  .copyright{ position: fixed; z-index:999; width:100%; bottom:0px; left: 0px; padding: 5px 0; text-align: center;}
+.copyright p{ line-height: 35px; color:#7F8493; font-size:14px; }
+  .search-wrapper{ margin-bottom:0px;}
+  .query-form{  padding-top: 10px;}
+    .el-table__body-wrapper {
+    overflow: visible;
+}
+.el-select .el-input .el-select__caret{font-size:18px; color:#000}
+
+.mmpPager .el-pagination__sizes{display: none!important;}
+</style>

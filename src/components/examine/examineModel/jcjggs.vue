@@ -1,0 +1,71 @@
+<template>
+  <div class="base_msg blockContent">
+    <div class="subItems">
+     <div class="subname">
+     	<span>检测结果概述</span>
+     	<div class="saveico" v-if="block1 && canEdit" @click="block1 = !block1, saveChange(formData1)"></div>
+     	<div class="cancel" v-if="block1 && canEdit" @click="block1 = !block1, cancerChange()"></div>
+     	<div class="bjimg" v-if="!block1 && canEdit" @click="block1 = !block1,changeEdit()"></div>
+     </div>
+      <div class="inlineItem" style="margin: -17px 0 0 0;">
+        <el-row :gutter="10">
+          <el-col :span="24">
+            <div class="resultList" v-if="!block1">{{formData1.result}}</div>
+            <el-input type="textarea" v-model="formData1.result" :autosize="{ minRows: 3, maxRows: 6}" class="editFroms" v-if="block1"  placeholder="检测结果概述"></el-input>
+          </el-col>
+        </el-row>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+  export default {
+    props: {
+        formDatas:{
+            type:Object
+        }
+    },
+    created() {
+    },
+    data () {
+      return {
+        block1: false,
+        canEdit: true,
+        formData: {},
+        formData1: {}
+      }
+    },
+    methods: {
+      changeEdit(val, editorName) {
+        let that = this
+        that[editorName] = val == 'true' ?  true : false
+      },
+      cancerChange(editorName) {
+        let that = this
+        that[editorName] = false
+        // 重新给formData赋值    取消的时候，重置内容
+        let n = Object.assign({}, that.formDatas)
+        that.formData1 = n
+      },
+      saveChange (vale, editorName) {
+        let that = this
+        this[editorName] = false
+//         let n = Object.assign({}, that.formData1)
+//         this.formData = n
+        this.$emit('saveChange', vale)
+      },
+//       inputSub(itemCode, keyName, keyValue) {
+//         let that = this
+//         // return false
+//         that.$emit('saveChange', that.formDatas.code, itemCode, keyName, keyValue)
+//       }
+    },
+    watch: {
+      formDatas: function(newVal,oldVal){
+        let that = this
+        that.formData = newVal
+        that.formData1 = JSON.parse(JSON.stringify(that.formData))
+      }
+    }
+  }
+</script>

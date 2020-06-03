@@ -1,0 +1,998 @@
+<template>
+	<div class="list">
+		<div class="contentTitle pdlr20">审核数据查看</div>
+			<div class="head_examine">
+			<div class="knowledge_tab" style="display:inline-block; vertical-align:middle;float: left;">
+				<span @click.stop="changeTabId(1)" :class="{'active':showTab === 1}">数据详情</span>
+				<span @click.stop="changeTabId(2)" :class="{'active':showTab === 2}">参考摘要</span>
+			</div>
+		</div>
+		
+		<div class="examinedatainfo" v-if="showTab === 1">
+			<table>
+				<tr>
+					<th class="texts">名称</th>
+					<th>当前值</th>
+				</tr>
+				<tr>
+					<td class="texts">RS号</td>
+					<td class="textdata">{{ data1.rsId }}&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="texts">基因</td>
+					<td class="textdata">{{ data1.gene }}&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="texts">基因型</td>
+					<td class="textdata">{{ data1.genoType }}&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="texts">变异</td>
+					<td class="textdata">{{ data1.mutation }}&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="texts">变异类型</td>
+					<td class="textdata">{{ data1.mutationType }}&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="texts">药物</td>
+					<td class="textdata">{{ data1.drug }}&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="texts">药物类型</td>
+					<td class="textdata">{{ data1.drugType }}&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="texts">药物类型</td>
+					<td class="textdata">{{ data1.drugType }}&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="texts">药物商品名</td>
+					<td class="textdata">{{ data1.drugTradeName }}&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="texts">疾病</td>
+					<td class="textdata">{{ data1.diseaseEn }}&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="texts">疾病中文名</td>
+					<td class="textdata">{{ data1.diseaseCh }}&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="texts">分期</td>
+					<td class="textdata">{{ data1.stage }}&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="texts">亚型</td>
+					<td class="textdata">{{ data1.subtype }}&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="texts" colspan="2"><strong>标注：</strong></td>
+				</tr>
+				<tr>
+					<td class="texts">致病基因</td>
+					<td class="textdata">{{ data1.hasVirulenceGene === 1 ? '是' : '否' }}&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="texts">毒性</td>
+					<td class="textdata">{{ data1.toxin }}&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="texts">毒性</td>
+					<td class="textdata">{{ data1.toxin }}&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="texts">毒性风险</td>
+					<td class="textdata">{{ data1.toxincityRisk }}&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="texts">药物反应</td>
+					<td class="textdata">{{ data1.drugReaction }}&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="texts">代谢</td>
+					<td class="textdata">{{ data1.metabolism }}&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="texts">吸收</td>
+					<td class="textdata">{{ data1.absorb }}&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="texts">疗效</td>
+					<td class="textdata">{{ data1.effect }}&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="texts">预后</td>
+					<td class="textdata">{{ data1.prognosis }}&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="texts">副作用</td>
+					<td class="textdata">{{ data1.sideEffect }}&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="texts">副作用风险</td>
+					<td class="textdata">{{ data1.sideEffectRisk }}&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="texts">剂量</td>
+					<td class="textdata">{{ data1.dosage }}&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="texts">治疗阶段</td>
+					<td class="textdata">{{ data1.treatmentStage }}&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="texts">疗法</td>
+					<td class="textdata">{{ data1.therapy }}&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="texts">患病风险</td>
+					<td class="textdata">{{ data1.riskOfDisease }}&nbsp;</td>
+				</tr>
+				<tr>
+					<td class="texts">结论</td>
+					<td>
+						<div class="areasource" v-for="(obj, index) in data1.summarys" :key="index">
+							<div class="source">
+								<span style="display:inline-block;width:10em;margin-left: -15px;">
+									<el-select v-model="obj.key" placeholder="证据来源" disabled>
+										<el-option v-for="(item, keys) in summaryList" :key="keys" :label="item.label" :value="item.value">
+										</el-option>
+									</el-select>
+								</span>
+							</div>
+							<p>结论内容：</p>
+							<el-input type="textarea" :autosize="{ minRows: 2, maxRows: 8}" placeholder="结论内容" v-model="obj.value" disabled></el-input>
+							<p>参考文献：</p>
+							<el-input type="textarea" :autosize="{ minRows: 2, maxRows: 8}" placeholder="参考文献" v-model="obj.ref" disabled></el-input>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>		
+		
+		<div class="examinedataDoc" v-if="showTab === 2">
+			<p>{{ data1.abstract_ }}</p><br>
+			<p>DOI：<a :href="data1.pmid">{{ data1.pmid }}</a></p>
+		</div>
+
+		<el-dialog title="作废原因" :visible.sync="dialogTableVisible">
+			<el-input v-model="toVoidReason" type="textarea" :autosize="{ minRows: 3, maxRows: 8}"></el-input>
+			<div slot="footer" class="dialog-footer">
+				<el-button @click="dialogTableVisible = false, toVoidReason= ''">取 消</el-button>
+				<el-button type="primary" @click="nulltify">确 定</el-button>
+			</div>
+		</el-dialog>
+
+	</div>
+</template>
+<script>
+	import URL from '@/common/js/URL.js'
+	import Pager from '@/components/common/pager'
+	import axios from 'axios'
+	import moment from 'moment'
+	export default {
+		created() {
+			this.getListData(1)
+			this.getUserList()
+			// 获取疾病列表
+			this.getcancerList()
+			// this.getErrorData()
+		},
+		data() {
+			return {
+				dialogVisible: false,
+				tableData: [],
+				auditFlag: 0,
+				id: this.$route.params.id,
+				pager: this.$route.params.pager,
+				data1: {},
+				data2: {
+					summaryId: '',
+					id: this.$route.params.id,
+					code: this.$route.params.id,
+					userCode: '',
+					"diseaseCh": null,
+					"disease": "122",
+					"diseaseSubtype": "1212323",
+					"diseaseSubtypeCh": "122",
+					"stage": "123232",
+					"drugType": "2323",
+					"drugCh": "3323",
+					"drug": "2323",
+					"drugTradeName": "232323",
+					"drugTradeNameCh": "232323",
+					gene: "22333",
+					genoType: '',
+					diseaseEn: '',
+					drugTradeName: '',
+					stage: '',
+					hasVirulenceGene: 0,
+					drugCh: '',
+					subtype: '',
+					phase: '',
+					toxincityRisk: '',
+					sideEffectRisk: '',
+					drugReaction: '',
+					mutation: '123',
+					mutationType: '12323',
+					"rsId": "2323232",
+					"priority": "2323233",
+					therapys: [],
+					summarys: [{
+						key: 'xxx',
+						value: 'xeeee'
+					}, {
+						key: 'xxx2',
+						value: 'xeeee2'
+					}],
+					"treatmentStages": [1, 2, 3, 4, 5],
+					"toxin": "46565665",
+					"response": "12323",
+					"metabolism": "4565657",
+					"absorb": "45665656",
+					"effect": "232323",
+					"prognosis": "1212121",
+					"sideEffect": "333333333",
+					"dosage": "1223336",
+					"updated_date": null,
+					"refId": "44656565656",
+					"auditor": "87df32c7baa0405f8d9df259236207ee",
+					"auditLevel": 2,
+					"summary": "3533",
+					"status": 0,
+					"updatedStatus": 0,
+					"kbPaperId": 456564,
+					"genoType": "232333",
+					"auditFlag": null
+				},
+				data3: {},
+				xx: [],
+				currentPage: 1,
+				pageSize: 1,
+				pageNum: 0,
+				subtypeList: [],
+				summaryList: [{
+					value: 'NCCN',
+					label: 'NCCN'
+				}, {
+					value: 'CSCO',
+					label: 'CSCO'
+				}, {
+					value: 'ASCO',
+					label: 'ASCO'
+				}, {
+					value: 'ESMO',
+					label: 'ESMO'
+				}, {
+					value: 'ACMG',
+					label: 'ACMG'
+				}, {
+					value: 'FDA',
+					label: 'FDA'
+				}, {
+					value: 'CFDA',
+					label: 'CFDA'
+				}, {
+					value: 'EMA',
+					label: 'EMA'
+				}, {
+					value: 'PMDA',
+					label: 'PMDA'
+				}, {
+					value: 'HCSC',
+					label: 'HCSC'
+				}, {
+					value: 'nccnCsco',
+					label: 'nccnCsco'
+				}, {
+					value: 'PMID',
+					label: 'PMID'
+				}, {
+					value: 'preclinical',
+					label: 'preclinical'
+				}, {
+					value: 'functionalPrediction',
+					label: 'functionalPrediction'
+				}],
+				totalCount: 50,
+				value1: '',
+				value: '',
+				showTab: 1,
+				isconflict: false,
+				checkList: ['复选框 A'],
+				downList: [{
+					value: '选项1',
+					label: '选项A'
+				}, {
+					value: '选项2',
+					label: '选项B'
+				}, {
+					value: '选项3',
+					label: '选项C'
+				}],
+				therapysDownList: [{
+					value: '单药靶向治疗',
+					label: '单药靶向治疗'
+				}, {
+					value: '双靶向治疗',
+					label: '双靶向治疗'
+				}, {
+					value: '靶向治疗或联合化疗',
+					label: '靶向治疗或联合化疗'
+				}, {
+					value: '靶向治疗或联合治疗',
+					label: '靶向治疗或联合治疗'
+				}, {
+					value: '靶向治疗联合化疗',
+					label: '靶向治疗联合化疗'
+				}, {
+					value: '靶向治疗联合放疗',
+					label: '靶向治疗联合放疗'
+				}, {
+					value: '靶向治疗或双靶向治疗',
+					label: '靶向治疗或双靶向治疗'
+				}, {
+					value: '化疗',
+					label: '化疗'
+				}, {
+					value: '联合化疗',
+					label: '联合化疗'
+				}, {
+					value: '化疗或联合化疗',
+					label: '化疗或联合化疗'
+				}, {
+					value: '化疗或放化疗',
+					label: '化疗或放化疗'
+				}, {
+					value: '化疗或联合放疗',
+					label: '化疗或联合放疗'
+				}, {
+					value: '化疗或联合靶向治疗',
+					label: '化疗或联合靶向治疗'
+				}, {
+					value: '化疗或联合治疗',
+					label: '化疗或联合治疗'
+				}, {
+					value: '放化疗',
+					label: '放化疗'
+				}, {
+					value: '免疫靶向治疗',
+					label: '免疫靶向治疗'
+				}, {
+					value: '生化疗法',
+					label: '生化疗法'
+				}, {
+					value: '生物疗法',
+					label: '生物疗法'
+				}, {
+					value: '免疫治疗',
+					label: '免疫治疗'
+				}, {
+					value: '激素疗法',
+					label: '激素疗法'
+				}],
+				duxing: [{
+					value: '增加',
+					label: '增加'
+				}, {
+					value: '降低',
+					label: '降低'
+				}, {
+					value: '相当',
+					label: '相当'
+				}],
+				yaowufanying: [{
+					value: '耐药',
+					label: '耐药'
+				}, {
+					value: '耐药增强',
+					label: '耐药增强'
+				}, {
+					value: '耐药减弱',
+					label: '耐药减弱'
+				}, {
+					value: '敏感',
+					label: '敏感'
+				}, {
+					value: '敏感减弱',
+					label: '敏感减弱'
+				}, {
+					value: '敏感增强',
+					label: '敏感增强'
+				}, {
+					value: '减弱',
+					label: '减弱'
+				}, {
+					value: '增强',
+					label: '增强'
+				}, {
+					value: '相当',
+					label: '相当'
+				}],
+				daixie: [{
+					value: '增强',
+					label: '增强'
+				}, {
+					value: '减弱',
+					label: '减弱'
+				}, {
+					value: '相当',
+					label: '相当'
+				}],
+				xishou: [{
+					value: '增加',
+					label: '增加'
+				}, {
+					value: '降低',
+					label: '降低'
+				}, {
+					value: '相当',
+					label: '相当'
+				}],
+				yuhou: [{
+					value: '好',
+					label: '好'
+				}, {
+					value: '差',
+					label: '差'
+				}, {
+					value: '相当',
+					label: '相当'
+				}],
+				fuzuoyong: [{
+					value: '增高',
+					label: '增高'
+				}, {
+					value: '降低',
+					label: '降低'
+				}, {
+					value: '相当',
+					label: '相当'
+				}],
+				drugTypeList: [{
+					value: '靶向药物',
+					label: '靶向药物'
+				}, {
+					value: '放疗药物',
+					label: '放疗药物'
+				}, {
+					value: '化疗药物',
+					label: '化疗药物'
+				}, {
+					value: '免疫检查点抑制剂',
+					label: '免疫检查点抑制剂'
+				}, {
+					value: '细胞治疗',
+					label: '细胞治疗'
+				}, {
+					value: '肿瘤疫苗',
+					label: '肿瘤疫苗'
+				}, {
+					value: '内分泌治疗药物',
+					label: '内分泌治疗药物'
+				}, {
+					value: '其他',
+					label: '其他'
+				}],
+				zhiliaojieduan: [{
+					value: '手术治疗',
+					label: '手术治疗'
+				}, {
+					value: '非手术治疗',
+					label: '非手术治疗'
+				}, {
+					value: '术后治疗',
+					label: '术后治疗'
+				}, {
+					value: '放疗',
+					label: '放疗'
+				}, {
+					value: '靶向治疗',
+					label: '靶向治疗'
+				}, {
+					value: '化疗',
+					label: '化疗'
+				}, {
+					value: '最佳支持治疗',
+					label: '最佳支持治疗'
+				}, {
+					value: '姑息治疗',
+					label: '姑息治疗'
+				}, {
+					value: '一线治疗',
+					label: '一线治疗'
+				}, {
+					value: '二线治疗',
+					label: '二线治疗'
+				}, {
+					value: '三线治疗',
+					label: '三线治疗'
+				}, {
+					value: '一线辅助治疗',
+					label: '一线辅助治疗'
+				}, {
+					value: '新辅助化疗=术前辅助化疗=诱导化疗',
+					label: '新辅助化疗=术前辅助化疗=诱导化疗'
+				}, {
+					value: '术后辅助化疗',
+					label: '术后辅助化疗'
+				}, {
+					value: '一线辅助治疗',
+					label: '一线辅助治疗'
+				}, {
+					value: '二线辅助治疗',
+					label: '二线辅助治疗'
+				}, {
+					value: '复发性/进展后治疗',
+					label: '复发性/进展后治疗'
+				}, {
+					value: '维持治疗',
+					label: '维持治疗'
+				}, {
+					value: '一线后维持治疗',
+					label: '一线后维持治疗'
+				}, {
+					value: '二线后维持治疗',
+					label: '二线后维持治疗'
+				}, {
+					value: '后续治疗',
+					label: '后续治疗'
+				}],
+				dialogTableVisible: false,
+				toVoidReason: '',
+				diseaseList: [],
+				diseaseListEn: [],
+				userlist: [],
+				iserrors: false,
+				loading: false
+			}
+		},
+		components: {
+			Pager: Pager
+		},
+		methods: {
+			getUserList() {
+				// 获取用户列表  ————  用在提交下一个审核员
+				let that = this
+				axios.get(URL.api_name + 'cloud/get_auditlist').then(function(respose) {
+					that.userlist = respose.data.data
+				}, function(error) {
+					// console.log(error)
+					that.loading = false
+					that.$message({
+						type: 'error',
+						message: '查询失败',
+						duration: 1000
+					})
+				})
+			},
+			getListData(num) {
+				// 获取初始数据 data1的内容
+				this.currentPage = parseInt(num)
+				let that = this
+				that.loading = true
+				axios.get(URL.api_name + 'cloud/project/getSummaryAuditByCode', {
+					params: {
+						code: that.id,
+						pageNumber: 1,
+						pageSize: 1
+					}
+				}).then(function(respose) {
+					let data = respose.data
+					that.data1 = data.data.list[0]
+					// 拷贝 把data1的值赋给data2
+					if (that.currentListPage === 1) {
+						for (let key in that.data1) {
+							that.data2[key] = that.data1[key]
+							if (Array.isArray(that.data1[key])) {
+								that.data2[key] = []
+								for (let i = 0; i < that.data1[key].length; i++) {
+									that.data2[key].push(that.data1[key][i])
+								}
+							}
+						}
+					}
+					that.totalListCount = data.data.total
+					that.auditFlag = data.data.list[0].auditFlag
+					that.loading = false
+				}, function(error) {
+					// console.log(error)
+					that.loading = false
+					that.$message({
+						type: 'error',
+						message: '查询失败',
+						duration: 1000
+					})
+				})
+			},
+			nulltify() {
+				// 作废这条信息
+				let that = this
+				// that.$confirm('确定作废此条数据吗？', '提示', {
+				//   confirmButtonText: '确定',
+				//   cancelButtonText: '取消',
+				//   type: 'warning'
+				// }).then(() => {
+				// return false
+				if (that.toVoidReason === '') {
+					that.$message({
+						type: 'error',
+						message: '请输入作废原因',
+						duration: 3000
+					})
+					// 如果没填作废原因，就不给作废
+					return false
+				}
+				let n = {}
+				n["id"] = that.id
+				n['toVoidReason'] = that.toVoidReason
+				axios.post(URL.api_name + 'cloud/project/cancelKbAudit', n).then(res => {
+					if (res.data.code === '100') {
+						that.$message({
+							type: 'success',
+							message: res.data.message,
+							duration: 2000,
+							onClose: function() {
+								that.$router.push({
+									path: '/ExamineDataList/' + that.pager
+								})
+							}
+						})
+						that.dialogTableVisible = false
+					}
+				}).catch(err => {
+					that.$message({
+						type: 'error',
+						message: '操作失败',
+						duration: 1000
+					})
+					console.log(err)
+				})
+				// }).catch(() => {
+				//   // 用户点击取消
+				// })
+			},
+			getcancerList() {
+				// 获取疾病列表 data2内的"疾病"选项 备选项
+				let that = this
+				axios.get(URL.api_name + 'cloud/cancerList').then(res => {
+					if (res.data.code === '100') {
+						// that.$message({
+						//   type: 'success',
+						//   message: res.data.message,
+						//   duration: 1000
+						// })
+						that.diseaseList = res.data.data
+						for (let i = 0; i < that.diseaseList.length; i++) {
+							that.diseaseListEn.push({
+								value: that.diseaseList[i].diseaseEnName
+							})
+						}
+
+					}
+				}).catch(err => {
+					that.$message({
+						type: 'error',
+						message: '获取失败',
+						duration: 1000
+					})
+					console.log(err)
+				})
+			},
+			getErrorData(num) {
+				// 获取错误的内容
+				let that = this
+				if (num !== undefined) {
+					that.currentPage = parseInt(num)
+				}
+				that.data2['pageNumber'] = that.currentPage
+				that.data2['pageSize'] = 1
+				axios.post(URL.api_name + 'cloud/project/getSimilarSummary', that.data2).then(res => {
+					if (res.data.code === '100') {
+						if (res.data.data.list.length < 1) {
+							that.$message({
+								type: 'error',
+								message: '未查询到关联数据',
+								duration: 3000
+							})
+							return false
+						}
+						// show出关联
+						that.isconflict = true
+						that.data3 = {}
+						that.data3 = res.data.data.list[0]
+						that.totalCount = res.data.data.total
+						// 加验证是否冲突
+						// for (let i in that.data3) {
+						//   if (that.data3[i] !== that.data2[i]) {
+						//     that.data3['iserror_' + i] = true
+						//   }
+						// }
+						console.log(that.data3)
+						// that.$message({
+						//   type: 'success',
+						//   message: res.data.message,
+						//   duration: 1000
+						// })
+					}
+				}).catch(err => {
+					console.log(err)
+					that.$message({
+						type: 'error',
+						message: '操作失败',
+						duration: 1000
+					})
+				})
+			},
+			subNext(val) {
+				let that = this
+				// console.log(val)
+				let name = ''
+				for (let i = 0; i < that.userlist.length; i++) {
+					if (val === that.userlist[i].code) {
+						name = that.userlist[i].nickName
+						// return false
+					}
+				}
+				// 判断是否有下一审核人
+				if (name === '') {
+					that.$message({
+						type: 'error',
+						message: '未选择下一审核人',
+						duration: 2500
+					})
+					return false
+				}
+				// 判断 疾病和基因是否为空
+				if (that.data2.diseaseEn === '' || that.data2.gene === '') {
+					that.$message({
+						type: 'error',
+						message: '基因和疾病不能为空',
+						duration: 2500
+					})
+					return false
+				}
+				// 二次确认
+				that.$confirm('确定提交给　' + name + '　审核吗？', '提示', {
+					confirmButtonText: '确定',
+					cancelButtonText: '取消',
+					type: 'warning'
+				}).then(() => {
+					that.subNextsh()
+				}).catch(() => {
+					// 用户取消点击
+					// that.value = ''
+				})
+			},
+			subNextsh() {
+				let that = this
+				that.data2.userCode = that.value
+				axios.post(URL.api_name + 'cloud/project/ordinaryAudit', that.data2).then(res => {
+					if (res.data.code === '100') {
+						that.$message({
+							type: 'success',
+							message: '提交成功',
+							duration: 2500,
+							onClose: function() {
+								that.$router.push({
+									path: '/ExamineDataList/' + that.$route.params.pager
+								})
+							}
+						})
+						// that.getListData(that.currentPage)
+					} else {
+						that.$message({
+							type: 'error',
+							message: '提交失败' + res.data.message,
+							duration: 2500
+						})
+					}
+				}).catch(err => {
+					that.$message({
+						type: 'error',
+						message: '提交失败',
+						duration: 1000
+					})
+					console.log(err)
+				})
+			},
+			addsummarys() {
+				let that = this
+				that.data2.summarys.push({
+					key: '',
+					value: '',
+					ref: ''
+				})
+			},
+			removesumarys(index) {
+				let that = this
+				that.data2.summarys.splice(index, 1)
+			},
+			save() {
+				let that = this
+				that.$confirm('确定保存吗？', '提示', {
+					confirmButtonText: '确定',
+					cancelButtonText: '取消',
+					type: 'warning'
+				}).then(() => {
+					// return false
+					axios.post(URL.api_name + 'cloud/project/saveAudit', that.data2).then(res => {
+						if (res.data.code === '100') {
+							that.$message({
+								type: 'success',
+								message: '保存成功',
+								duration: 2500,
+								onClose: function() {
+									// that.$router.push({
+									//   path: '/ExamineDataList/' + that.$route.params.pager
+									// })
+								}
+							})
+							// that.getListData(that.currentPage)
+						} else {
+							that.$message({
+								type: 'error',
+								message: '保存失败' + res.data.message,
+								duration: 1500
+							})
+						}
+					}).catch(err => {
+						that.$message({
+							type: 'error',
+							message: '保存失败',
+							duration: 1000
+						})
+						console.log(err)
+					})
+				})
+			},
+			subEnd() {
+				let that = this
+				that.$confirm('确认完结提交吗？', '提示', {
+					confirmButtonText: '确认',
+					cancelButtonText: '取消',
+					type: 'warning'
+				}).then(() => {
+					that.endsub()
+				}).catch(err => {
+					console.log(err)
+				})
+			},
+			endsub() {
+				// 完结
+				let that = this
+				if (that.data2.diseaseEn === '' || that.data2.gene === '') {
+					that.$message({
+						type: 'error',
+						message: '基因和疾病不能为空',
+						duration: 2500
+					})
+					return false
+				}
+				axios.post(URL.api_name + 'cloud/project/finish', that.data2).then(res => {
+					if (res.data.code === '100') {
+						that.$message({
+							type: 'success',
+							message: '提交成功',
+							duration: 1000,
+							onClose: function() {
+								that.$router.push({
+									path: '/ExamineDataList/' + that.$route.params.pager
+								})
+							}
+						})
+						// that.getListData(that.currentPage)
+					} else {
+						that.$message({
+							type: 'error',
+							message: '提交失败：' + res.data.message,
+							duration: 1000
+						})
+					}
+				}).catch(err => {
+					that.$message({
+						type: 'error',
+						message: '提交失败',
+						duration: 1000
+					})
+					console.log(err)
+				})
+			},
+			cancel() {
+				// 取消
+				let that = this
+				that.$router.push({
+					path: '/ExamineDataList/' + that.$route.params.pager
+				})
+			},
+			merge() {
+				// 合并内容
+				let that = this
+
+				for (let key in that.data3) {
+					if (that.data3[key] !== '' && !Array.isArray(that.data3[key])) {
+						that.data2[key] = that.data3[key]
+					} else if (Array.isArray(that.data3[key])) {
+						that.data2[key] = []
+						for (let i = 0; i < that.data3[key].length; i++) {
+							that.data2[key].push(that.data3[key][i])
+						}
+					}
+				}
+
+				that.$message({
+					type: 'success',
+					message: '合并成功',
+					duration: 2000,
+					onClose: function() {}
+				})
+				that.isconflict = false
+			},
+			querySearch(queryString, cb) {
+				var diseaseListEn = this.diseaseListEn
+				var results = queryString ? diseaseListEn.filter(this.createFilter(queryString)) : diseaseListEn
+				// 调用 callback 返回建议列表的数据
+				cb(results)
+			},
+			createFilter(queryString) {
+				return (restaurant) => {
+					return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
+				}
+			},
+			cancerReferList(val, index) {
+				let that = this
+				axios.get(URL.api_name + 'cloud/cancerReferList', {
+					params: {
+						diseaseEn: 'Non-Small Cell Lung Cancer(NSCLC)', // that.data2.diseaseEn,
+						drugEnName: that.data2.drugCh,
+						key: val
+					}
+				}).then(function(res) {
+					if (res.data.code === '100') {
+						that.data2.summarys[index].ref = res.data.data
+						// console.log(that.subtypeList)
+						// that.subtypeList = res.data.data
+					}
+				})
+			},
+			handleSelect() {
+				// 选择完疾病英文名，自动把中文也选上
+				let that = this
+				for (let i = 0; i < that.diseaseList.length; i++) {
+					if (that.data2.diseaseEn === that.diseaseList[i].diseaseEnName) {
+						that.data2.diseaseCh = that.diseaseList[i].name
+						// return false
+					}
+				}
+				// 亚型重置
+				that.data2.subtype = ''
+				that.subtypeList = []
+				// 把对应的亚型也获取一下
+				axios.get(URL.api_name + 'cloud/cancerSubTypeList', {
+					params: {
+						diseaseEn: that.data2.diseaseEn
+					}
+				}).then(function(res) {
+					if (res.data.code === '100') {
+						let nObj = res.data.data[0].subType
+						let n = nObj.split('、')
+						for (let i = 0; i < n.length; i++) {
+							that.subtypeList.push({
+								name: n[i]
+							})
+						}
+						// console.log(that.subtypeList)
+						// that.subtypeList = res.data.data
+					}
+				})
+			},
+			changeTabId(id) {
+				this.showTab = parseInt(id)
+				console.log(this.showTab)
+			}
+		}
+	}
+</script>
+<style scoped>
+</style>

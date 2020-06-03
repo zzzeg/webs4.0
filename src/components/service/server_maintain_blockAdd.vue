@@ -1,0 +1,513 @@
+<template>
+  <div class="list">
+        <div class="contentTitle pdlr20">内容模块-添加</div>
+        <br>
+        <!-- 主版内容 -->
+        <div class="block_content">
+            <!-- <el-button type="primary" @click="addBlock" class="addBlock">+ 添 加</el-button> -->
+            <el-form :inline="true" :model="formData" ref="formData"  label-width="" class="demo-form-inline table_content" @submit.prevent="onsubmit">
+                <el-form-item label="名称">
+                    <el-input v-model="formData.name" placeholder="请输入block名称"></el-input>
+                </el-form-item>
+                <el-form-item label="Name">
+                    <el-input v-model="formData.enName" placeholder="请输入block英文名称"></el-input>
+                </el-form-item>
+                <el-form-item label="key" :span="10">
+                    <el-input v-model="formData.blockKey" placeholder="请输入key值"></el-input>
+                </el-form-item>                    
+                <el-form-item label="type">
+                        <el-select v-model="formData.type"  placeholder="请选择block类型">
+                            <el-option label="单记录" value="1"></el-option> 
+                            <el-option label="列表" value="2"></el-option> 
+                        </el-select>
+                </el-form-item>
+                <el-form-item label="序号">
+                        <el-input v-model.number="formData.sort" type="number" placeholder="数字越小排序越靠前"></el-input>
+                </el-form-item>
+
+                <div v-for="(item, index) in formData.blockFields">
+                    <el-form-item label="label">
+                        <el-input v-model="item.label" placeholder="请输入标题名称"></el-input>
+                    </el-form-item>
+                    <el-form-item label="name">
+                        <el-input v-model="item.name" placeholder="请输入名称"></el-input>
+                    </el-form-item>
+                    <el-form-item label="标签">
+                        <el-select v-model="item.element" @change="typeChange(index)" placeholder="请选择标签">
+                            <el-option
+                                v-for = "optionElementItem in optionElement"
+                                :key = "optionElementItem.value"
+                                :label= "optionElementItem.label"
+                                :value= "optionElementItem.value"
+                            ></el-option> 
+                        </el-select>
+
+                        <!-- 添加输入元素标签类型 -->
+                        <el-button type="primary" size='mini' @click="addElementType(index)"> + </el-button>
+                        <div class="elementType" v-if="item.elementFlag === true">
+                            <el-form-item label="">
+                                <el-input v-model="formData1.element" placeholder="新增标签名称" style="width:217px"></el-input>
+                                <el-button type="success" size="mini" icon="el-icon-check" circle @click="subElementType(index)"></el-button>
+                                <el-button type="warning" size='mini' @click="delElementType(index)"> - </el-button>
+                            </el-form-item>
+                        </div>
+                    </el-form-item>
+                    <!-- 默认值为input类型时，显示type选择字段 -->
+                    <el-form-item label="type" v-if="item.element === 'input'">
+                        <el-select v-model="item.type" placeholder="请选择类型">
+                            <el-option
+                                v-for = "optionTypeItem in optionType"
+                                :key = "optionTypeItem.value"
+                                :label= "optionTypeItem.label"
+                                :value= "optionTypeItem.value"
+                            ></el-option> 
+                        </el-select>
+                        <!-- 新增tyep字段类型 -->
+                        <el-button type="primary" size='mini' @click="addType(index)"> + </el-button>
+                        <div class="elementType" v-if="item.typeFlag === true">
+                            <el-form-item label="">
+                                <el-input v-model="formData2.type" placeholder="新增类型名称" style="width:217px"></el-input>
+                                <el-button type="success" size="mini" icon="el-icon-check" circle @click="subType(index)"></el-button>
+                                <el-button type="warning" size='mini' @click="delType(index)"> - </el-button>
+                            </el-form-item>
+                        </div>
+                    </el-form-item>
+                    <!-- 默认值为select时，显示单选、多选字段 -->
+                    <el-form-item label="type" v-if="item.element === 'select'">
+                        <el-select v-model="item.type"  placeholder="请选择类型">
+                            <el-option
+                                v-for = "(optionSelectItem, indexof) in optionSelect"
+                                :key = "indexof"
+                                :label= "optionSelectItem.label"
+                                :value= "optionSelectItem.value"
+                            ></el-option> 
+                        </el-select>
+                    </el-form-item>
+
+                    <!-- 默认值为input、textarer -->
+                    <el-form-item label="默认值" v-if="item.element === 'textarea'">
+                        <el-input v-model="item.defaultVal" placeholder="请输入默认值"></el-input>
+                    </el-form-item>
+                    <!-- 默认值为radio -->
+                    <el-form-item label="备选项" v-if="item.element === 'radio' ">
+                        <!-- <el-collapse accordion>
+                            <el-collapse-item>
+                                <template slot="title">
+                                    备选项<i class="header-icon el-icon-plus" @click="addSelectOption(item.element, index)"></i>
+                                </template>
+                                <div>
+                                    <el-row :gutter="10" v-for="(radioItem, index1) in item.initValueJsonObject" :key="index1" v-show="vshowVal">
+                                        <el-col :span="16"><el-input v-model="radioItem.label" placeholder="请输入选项名"></el-input></el-col>
+                                        <el-col :span="8"><el-button type="warning" size="mini" @click="delSelectOption(item.element, index, index1)">删除</el-button></el-col>
+                                    </el-row>
+                                </div>
+                            </el-collapse-item>
+                        </el-collapse> -->
+                        <div class="radioOption">
+                            <el-button type="primary" size="mini" @click="addSelectOption(item.element, index)">添加</el-button>
+                            <!-- <i @click="addSelectOption(item.element, index)" class="el-icon-plus"></i> -->
+                            <!-- <i class="el-icon-arrow-down" @click="changeVshow"></i> -->
+                            <el-row :gutter="10" v-for="(radioItem, index1) in item.initValueJsonObject" :key="index1">
+                                <el-col :span="16"><el-input v-model="radioItem.label" placeholder="请输入选项名"></el-input></el-col>
+                                <el-col :span="8"><el-button type="warning" size="mini" @click="delSelectOption(item.element, index, index1)">删除</el-button></el-col>
+                            </el-row>
+                        </div>                    
+                    </el-form-item>
+                    <!-- 默认值为select -->
+                    <el-form-item label="备选项" v-if="item.element === 'select'">
+                        <div class="selectOptions">
+                            <el-button type="primary" size="mini" @click="addSelectOption(item.element, index)">添加</el-button>
+                            <el-row :gutter="10" v-for="(selectItem, index1) in item.initValueJsonObject" :key="index1">
+                                <el-col :span="16"><el-input v-model="selectItem.label" placeholder="请输入选项名"></el-input></el-col>
+                                <el-col :span="8"><el-button type="warning" size="mini" @click="delSelectOption(item.element, index, index1)">删除</el-button></el-col>
+                            </el-row>
+                        </div>
+                    </el-form-item>
+                    <!-- 默认值为checkbox -->
+                    <el-form-item label="备选项" v-if="item.element === 'checkbox'">
+                        <div class="selectOptions">
+                            <el-button type="primary" size="mini" @click="addSelectOption(item.element, index)">添加</el-button>
+                            <el-row :gutter="10" v-for="(checkboxItem, index1) in item.initValueJsonObject" :key="index1">
+                                <el-col :span="16"><el-input v-model="checkboxItem.label" placeholder="请输入选项名"></el-input></el-col>
+                                <el-col :span="8"><el-button type="warning" size="mini" @click="delSelectOption(item.element, index, index1)">删除</el-button></el-col>
+                            </el-row>
+                        </div>
+                    </el-form-item>
+                    <!-- 默认值为list -->
+                    <el-form-item label="list表头" v-if="item.element === 'list'">
+                        <div class="selectOptions">
+                            <el-button type="primary" size="mini" @click="addSelectOption(item.element, index)">添加</el-button>
+                            <el-row :gutter="10" v-for="(listItem, index1) in item.listItems" :key="index1" style="margin-right:-88px">
+                                <el-col :span="8"><el-input v-model="listItem.name" placeholder="请输入表头名"></el-input></el-col>
+                                <el-col :span="8"><el-input v-model="listItem.key" placeholder="请输入变量名"></el-input></el-col>
+                                <el-col :span="4"><el-button type="warning" size="mini" @click="delSelectOption(item.element, index, index1)">删除</el-button></el-col>
+                            </el-row>
+                        </div>
+                    </el-form-item>
+                    
+                    <!-- <el-form-item label="序号">
+                        <el-input v-model.number="item.sort" type="number" placeholder="数字越小排序越靠前"></el-input>
+                    </el-form-item> -->
+                    <el-form-item>
+                        <el-button type="warning " size="small" @click="onRemove(index)">删除</el-button>
+                    </el-form-item>
+
+                    
+                </div>
+                <el-form-item>
+                    <el-button type="primary" @click="onAddlist()">+  添 加</el-button>
+                    <el-button class="onSubmit" type="success"   @click="onSubmit()">提 交</el-button>
+                    <el-button @click="cancleBtn()" class="cancleBtn"> 取 消</el-button>
+                </el-form-item>
+            </el-form>
+        </div>
+  </div>
+</template>
+
+<script>
+import URL from '@/common/js/URL.js'
+import axios from 'axios'
+
+export default {
+    created() {
+        this.getOptionElement()
+    },
+    data() {
+        return {
+            formData:{
+                name: '',
+                enName: '',
+                blockKey: '',
+                type: '',
+                sort: '',
+                blockFields: [{
+                    label: '',
+                    name: '',
+                    // sort: '',
+                    element: '',
+                    defaultVal: '',
+                    type: '',
+                    initValueJsonObject: [{'label': '', 'value': ''}],
+                    itemJsonValue: [],
+                    listItems: [{name: '', key: ''}],
+                    elementFlag: false,
+                    typeFlag: false
+                }]
+            },
+            formData1: {
+                element: ''
+            },
+            optionElement: [],
+            // elementFlag: false,
+            formData2: {
+                type: ''
+            },
+            optionType: [],
+            optionSelect: [{label: '单选',value: 'radio'},{label: '多选', value:'multiple'}],
+            // typeFlag: false
+            // vshowVal: 1
+        }
+    },
+    methods: {
+        getOptionElement() {
+            let that = this;
+            //  type为1就是获取element,为2就是type
+            axios.get(URL.api_name  + 'cloud/project/getElementAndType?type=1').then(function(resp){
+                if(resp.data.code === '100'){
+                    //  定义数组 将获取的数组转换为数组对象
+                    // return false
+                    let optionElementArr = resp.data.data
+                    for(let i = 0; i < optionElementArr.length; i++){
+                        that.optionElement.push(
+                            {
+                                lebel: optionElementArr[i],
+                                value: optionElementArr[i]
+                            }
+                        )
+                    }
+                    console.log(that.optionElement)
+                }else {
+                    that.$message({
+                        type: 'error',
+                        message: '获取element失败',
+                        duration: 1000
+                    })
+                }
+            })
+            axios.get(URL.api_name  + 'cloud/project/getElementAndType?type=2').then(function(resp){
+                if(resp.data.code === '100'){
+                    //  定义数组 将获取的数组转换为数组对象
+                    // return false
+                    let optionTypeArr = resp.data.data
+                    for(let i = 0; i < optionTypeArr.length; i++){
+                        that.optionType.push(
+                            {
+                                lebel: optionTypeArr[i],
+                                value: optionTypeArr[i]
+                            }
+                        )
+                    }
+                    console.log(that.optionType)
+                }else {
+                    that.$message({
+                        type: 'error',
+                        message: '获取element失败',
+                        duration: 1000
+                    })
+                }
+            })
+        },
+        //  新增元素标签类型 
+        addElementType(index) {
+            let that = this;
+            console.log(that.formData.blockFields[index])
+            that.formData.blockFields[index].elementFlag = true;
+            that.formData.blockFields[index].typeFlag = false;
+        },
+        subElementType(index) {
+            let that = this;
+            that.optionElement.push({
+                label: that.formData1.element,
+                value: that.formData1.element
+            })
+            that.$message({
+                type: 'success',
+                message: '新增成功',
+                duration: 1000
+            })
+            setTimeout(function() {
+                that.formData.blockFields[index].elementFlag = false;
+                that.formData1.element = '';
+                
+            }, 1000);
+        },
+        delElementType(index) {
+            let that = this;
+            that.formData.blockFields[index].elementFlag = false;
+            that.formData1.element = '';
+        },
+        //  新增type字段类型 
+        addType(index) {
+            let that = this;
+            that.formData.blockFields[index].typeFlag = true;
+            that.formData.blockFields[index].elementFlag = false;
+        },
+        subType(index) {
+            let that = this;
+            that.optionType.push({
+                label: that.formData2.type,
+                value: that.formData2.type
+            })
+            that.$message({
+                type: 'success',
+                message: '新增成功',
+                duration: 1000
+            })
+            setTimeout(function() {
+                that.formData.blockFields[index].typeFlag = false;
+                that.formData2.type = '';
+                
+            }, 1000);
+        },
+        delType(index) {
+            let that = this;
+            that.formData.blockFields[index].typeFlag = false;
+            that.formData2.type = '';
+        },
+
+        onAddlist() {
+            this.formData.blockFields.push({
+                label: '',
+                name: '',
+                sort: '',
+                element: '',
+                defaultVal: '',
+                type: '',
+                // defaultValArray: [],
+                // initSelect: [],
+                // initCheckbox: [],
+                initValueJsonObject: [{'label': '', 'value': ''}],
+                itemJsonValue: [],
+                listItems: [{name: '', key: ''}],
+                elementFlag: false,
+                typeFlag: false
+            })
+        },
+        typeChange(index) {
+            let that = this
+            // if (that.formData.blockFields[index].element === 'select') {
+            //     console.log(that.formData.blockFields[index].type)
+            // }
+            that.formData.blockFields[index].type = ''
+            // alert(this.formData.blockFields[0].type)
+            // type_change
+            console.log(index)
+            //    console.log(item)
+        },
+        onRemove(index){
+            let that = this;
+            if(that.formData.blockFields.length > 1){
+                that.formData.blockFields.splice(index,1);
+            }else {
+                this.$alert('至少保留一个个选项', '提示', {
+                    confirmButtonText: '确定',
+                });
+            }
+        },
+        // 添加备选项
+        addSelectOption(filedType, index) {
+            if (filedType === "list"){
+                // console.log(this.formData.items[index])
+                this.formData.blockFields[index].listItems.push({
+                    name: '',
+                    key: ''
+                })
+            }else {
+                this.formData.blockFields[index].initValueJsonObject.push({
+                label: '',
+                value: index + 1
+            })
+            }
+            //     // console.log(filedType,index)
+            // }if (filedType === "select"){
+            //     this.formData.items[index].initSelect.push({
+            //         label: '',
+            //         value: index + 1
+            //     })
+            //     // console.log(filedType,index)
+            // }if (filedType === "checkbox"){
+            //     this.formData.items[index].initCheckbox.push({
+            //         label: '',
+            //         value: index + 1
+            //     })
+            // }
+        },
+        // 删除备选项
+        delSelectOption(element, index, index1) {
+            let that = this
+            if(element === "radio"){
+                if(that.formData.blockFields[index].initValueJsonObject.length > 2){
+                    that.formData.blockFields[index].initValueJsonObject.splice(index1, 1)
+                }else {
+                    this.$alert('至少保留两个选项', '提示', {
+                        confirmButtonText: '确定',
+                        // callback: action => {
+                        //     this.$message({
+                        //         type: 'info',
+                        //         message: `action: ${ action }`
+                        //     });
+                        // }
+                    });
+                }
+            }
+            if(element === "select"){
+                if(that.formData.blockFields[index].initValueJsonObject.length > 2){
+                    that.formData.blockFields[index].initValueJsonObject.splice(index1, 1)
+                }else {
+                    this.$alert('至少保留两个选项', '提示', {
+                        confirmButtonText: '确定',
+                    });
+                }
+            }
+            if(element === "checkbox"){
+                if(that.formData.blockFields[index].initValueJsonObject.length > 2){
+                    that.formData.blockFields[index].initValueJsonObject.splice(index1, 1)
+                }else {
+                    this.$alert('至少保留两个选项', '提示', {
+                        confirmButtonText: '确定',
+                    });
+                }
+            }
+            if(element === "list"){
+                if(that.formData.blockFields[index].listItems.length > 2){
+                    that.formData.blockFields[index].listItems.splice(index1, 1)
+                }else {
+                    this.$alert('至少保留两个选项', '提示', {
+                        confirmButtonText: '确定',
+                    });
+                }
+            }
+        },
+        onSubmit() {
+            let that = this;          
+            for(let i = 0; i < that.formData.blockFields.length; i++){
+                // 如果listItems存在，才执行下面，否则直接跳过
+                if(that.formData.blockFields[i].listItems){
+                    for(let j = 0; j < that.formData.blockFields[i].listItems.length; j++){
+                        that.formData.blockFields[i].itemJsonValue.push({
+                            name: that.formData.blockFields[i].listItems[j].name
+                        })
+                    }
+                }
+            }  
+            // console.log(that.formData)
+            // return false
+            axios.post(URL.api_name + 'cloud/project/saveOrUpdateblock', that.formData).then(function(res){
+                that.isLoading = false;
+                if (res.data.code === '100'){
+                    that.$message({
+                        type: 'success',
+                        message: '提交成功',
+                        duration: '1000'
+                    })
+                    console.log(that.formData)
+                    // return false
+                    that.$router.push({
+                        path: '/maintainBlockList/1'
+                    })
+                }else {
+                    that.$message({
+                        type: 'error',
+                        message: res.data.message,
+                        duration: '2000'
+                    })
+                }
+            }, function(error) {
+                that.$message({
+                    type: 'error',
+                    message: res.data.message,
+                    duration: '2000'
+                })
+            })
+            
+        },
+        cancleBtn() {
+            this.$router.push({
+                path: '/maintainBlockList/1'
+            })
+        },
+        getBack() {
+            this.$router.push({
+                path: '/maintainBlockList/1'
+            })
+        },
+        changeVshow() {
+            if(this.vshowVal == 0){
+                this.vshowVal = 1
+            }else{
+                this.vshowVal = 0
+            }
+        }
+        
+    }
+
+}
+
+</script>
+
+
+<style>
+a{text-decoration: none;}
+/* 添加block按钮 */
+.addBlock{float: right;margin-right: -100px;}
+/*  */
+/* 添加element类型样式 */
+.elementType {border: 1px solid #ccc;padding: 10px;margin-bottom:20;margin-top:5px;
+    border-radius: 5px;
+    width: 95%;}
+.nav_title{margin-bottom: 25px}
+.table_content {padding: 30px 0px 0px 20px;}
+.block_content{border: 1px solid #ccc;width: 100%;}
+.el_input{width: 20%}
+/* .onSubmit{} */
+</style>

@@ -1,0 +1,174 @@
+<template>
+	<div class="side-menu">
+		<div style="text-align:center; margin:33px 0px 40px -6px; height:51px; width: 200px;">
+			<img src="../common/images/logo_bn@2x.png" width="150" alt="" v-if="!isCollapse">
+		</div>
+		<div class="showimg">
+			<img src="../common/icons/homes/nav_menu.png" alt="" @click="changecollpase">
+		</div>
+		<!-- <i class="el-icon-tickets changeCollapse" @click="changecollpase"></i> -->
+		<el-menu class="el-menu-vertical-demo" router unique-opened :collapse="isCollapse">
+			<!-- 下拉菜单 -->
+			<el-submenu :index="item.code" v-for="(item, index) in Navs" :key="index" v-if="item.childMenuList.length >= 1">
+				<template slot="title">
+					<i :class="'el-icon-location ' + item.icon"></i>
+					<span slot="title">{{ item.name }}</span>
+				</template>
+				<el-menu-item-group title="">
+					<el-menu-item :index="subItem.href === null ? '/home' : subItem.href" v-for="(subItem, i) in item.childMenuList" :key="i">
+						{{ subItem.name }}
+					</el-menu-item>
+				</el-menu-item-group>
+			</el-submenu>
+			<!-- 文本菜单 -->
+			<el-menu-item v-else :index="item.href">
+				<i :class="'el-icon-menu ' + item.icon"></i>
+				<span slot="title">{{ item.name }}</span>
+			</el-menu-item>
+			
+		</el-menu>
+	</div>
+</template>
+<script>
+	import '@/common/css/font.css'
+	import axios from 'axios'
+	import URL from '@/common/js/URL.js'
+	export default {
+		created() {
+			this.getNavs()
+		},
+		data() {
+			return {
+				Navs: []
+			}
+		},
+		methods: {
+			getNavs() {
+				var that = this
+				if (JSON.parse(localStorage.getItem('authtoken'))) {} else {
+					return false
+				}
+				let url = URL.api_name + 'cloud/security/role_menu_list'
+				// if (userType === 1) {
+				//   url = './static/slide.json'
+				// } else {
+				//   url = './static/Uslide.json'
+				// }
+				axios.get(url).then((res) => {
+					//console.log(res.data.code+"===================");
+					if (res.data.code === '100') {
+						that.Navs = res.data.data.childMenuList
+						// console.log(that.Navs)
+						// Òþ²Ø²Ù×÷ËµÃ÷
+						// that.Navs.splice(6,1);
+					} else {
+						localStorage.clear()
+						// that.$router.push({
+						//   path: '/'
+						// })
+					}
+				})
+			},
+			changecollpase() {
+				this.$store.dispatch('change1')
+			}
+		},
+		computed: {
+			isCollapse() {
+				return this.$store.getters.isOpened;
+			}
+		}
+	}
+</script>
+<style lang="less" scoped>
+	.showimg{
+    width: 30px;
+    float: right;
+    margin-right: 15px;
+    margin-top: -81px;
+	}
+	.side-menu {
+		.el-menu {
+			border-radius: 2px;
+			list-style: none;
+			position: relative;
+			margin: 0;
+			padding-left: 0;
+			color: #CEE7FE;
+		}
+	}
+	.el-menu--horizontal.el-menu--dark .el-submenu .el-menu-item.is-active,
+	.el-menu-item.is-active {
+		background: #0079E1;
+		color: #fff;
+	}
+
+	.el-menu--collapse .el-submenu .el-menu-item.is-active {}
+
+	.side-menu>.el-menu>.el-menu-item>a,
+	.side-menu>.el-menu>.el-menu-item>span {
+		display: inline-block;
+		width: calc(100% - 2em);
+		vertical-align: middle;
+	}
+
+	.side-menu>.el-menu>.el-menu-item>i {
+		display: inline-block;
+		vertical-align: middle;
+		color: #fff;
+	}
+
+	.el-menu--collapse .el-menu-item i {
+		color: #fff;
+	}
+
+	.el-menu--collapse>.el-menu-item span,
+	.el-menu--collapse>.el-submenu>.el-submenu__title span,
+	.el-menu--collapse>.el-menu-item a {
+		display: none;
+	}
+
+	.icons_01,
+	.icons_02,
+	.icons_03,
+	.icons_04,
+	.icons_05 {
+		display: inline-block;
+		vertical-align: middle;
+		margin: 0;
+		line-height: 1;
+		font-size: 18px;
+		width: 22px;
+		height: 24px;
+	}
+
+	// 首页
+	.icons_01 {
+		background: url(../common/icons/homes/nav_home page.png) no-repeat center;
+		background-size: cover;
+	}
+
+	// 解读项目
+	.icons_02 {
+		background: url(../common/icons/homes/nav_project.png) no-repeat center;
+		background-size: cover;
+	}
+
+	// 审核模块
+	.icons_03 {
+		background: url(../common/icons/homes/nav_audit.png) no-repeat center;
+		background-size: cover;
+	}
+
+	// 订单列表
+	.icons_04 {
+		background: url(../common/icons/homes/nav_order.png) no-repeat center;
+		background-size: cover;
+	}
+
+	// 个人中心
+	.icons_05 {
+		background: url(../common/icons/homes/nav_personal.png) no-repeat center;
+		background-size: cover;
+	}
+</style>

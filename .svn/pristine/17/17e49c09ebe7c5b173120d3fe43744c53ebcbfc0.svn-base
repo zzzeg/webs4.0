@@ -1,0 +1,99 @@
+<template>
+  <div class="base_msg blockContent">
+	<div class="subItems">
+   	<div class="subtitle dtitleBg" >
+     	<span>复发风险评估结果分析</span>
+     	<div class="saveico" v-if="block1 && canEdit" @click="block1 = !block1, saveChange(formData1)"></div>
+     	<div class="cancel" v-if="block1 && canEdit" @click="block1 = !block1, cancerChange()"></div>
+     	<div class="bjimg" v-if="!block1 && canEdit" @click="block1 = !block1,changeEdit()"></div>
+     </div>
+		 <div class="inlineItem">
+		 		<el-row :gutter="10">
+		 			<el-col :span="8"><span class="color_bask">复发分数（RS）：</span>
+		 				<div class="tableListItem" v-if="!block1">{{formData1.rsCode}}</div>
+		 				<el-input class="editFrom" v-if="block1" v-model="formData1.rsCode" placeholder="请输入复发分数"></el-input>
+		 			</el-col>
+		 			<el-col :span="8"><span class="color_bask">平均远期复发率：</span>
+		 				<div class="tableListItem" v-if="!block1">{{formData1.replapse}}%</div>
+		 				<el-input class="editFrom" v-if="block1" v-model="formData1.replapse" placeholder="请输入平均远期复发率"></el-input>
+		 			</el-col>
+		 			<el-col :span="8"><span class="color_bask">复发风险等级：</span>
+		 				<div class="tableListItem" v-if="!block1">{{formData1.risk}}</div>
+						<el-select class="editFrom" v-model="formData1.risk" v-if="block1" placeholder="请选择">
+							<el-option v-for="(item, index) in relapselist" :key="index" :label="item.label" :value="item.value"></el-option>
+						</el-select>
+		 			</el-col>
+		 		</el-row>
+		 </div>
+		 <p style="color: #7F8493;font-size: 14px;margin:100px 0 0 0;"><strong>说明：</strong>乳腺癌 21 基因检测使用分支 DNA-液相芯片技术检测肿瘤组织中 21 个基因的表达情况。复发分数（RS 评分）是根据基因表达的结果计算得来的，复发分数的范围从 0-100。复发分数越低的乳腺癌患者，其 10 年远期复发风险越低，接受他莫西芬+化疗的治疗方案获益不显著。 </p>
+    </div>
+	</div>
+  </div>
+</template>
+<script>
+  export default {
+    props: {
+        formDatas:{
+            type:Object
+        }
+    },
+    created() {
+    },
+    data () {
+      return {
+        block1: false,
+        canEdit: true,
+        formData: {},
+        formData1: {},
+				relapselist:[{
+					value: '高',
+					label: '高'
+				},{
+					value: '中偏高',
+					label: '中偏高'
+				},{
+					value: '中',
+					label: '中'
+				},{
+					value: '中偏低',
+					label: '中偏低'
+				},{
+					value: '低风险',
+					label: '低风险'
+				}]
+      }
+    },
+    methods: {
+      changeEdit(val, editorName) {
+        let that = this
+        that[editorName] = val == 'true' ?  true : false
+      },
+      cancerChange(editorName) {
+        let that = this
+        that[editorName] = false
+        // 重新给formData赋值    取消的时候，重置内容
+        let n = Object.assign({}, that.formDatas)
+        that.formData1 = n
+      },
+      saveChange (vale, editorName) {
+        let that = this
+        this[editorName] = false
+//         let n = Object.assign({}, that.formData1)
+//         this.formData = n
+        this.$emit('saveChange', vale)
+      },
+//       inputSub(itemCode, keyName, keyValue) {
+//         let that = this
+//         // return false
+//         that.$emit('saveChange', that.formDatas.code, itemCode, keyName, keyValue)
+//       }
+    },
+    watch: {
+      formDatas: function(newVal,oldVal){
+        let that = this
+        that.formData = newVal
+        that.formData1 = JSON.parse(JSON.stringify(that.formData))
+      }
+    }
+  }
+</script>

@@ -1,0 +1,134 @@
+<template>
+	<div class="base_msg blockContent">
+		<div class="subItems">
+			<div class="subtitle dtitleBg">
+				<span>样本信息</span>
+				<div class="saveico" v-if="block1 && canEdit" @click="block1 = !block1, saveChange(formData1)"><!-- 保存 --></div>
+				<div class="cancel" v-if="block1 && canEdit" @click="block1 = !block1, cancerChange()"><!-- 取消 --></div>
+				<div class="bjimg" v-if="!block1 && canEdit" @click="block1 = !block1,changeEdit()"><!-- 编辑 --></div>
+			</div>
+		<div class="inlineItem">
+			<el-row :gutter="10">
+				<el-col :span="8"><span class="color_bask">样本编号：</span>
+					<div class="tableListItem" v-if="!block1">{{ formData.sampleNo }}&nbsp;</div>
+					<el-input class="editFrom" v-if="block1" v-model="formData1.sampleNo" placeholder=""></el-input>
+				</el-col>
+				<el-col :span="8"><span class="color_bask">样本类型：</span>
+					<div class="tableListItem" v-if="!block1" v-for="(item, i) in formData.sampleTypeStr" :key="i">{{ item }}&nbsp;</div>
+					<el-select class="editFrom"  clearable v-if="block1"  v-model="formData1.sampleTypeStr" placeholder="请选择样本类型" multiple filterable allow-create default-first-option>
+		       <el-option v-for="(item, index) in sampleTypeList" :key="index" :label="item.label" :value="item.value"></el-option>
+          </el-select>
+
+				</el-col>
+				<el-col :span="8"><span class="color_bask">取样位置：</span>
+					<div class="tableListItem" v-if="!block1">{{ formData.sampleSite }}&nbsp;</div>
+					<el-input class="editFrom" v-if="block1" v-model="formData1.sampleSite" placeholder=""></el-input>
+				</el-col>
+			</el-row>
+
+			<el-row :gutter="10">
+				<el-col :span="8"><span class="color_bask">收样日期：</span>
+					<div class="tableListItem" v-if="!block1">{{ formData.collectionDate }}&nbsp;</div>
+					<!-- <el-input class="editFrom" v-if="block1" v-model="formData1.collectionDate | formatDate" placeholder=""></el-input> -->
+					<el-date-picker class="editFrom" v-model="formData1.collectionDate" v-if="block1" ></el-date-picker>
+				</el-col>
+				<el-col :span="8"><span class="color_bask">送检医院：</span>
+					<div class="tableListItem" v-if="!block1">{{ formData.inspectionHospitalName }}&nbsp;</div>
+					<el-input class="editFrom" v-if="block1" v-model="formData1.inspectionHospitalName" placeholder=""></el-input>
+				</el-col>
+				<el-col :span="8"><span class="color_bask">送检科室：</span>
+					<div class="tableListItem" v-if="!block1">{{ formData.inspectionHospitalDepartmentName }}&nbsp;</div>
+					<el-input class="editFrom" v-if="block1" v-model="formData1.inspectionHospitalDepartmentName" placeholder=""></el-input>
+				</el-col>
+			</el-row>
+			</div>
+		</div>
+	</div>
+</template>
+<script>
+	import {formatDate} from '@/common/js/Utils.js'
+	import moment from 'moment'
+	export default {
+		props: {
+			formDatas: {
+				type: Object
+			}
+		},
+		created() {},
+		data() {
+			return {
+				block1: false,
+				canEdit: true,
+				formData: {},
+				formData1: {},
+        sampleTypeList : [{
+          label: '新鲜组织',
+          value: '新鲜组织'
+        }, {
+          label: '穿刺组织',
+          value: '穿刺组织'
+        }, {
+          label: '石蜡块',        //
+          value: '石蜡块'
+        }, {
+          label: '石蜡卷',
+          value: '石蜡卷'
+        }, {
+          label: '石蜡白片',
+          value: '石蜡白片'
+        }, {
+          label: '石蜡组织',
+          value: '石蜡组织'
+        }, {
+          label: '血液',
+          value: '血液'
+        }, {
+          label: '骨髓',
+          value: '骨髓'
+        }, {
+          label: '淋巴',
+          value: '淋巴'
+        }, {
+          label: '胸腔积液',
+          value: '胸腔积液'
+        }, {
+          label: '腹腔积液',
+          value: '腹腔积液'
+        }],
+			}
+		},
+
+		methods: {
+			changeEdit(val, editorName) {
+				let that = this
+				that[editorName] = val == 'true' ? true : false
+			},
+			cancerChange(editorName) {
+				let that = this
+				that[editorName] = false
+				// 重新给formData赋值    取消的时候，重置内容
+				let n = Object.assign({}, that.formDatas)
+				that.formData1 = n
+			},
+			saveChange(vale, editorName) {
+				let that = this
+				this[editorName] = false
+				// let n = Object.assign({}, that.formData1)
+				// this.formData = n
+				this.$emit('saveChange', vale)
+			}
+		},
+		watch: {
+			formDatas: function(newVal, oldVal) {
+				this.formData = newVal
+				this.formData1 = JSON.parse(JSON.stringify(this.formData))
+			}
+		},
+		 filters: {
+		  formatDate (time) {
+		    let date = new Date(time)
+		    return formatDate(date, 'yyyy-MM-dd')
+		  },
+		}
+	}
+</script>

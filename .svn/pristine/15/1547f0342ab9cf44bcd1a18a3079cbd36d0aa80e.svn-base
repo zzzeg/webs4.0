@@ -1,0 +1,326 @@
+<template>
+  <div class="base_msg blockContent">
+    <div class="subItems">
+			<div class="subname">
+				<span>靶向治疗相关检测结果总览</span>
+			</div>
+      <el-table class="tableList hasLine" :data="formData1" v-if="isBlood != 0" stripe style="width: 100%" ref="table"  @cell-click="cellClick">
+      	<el-table-column prop="gene" label="基因" width="120" align="center">
+      		<template slot-scope="scope">
+  					<span v-if="!scope.row.isEdit">{{ scope.row.reportVariant.gene }}<span class="bluesj"></span><span v-if="scope.row.checkCell == 'gene'" class="allBg"></span></span>
+      		</template>
+      	</el-table-column>
+      	<el-table-column prop="variant" label="突变位点" width="180">
+      		<template slot-scope="scope">
+  					<span v-if="!scope.row.isEdit">{{ scope.row.reportVariant.variant }}<span :class="scope.row.hasValidata == '1' ? 'yellosj' :'bluesj'"></span><span v-if="scope.row.checkCell == 'variant'" class="allBg"></span></span>
+      		</template>
+      	</el-table-column>
+      	<el-table-column label="基因组定位" width="200">
+      		<template slot-scope="scope">
+  					<span v-if="!scope.row.isEdit">{{scope.row.reportVariant.gdnaChange==""?"/":scope.row.reportVariant.gdnaChange }}</span>
+  					<el-input v-if="scope.row.isEdit" v-model="scope.row.reportVariant.gdnaChange" placeholder=""></el-input>
+      		</template>
+      	</el-table-column>
+      	<el-table-column label="基因型" width="120">
+      		<template slot-scope="scope">
+  					<span v-if="!scope.row.isEdit">{{scope.row.reportVariant.geneType==""?"/":scope.row.reportVariant.geneType }}</span>
+      		</template>
+      	</el-table-column>
+        <el-table-column prop="allelicDepth" label="突变频率" width="100">
+          <template slot-scope="scope">
+            <span v-if="!scope.row.isEdit">{{ scope.row.reportVariant.allelicDepth }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="transcriptExon" label="外显子" width="100">
+          <template slot-scope="scope">
+            <span v-if="!scope.row.isEdit">{{(scope.row.reportVariant.variantType !="基因突变" && scope.row.reportVariant.transcriptExon == 0) ? "/" : scope.row.reportVariant.transcriptExon }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="FDA/CFDA/NCCN/CSCO">
+          <el-table-column label="本癌种">
+            <template slot-scope="scope">
+              <div :class="{'drugLine color_red': item.drugReactionType == 1, 'drugLine' : item.drugReactionType == 0 }" v-if="!scope.row.isEdit" v-for="(item,index) in scope.row.fcncThisCancerDrugList" :key="index">{{ item.reportTherapy.drugName}}</div>
+            </template>
+          </el-table-column>
+          <el-table-column label="其他癌种">
+            <template slot-scope="scope">
+              <div class="drugLine" v-if="!scope.row.isEdit" v-for="(item,index) in scope.row.fcncOtherCancerDrugList" :key="index">{{ item.reportTherapy.drugName}}({{ item.cancer.name }})</div>
+            </template>
+          </el-table-column>
+        </el-table-column>
+        <el-table-column label="潜在临床试验（敏感性，适应症）">
+          <el-table-column label="本癌种">
+            <template slot-scope="scope">
+              <div :class="{'drugLine color_red': item.drugReactionType == 1, 'drugLine' : item.drugReactionType == 0 }" v-if="!scope.row.isEdit" v-for="(item,index) in scope.row.clinicThisCancerDrugList" :key="index">{{ item.reportTherapy.drugName}}</div>
+            </template>
+          </el-table-column>
+          <el-table-column label="其他癌种">
+            <template slot-scope="scope">
+              <div class="drugLine" v-if="!scope.row.isEdit" v-for="(item,index) in scope.row.clinicOtherCancerDrugList" :key="index">{{ item.reportTherapy.drugName}}({{ item.cancer.name }})</div>
+            </template>
+          </el-table-column>
+        </el-table-column>
+        <el-table-column type="expand" width="1">
+          <template slot-scope="props">
+             <popdialog :text="pvalue" :scope="row" :windowType="property" :popData="popData1" :formDatas="formData1"
+           :minMark="minMark" :checkMark="checkMark" :cacheData="cacheData" @cmmk="cmmk" @sWindow="sWindow(property, row.code)" @pushHead="pushHead"
+           @changeTab="changeTab" @closePanel="closePanel" @blockSearch="blockSearch(formInlines)"></popdialog>
+           </template>
+        </el-table-column>
+	    </el-table>
+
+      <el-table class="tableList hasLine" :data="formData1" v-else stripe style="width: 100%">
+        <el-table-column label="检测结果" width="" align="center">
+          <template slot-scope="scope">
+            <p>{{ scope.row.reportVariant.gene }}</p>
+            <p>{{ scope.row.reportVariant.variant }}</p>
+          </template>
+        </el-table-column>
+        <el-table-column label="基因组定位" width="120">
+          <template slot-scope="scope">
+            {{ scope.row.reportVariant.gdnaChange }}
+          </template>
+        </el-table-column>
+        <el-table-column label="基因型" width="80">
+          <template slot-scope="scope">
+            {{ scope.row.reportVariant.geneType }}
+          </template>
+        </el-table-column>
+        <el-table-column label="突变频率" width="100">
+          <template slot-scope="scope">
+            {{ scope.row.reportVariant.allelicDepth }}
+          </template>
+        </el-table-column>
+        <el-table-column label="外显子" width="80">
+          <template slot-scope="scope">
+            {{ scope.row.reportVariant.transcriptExon }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="" label="RS_ID" width="120">
+          <template slot-scope="scope">
+            {{ scope.row.reportVariant.rsId }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="" label="Cosmic_ID" width="120">
+          <template slot-scope="scope">
+            {{ scope.row.reportVariant.cosmicId }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="" label="临床意义" width="100">
+	  <template slot-scope="scope">
+		<span :class="{'color_red' : scope.row.reportVariant.bloodClinicalSignificanceBySystem == 1}">{{ scope.row.reportVariant.clinsig }}</span>
+	 </template>
+        </el-table-column>
+        <!-- <el-table-column prop="" label="证据等级" width="100">
+          <template slot-scope="scope">
+            {{ scope.row.reportVariant.clinsig }}
+          </template>
+        </el-table-column> -->
+        <el-table-column prop="" label="FDA/CFDA/NCCN/CSCO" width="180">
+          <template slot-scope="scope">
+            <div class="drugLine" v-if="!scope.row.isEdit" v-for="(item,index) in scope.row.fcncThisCancerDrugList" :key="index">{{ item.reportTherapy.drugName}}</div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="" label="潜在临床试验（敏感性，适应症）" width="160">
+          <!-- <template slot-scope="scope">
+            {{ scope.row.reportVariant.cdnaChange }}
+          </template> -->
+        </el-table-column>
+      </el-table>
+    </div>
+		<div class="notes" style="margin:20px 0px;">
+			<p><span style="color: red;">* </span>注：</p>
+			<p>1、下表列出该样本中检测出基因变异所影响的药物，包括患者本癌种及其他癌种。在括号内标明癌种的为跨适应症药物方案，未标明的为本癌种的药物。</p>
+			<p>2、下表中只列出与药物相关的变异，其他的变异及具体变异信息，见附录2。</p>
+			<p>3、“/”表示该项检测结果无突变频率信息；或表示无匹配该变异的相关药物。</p>
+			<p>4、红色字体表示可能耐药的方案，其余表示可能敏感的药物。</p>
+		</div>
+  </div>
+</template>
+<script>
+  import popdialog from '@/components/examine/examineModel/popModel/popdialog'
+  export default {
+    props: {
+        formDatas:{
+            type: Array
+        },
+        popData: {
+          type: Object
+        },
+        checkMark: {
+          type: String
+        }
+    },
+    created() {
+    },
+    data () {
+      return {
+        isBlood: this.$route.params.shapeType, // 0 是血液  1是常规
+        isEdit1: false,
+        isEdit2: false,
+        formData: [],
+        formData1: [],
+        cacheData: {},
+          minMark: '1',
+          checkNum: false,
+          popData1: {
+            headList: [],
+            datas: {
+              cancers: {},
+              desc: '',
+              drugControls: [],
+              gene: '',
+              listReportVariant: [],
+              molecularNetworkImg: '',
+              panels: [],
+              pathwayInfos: [],
+              termsImg: ''
+            }
+          },
+          property: '',
+          pvalue: '',
+          row: {},
+        // pageSize: 10
+      }
+    },
+    methods: {
+      cellClick(row, column, cell, event) {
+        // con
+        let that = this
+        that.property = column.property
+        that.pvalue = row[column.property]
+        that.row = row
+        if(column.property == 'variant' || column.property == 'gene') {
+          that.toogleExpand(row)
+        }
+        if(row.checkCell == '') {
+          row.checkCell = column.property
+        } else {
+          row.checkCell = ''
+        }
+      },
+      toogleExpand(row) {
+        let $table = this.$refs.table
+        this.formData1.map((item) => {
+          if (row.code != item.code) {
+            $table.toggleRowExpansion(item, false)
+            item.checkCell = ''
+          }
+        })
+        $table.toggleRowExpansion(row)
+      },
+      changeEdit(val, index) {
+        let that = this
+        // that.formData1.list[index].isEdit = val == 'true' ?  true : false
+        that.$set(that.formData1.list[index], 'isEdit', true)
+      },
+      cancerChange(index) {
+        let that = this
+        // that.formData1.list[index].isEdit = false
+        that.$set(that.formData1.list[index], 'isEdit', false)
+        // 重新给formData赋值    取消的时候，重置内容
+        let n = Object.assign({}, that.formDatas)
+        that.formData1 = n
+      },
+      saveChange (vale, index) {
+      	let that = this
+      	// that.formData1.list[index].isEdit = false
+      	that.$set(that.formData1.list[index], 'isEdit', false)
+      	let n = Object.assign({}, that.formData1)
+      	that.formData = n
+        that.$emit('saveChange', vale)
+      },
+      sWindow(type, keyVal) {
+        // 查询的类型   基因、疾病、药物    keyVal 是查询参数
+        console.log('keyVal is :' + keyVal)
+        let that = this
+        that.$emit('sWindow', type, keyVal)
+      },
+      changeTab(item, i) {
+        // 改变选中的选项
+        let that = this
+        for (let ec in that.popData1.headList) {
+          that.popData1.headList[ec].checkNum = false
+        }
+        // that.popData1.headList[i].checkNum = true
+        that.$set(that.popData1.headList[i], 'checkNum', true)
+        that.checkMark = item
+        if (that.popData1.headList[i].data) {
+          that.cacheData = that.popData1.headList[i].data
+        }
+      },
+      closePanel(i) {
+        // 关闭可关闭的当前选项卡
+        let that = this
+        that.cacheData = {}
+        that.popData1.headList.splice(i, 1)
+        let n = parseInt(i) - 1
+        let items = that.popData1.headList[n].mark
+        that.changeTab(items, n)
+      },
+      cmmk(i) {
+        this.minMark = i
+      },
+      pushHead(type, scope) {
+        let that = this
+        let n = {
+          canClose: true,
+          mark: type,
+          checkNum: false
+        }
+        if (type == 'disease') {
+          n['label'] = scope.name
+        } else if (type == 'drug') {
+          n['label'] = scope.drugName ? scope.drugName : scope.drugEnName
+        }
+        let isneedinsert = true
+        for (let i in that.popData1.headList) {
+          if (that.popData1.headList[i].label == n.label) {
+            isneedinsert = false
+            that.changeTab(that.popData1.headList[i].mark, i)
+            break
+          }
+        }
+        if (isneedinsert) {
+          n['data'] = scope
+          that.popData1.headList.push(n)
+          that.cacheData = n['data']
+          let xx = that.popData1.headList.length - 1
+          that.changeTab(type, xx)
+        }
+        // 临时内容
+        console.log(that.cacheData)
+        //跳转到当前选中的栏目
+        that.checkMark = type
+      },
+    },
+    watch: {
+      formDatas: function(newVal,oldVal){
+      	let that = this
+        this.formData = newVal
+        this.formData1 = JSON.parse(JSON.stringify(this.formData))
+        for (let i in that.formData1) {
+          that.$set(that.formData1[i], 'checkCell', '')
+        }
+      },
+      popData: {
+        handler: function(newVal, oldVal) {
+          let that = this
+          // 重设基本选择位置
+          that.popData1 = newVal
+        },
+        deep: true,
+        // immediate: true
+      }
+    },
+    computed: {
+
+    },
+    components: {
+      popdialog
+    }
+  }
+</script>
+<style scope="scoped">
+
+</style>

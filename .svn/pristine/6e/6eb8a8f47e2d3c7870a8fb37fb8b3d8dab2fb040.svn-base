@@ -1,0 +1,98 @@
+<template>
+	<div class="base_msg blockContent">
+		<div class="subItems">
+			<div class="subname">
+				<span>与疾病相关的热点突变检测结果</span>
+			</div>
+			<el-table class="tableList hasLine" :data="formData1.list" stripe style="width: 100%">
+				<el-table-column prop="gene" label="基因" width="100" align="center">
+					<template slot-scope="scope">
+						<span :class="{'color_red': shapeType == 0 && scope.row.bloodColor == 'red'}">{{scope.row.gene}}</span>
+					</template>
+				</el-table-column>
+				<el-table-column prop="variant" label="突变位点" width="200"></el-table-column>
+				<el-table-column prop="geneType" label="基因型" width="100"></el-table-column>
+				<el-table-column prop="hzInfo" label="突变频率" width="200"></el-table-column>
+				<el-table-column prop="transcriptExon" label="外显子" width="80"></el-table-column>
+				<el-table-column prop="rsId" label="RS_ID" width="200"></el-table-column>
+				<el-table-column prop="cosmicId" label="Cosmic_ID">
+					<template slot-scope="scope">
+						<a href="javascript:;" v-if="scope.row.cosmicInfoSigns.length > 0" :class="{'color_red setSpace': item.color == 'red', 'setSpace' : item.color != 'red'}"
+						 @click="showDetial(scope.row)" v-for="(item,index) in scope.row.cosmicInfoSigns">{{item.comsicId + item.sign}}</a>
+						<span v-else>{{ item.cosmicId }}</span>
+					</template>
+				</el-table-column>
+				<el-table-column prop="bloodClinicalSignificance" label="临床意义"></el-table-column>
+				<el-table-column prop="cancerName" label="癌种"></el-table-column>
+			</el-table>
+		</div>
+	</div>
+</template>
+<script>
+	export default {
+		props: {
+			formDatas: {
+				type: Object
+			}
+		},
+		created() {},
+		data() {
+			return {
+				isEdit1: false,
+				isEdit2: false,
+				shapeType: this.$route.params.shapeType,
+				formData: [],
+				formData1: []
+				// pageSize: 10
+			}
+		},
+		methods: {
+			changeEdit(val, index) {
+				let that = this
+				// that.formData1.list[index].isEdit = val == 'true' ?  true : false
+				that.$set(that.formData1.list[index], 'isEdit', true)
+			},
+			cancerChange(index) {
+				let that = this
+				// that.formData1.list[index].isEdit = false
+				that.$set(that.formData1.list[index], 'isEdit', false)
+				// 重新给formData赋值    取消的时候，重置内容
+				let n = Object.assign({}, that.formDatas)
+				that.formData1 = n
+			},
+			saveChange(vale, index) {
+				let that = this
+				// that.formData1.list[index].isEdit = false
+				that.$set(that.formData1.list[index], 'isEdit', false)
+				let n = Object.assign({}, that.formData1)
+				that.formData = n
+				that.$emit('saveChange', vale)
+			},
+			showDetial(item) {
+				let that = this
+				that.$emit('showDetial', item)
+			}
+		},
+		watch: {
+			formDatas: function(newVal, oldVal) {
+				let that = this
+				this.formData = newVal
+				this.formData1 = JSON.parse(JSON.stringify(this.formData))
+				for (let i in that.formData1.list) {
+					// that.formData1.list[i]['isEdit'] = false
+					that.$set(that.formData1.list[i], 'isEdit', false)
+					if (that.formData1.list[i].cosmicInfoSigns != '' && that.formData1.list[i].cosmicInfoSigns != '[]') {
+            that.$set(that.formData1.list[i], 'cosmicInfoSigns', JSON.parse(that.formData1.list[i].cosmicInfoSigns))
+            that.$set(that.formData1.list[i], 'cosmicInfos', JSON.parse(that.formData1.list[i].cosmicInfos))
+          } else {
+            that.$set(that.formData1.list[i], 'cosmicInfoSigns', [])
+            that.$set(that.formData1.list[i], 'cosmicInfos', [])
+          }
+				}
+			}
+		},
+		computed: {
+
+		}
+	}
+</script>

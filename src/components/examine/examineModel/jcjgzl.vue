@@ -1,0 +1,192 @@
+<template>
+	<div class="base_msg blockContent">
+		<div class="subItems">
+			<div class="subtable dtitleBg" style="margin: 15px 0px 10px 0px;">
+				<span>检测结果总览</span>
+			</div>
+			<el-table :data="formData1" style="width: 100%" border stripe>
+				<el-table-column prop="geneVariant" label="检测项目" width="180">
+				</el-table-column>
+				<el-table-column prop="testData" label="检测数据" width="200">
+					<template slot-scope="scope">
+						<span v-if="!scope.row.isEdit">{{ scope.row.testData + scope.row.testDataReal}}</span>
+						<el-input v-if="scope.row.isEdit" v-model="scope.row.testData" style="width:40%;" placeholder=""></el-input>
+						<el-input v-if="scope.row.isEdit" v-model="scope.row.testDataReal" style="width:40%;" placeholder=""></el-input>
+					</template>
+				</el-table-column>
+				<el-table-column prop="testResult" label="结果" width="180">
+					<template slot-scope="scope">
+						<span v-if="!scope.row.isEdit">{{ scope.row.testResult}}</span>
+						<el-select v-model="scope.row.testResult" v-if="scope.row.isEdit" placeholder="请选择">
+							<el-option v-for="(item, index) in relapselist" :key="index" :label="item.label" :value="item.value"></el-option>
+						</el-select>
+					</template>
+				</el-table-column>
+				<el-table-column prop="tips" label="提示">
+					<template slot-scope="scope">
+						<span v-if="!scope.row.isEdit">{{ scope.row.tips + scope.row.tipsReal}}</span>
+						<el-input v-if="scope.row.isEdit" v-model="scope.row.tips" style="width:40%;" placeholder=""></el-input>
+						<el-input v-if="scope.row.isEdit" v-model="scope.row.tipsReal" style="width:40%;" placeholder=""></el-input>
+					</template>
+				</el-table-column>
+				<!-- <el-table-column label="操作" width="130" v-if="productType == '22'">
+					<template slot-scope="scope">
+						<a href="javascript:;" v-if="scope.row.isEdit" @click="cancerChange(scope.$index, scope.row)"
+							 class="editBtn"><i class="el-icon-circle-close-outline"></i></a>
+						<a href="javascript:;" v-if="!scope.row.isEdit && !scope.row.isAdd" @click="changeEdit('true', scope.$index)"
+						 class="editBtn"><i class="el-icon-edit-outline"></i></a>
+						<a href="javascript:;" v-if="!scope.row.isEdit && !scope.row.isAdd" @click="pushListItem('del', scope.row.code)"
+						 class="editBtn"><i class="el-icon-delete"></i></a>
+						<a href="javascript:;" v-if="scope.row.isEdit" @click="saveChange(scope.row, scope.row.code)"
+						 class="editBtn"><i class="el-icon-circle-check-outline"></i></a>
+						<a href="javascript:;" v-if="!scope.row.isEdit && !scope.row.isAdd" @click="goExamineKnowledge('del', scope.row.code)"
+						 class="editBtn"><i class="el-icon-news"></i></a>
+					</template>
+				</el-table-column> -->
+			</el-table>
+		</div>
+		<div class="qnm" v-if="productType == '22'" >
+			<p>&nbsp;</p>
+			<p><b>药物相关靶标检测结果分析</b></p>  <!--这里有可能要'修改'功能？-->
+			<p>{{ pdlMsg.testProject }}为{{ pdlMsg.result }}，您{{ pdlMsg.result == '高' ? '可' : '慎重'}}选择的免疫检查点抑制剂有：</p>
+			<p><small style="font-size:13px;" v-html="pdlMsg.remark"></small></p>
+		</div>
+	</div>
+</template>
+<script>
+	import URL from '@/common/js/URL.js'
+	import axios from 'axios'
+	export default {
+		props: {
+			formDatas: {
+				type: Array
+			}
+		},
+		created() {
+			let that = this
+			console.log('xxxx')
+			if (that.productType == '22') {
+				that.getPdlMsg()
+			}
+		},
+		data() {
+			return {
+				isEdit1: false,
+				isEdit2: false,
+				code: this.$route.params.id, // projectCode
+				productType: this.$route.params.productType,
+				formData: [],
+				formData1: [],
+				pdlMsg: {},
+				relapselist:[{
+					value: '高',
+					label: '高'
+				},{
+					value: '中偏高',
+					label: '中偏高'
+				},{
+					value: '中',
+					label: '中'
+				},{
+					value: '中偏低',
+					label: '中偏低'
+				},{
+					value: '低风险',
+					label: '低风险'
+				}],
+				needAddsList: [{
+					code:"",
+					drugTips:"",
+					gene:"",
+					geneVariant:"",
+					projectCode:"",
+					testData:"",
+					testDataReal:"",
+					testResult:"",
+					tips:"",
+					tipsReal:"",
+					variant:""
+				}]
+			}
+		},
+		methods: {
+			changeEdit(val, index) {
+				let that = this
+				// that.formData1.list[index].isEdit = val == 'true' ?  true : false
+				that.$set(that.formData1[index], 'isEdit', true)
+			},
+			cancerChange(index, scope) {
+				let that = this
+				if (scope.code == '') {
+					that.formData1.splice(index, 1)
+				} else {
+					// that.formData1.list[index].isEdit = false
+					that.$set(that.formData1[index], 'isEdit', false)
+					// 重新给formData赋值    取消的时候，重置内容
+					let n = Object.assign({}, that.formDatas)
+					that.formData1 = n
+				}
+			},
+			saveChange(vale, code) {
+				let that = this
+				that.$emit('saveChange', vale)
+
+			},
+			pushListItem(type, code) {
+				// 添加，删除 的操作
+				let that = this
+				if (type == 'add') {
+					if (that.formData1[0]['gene'] == '' || that.formData1[0]['variant'] == '') {
+						that.$message({
+							type: 'error',
+							message: '添加失败：基因、突变不能为空',
+							duration: 1000
+						})
+						return false
+					} else {
+						delete that.needAddsList.isAdd
+						delete that.needAddsList.isEdit
+						that.needAddsList['variantType'] = '基因突变'
+						that.$emit('pushListItem', type, code, that.needAddsList)
+					}
+				} else if (type == 'del') {
+					// console.log(code)
+					that.$emit('pushListItem', type, code)
+				}
+			},
+			getPdlMsg () {
+				// PDL-1的信息
+				let that = this
+				axios.get(URL.api_name + 'report/pdl1/getPDL1TestingResults', {
+					params: {
+						projectCode: that.code
+					}
+				}).then(function(respose) {
+					that.loading = false
+					if (respose.data.code === '100') {
+						that.pdlMsg = respose.data.data
+					}
+				}, function(error) {
+					that.$message({
+						type: 'error',
+						message: '查询失败',
+						duration: 1000
+					})
+				})
+			}
+		},
+		watch: {
+			formDatas: function(newVal, oldVal) {
+				let that = this
+				this.formData = newVal
+				this.formData1 = JSON.parse(JSON.stringify(this.formData))
+				for (let i in that.formData1) {
+					that.$set(that.formData1[i], 'isEdit', false)
+				}
+			}
+		},
+		computed: {
+
+		}
+	}
+</script>

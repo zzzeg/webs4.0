@@ -1,0 +1,83 @@
+<template>
+  <div class="base_msg blockContent">
+
+
+    <div class="subItems">
+      <h3 style="margin-top:10px;">
+        <!-- <a href="javascript:;" @click="changeEdit('true', 'isEdit1')" class="editBtn"><i class="el-icon-edit-outline"></i></a> -->
+        靶向治疗相关结果分析
+      </h3>
+      
+      <el-table class="tableList" :data="formData1.list" style="width: 100%">
+	      	<el-table-column prop="geneVariant" label="检测项目" width="280">
+	      	</el-table-column>
+	      	<el-table-column prop="testResult" label="结果" width="280">
+	      	</el-table-column>
+	      	<el-table-column prop="tips" label="提示" width="">
+	      	</el-table-column>
+	    </el-table>
+
+    </div>
+    <p>&nbsp;</p>
+    <p>说明：检测报告中基因表达水平检测，检测数据显示的百分比为您该基因表达水平在同类癌种人群中所处 的位置，可划分为低、中偏低、中、中偏高、高五个表达水平。有些基因表达水平越低，患者经对应药 物治疗后疗效好的可能性越大；而有些基因表达水平越高，患者经对应药物治疗后疗效好的可能性越 大。</p>
+
+
+  </div>
+</template>
+<script>
+  export default {
+    props: {
+        formDatas:{
+            type:Object
+        }
+    },
+    created() {
+    },
+    data () {
+      return {
+        isEdit1: false,
+        isEdit2: false,
+        formData: {},
+        formData1: {}
+        // pageSize: 10
+      }
+    },
+    methods: {
+      changeEdit(val, index) {
+        let that = this
+        // that.formData1.list[index].isEdit = val == 'true' ?  true : false
+        that.$set(that.formData1.list[index], 'isEdit', true)
+      },
+      cancerChange(index) {
+        let that = this
+        // that.formData1.list[index].isEdit = false
+        that.$set(that.formData1.list[index], 'isEdit', false)
+        // 重新给formData赋值    取消的时候，重置内容
+        let n = Object.assign({}, that.formDatas)
+        that.formData1 = n
+      },
+      saveChange (vale, index) {
+      	let that = this
+      	// that.formData1.list[index].isEdit = false
+      	that.$set(that.formData1.list[index], 'isEdit', false)
+      	let n = Object.assign({}, that.formData1)
+      	that.formData = n
+        that.$emit('saveChange', vale)
+      }
+    },
+    watch: {
+      formDatas: function(newVal,oldVal){
+      	let that = this
+        this.formData = newVal
+        this.formData1 = JSON.parse(JSON.stringify(this.formData))
+        for (let i in that.formData1.list) {
+        	// that.formData1.list[i]['isEdit'] = false
+        	that.$set(that.formData1.list[i], 'isEdit', false)
+        }
+      }
+    },
+    computed: {
+
+    }
+  }
+</script>

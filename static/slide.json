@@ -1,0 +1,198 @@
+{
+  "data": [
+    {
+      "id": "1",
+      "label": "首页",
+      "path": "/home",
+      "icon": "icons_01",
+      "parentId": null,
+      "resourceId": 0,
+      "privilegeVOs": null
+    },
+    {
+      "id": "2",
+      "label": "服务项目",
+      "path": "/service",
+      "icon": "icons_02",
+      "parentId": null,
+      "resourceId": 0,
+      "privilegeVOs": null
+    },
+    {
+      "id": "3",
+      "label": "审核模块",
+      "path": null,
+      "icon": "icons_06",
+      "parentId": null,
+      "resourceId": 0,
+      "privilegeVOs": [
+        {
+          "id": "3001",
+          "label": "未审报告",
+          "path": "/examineNone",
+          "icon": "null",
+          "parentId": null, 
+          "resourceId": 0,
+          "privilegeVOs": null
+        },
+        {
+          "id": "3002",
+          "label": "已审报告",
+          "path": "/examineAlready",
+          "icon": null, 
+          "parentId": null,
+          "resourceId": 0,
+          "privilegeVOs": null
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "label": "服务管理",
+      "path": null,
+      "icon": "icons_01",
+      "parentId": null,
+      "resourceId": 0,
+      "privilegeVOs": [
+        {
+          "id": "4001",
+          "label": "报告管理",
+          "path": "/report",
+          "icon": "2",
+          "parentId": null,
+          "resourceId": 11,
+          "privilegeVOs": null
+        },
+        {
+          "id": "4002",
+          "label": "服务维护",
+          "path": "/maintainList",
+          "icon": null,
+          "parentId": null,
+          "resourceId": 0,
+          "privilegeVOs": null
+        },
+        {
+          "id": "4003",
+          "label": "检测项目",
+          "path": "/maintainItemsList",
+          "icon": null,
+          "parentId": null,
+          "resourceId": 0,
+          "privilegeVOs": null
+        },
+        {
+          "id": "4004",
+          "label": "内容模块",
+          "path": "/maintainBlockList",
+          "icon": null,
+          "parentId": null,
+          "resourceId": 0,
+          "privilegeVOs": null
+        }
+      ]
+    },
+    {
+      "id": "5",
+      "label": "系统模块",
+      "path": null,
+      "icon": "icons_03",
+      "parentId": null,
+      "resourceId": 0,
+      "privilegeVOs": [
+        {
+          "id": "5001",
+          "label": "组织管理",
+          "path": "/organize",
+          "icon": "1",
+          "parentId": null,
+          "resourceId": 10,
+          "privilegeVOs": null
+        },
+        {
+          "id": "5002",
+          "label": "用户管理",
+          "path": "/userManage",
+          "icon": "2",
+          "parentId": null,
+          "resourceId": 11,
+          "privilegeVOs": null
+        },
+        {
+          "id": "5003",
+          "label": "角色管理",
+          "path": "/roleList",
+          "icon": "2",
+          "parentId": null,
+          "resourceId": 11,
+          "privilegeVOs": null
+        },
+        {
+          "id": "5004",
+          "label": "资源管理",
+          "path": "/userManage",
+          "icon": "2",
+          "parentId": null,
+          "resourceId": 11,
+          "privilegeVOs": null
+        },
+        {
+          "id": "5005",
+          "label": "权限管理",
+          "path": "/userManage",
+          "icon": "2",
+          "parentId": null,
+          "resourceId": 11,
+          "privilegeVOs": null
+        }
+      ]
+    },
+    {
+      "id": "6",
+      "label": "个人信息",
+      "path": "/userinfo",
+      "icon": "icons_04",
+      "parentId": null,
+      "resourceId": 0,
+      "privilegeVOs": null
+    },
+    {
+      "id": "76",
+      "label": "报告模版",
+      "path": null,
+      "icon": "icons_04",
+      "parentId": null,
+      "resourceId": 0,
+      "privilegeVOs":[
+        {
+          "id": "7001",
+          "label": "基因检测中文模版",
+          "path": null,
+          "icon": null,
+          "parentId": null,
+          "resourceId": 11,
+          "privilegeVOs": null
+        },
+        {
+          "id": "7002",
+          "label": "基因检测英文模版",
+          "path": null,
+          "icon": null,
+          "parentId": null,
+          "resourceId": 11,
+          "privilegeVOs": null
+        }
+      ] 
+    },
+    {
+      "id": "8",
+      "label": "操作说明",
+      "path": "/instruction",
+      "icon": "icons_07",
+      "parentId": null,
+      "resourceId": 0,
+      "privilegeVOs": null
+    }
+  ],
+  "status": "success"
+}

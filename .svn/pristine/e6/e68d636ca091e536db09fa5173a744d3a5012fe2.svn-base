@@ -1,0 +1,189 @@
+<template>
+  <div class="base_msg blockContent">
+    <div class="subItems">
+			<div class="subname">
+				<span>靶向治疗相关检测结果总览</span>
+			</div>
+      <el-table class="tableList hasLine" :data="formData1" v-if="isBlood != 0" stripe style="width: 100%">
+      	<el-table-column prop="gene" label="基因" width="80" align="center">
+      		<template slot-scope="scope">
+  					<span v-if="!scope.row.isEdit">{{ scope.row.reportVariant.gene }}</span>
+  					<el-input v-if="scope.row.isEdit" v-model="scope.row.reportVariant.gene" placeholder=""></el-input>
+      		</template>
+      	</el-table-column>
+      	<el-table-column label="突变位点" width="130">
+      		<template slot-scope="scope">
+  					<span v-if="!scope.row.isEdit">{{ scope.row.reportVariant.variant }}</span>
+  					<el-input v-if="scope.row.isEdit" v-model="scope.row.reportVariant.variant" placeholder=""></el-input>
+      		</template>
+      	</el-table-column>
+      	<el-table-column label="基因组定位" width="130">
+      		<template slot-scope="scope">
+  					<span v-if="!scope.row.isEdit">{{ scope.row.reportVariant.gdnaChange }}</span>
+  					<el-input v-if="scope.row.isEdit" v-model="scope.row.reportVariant.gdnaChange" placeholder=""></el-input>
+      		</template>
+      	</el-table-column>
+      	<el-table-column label="基因型" width="120">
+      		<template slot-scope="scope">
+  					<span v-if="!scope.row.isEdit">{{ scope.row.reportVariant.geneType }}</span>
+      		</template>
+      	</el-table-column>
+        <el-table-column prop="allelicDepth" label="突变频率" width="130">
+          <template slot-scope="scope">
+            <span v-if="!scope.row.isEdit">{{ scope.row.reportVariant.allelicDepth }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="transcriptExon" label="外显子" width="120">
+          <template slot-scope="scope">
+            <span v-if="!scope.row.isEdit">{{ scope.row.reportVariant.transcriptExon }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="FDA/CFDA/NCCN/CSCO">
+          <el-table-column label="本癌种">
+            <template slot-scope="scope">
+              <div :class="{'drugLine color_red': item.drugReactionType == 1, 'drugLine' : item.drugReactionType == 0 }" v-if="!scope.row.isEdit" v-for="(item,index) in scope.row.fcncThisCancerDrugList" :key="index">{{ item.reportTherapy.drugName}}</div>
+            </template>
+          </el-table-column>
+          <el-table-column label="其他癌种">
+            <template slot-scope="scope">
+              <div class="drugLine" v-if="!scope.row.isEdit" v-for="(item,index) in scope.row.fcncOtherCancerDrugList" :key="index">{{ item.reportTherapy.drugName}}({{ item.cancer.name }})</div>
+            </template>
+          </el-table-column>
+        </el-table-column>
+        <el-table-column label="潜在临床试验（敏感性，适应症）">
+          <el-table-column label="本癌种">
+            <template slot-scope="scope">
+              <div :class="{'drugLine color_red': item.drugReactionType == 1, 'drugLine' : item.drugReactionType == 0 }" v-if="!scope.row.isEdit" v-for="(item,index) in scope.row.clinicThisCancerDrugList" :key="index">{{ item.reportTherapy.drugName}}</div>
+            </template>
+          </el-table-column>
+          <el-table-column label="其他癌种">
+            <template slot-scope="scope">
+              <div class="drugLine" v-if="!scope.row.isEdit" v-for="(item,index) in scope.row.clinicOtherCancerDrugList" :key="index">{{ item.reportTherapy.drugName}}({{ item.cancer.name }})</div>
+            </template>
+          </el-table-column>
+        </el-table-column>
+	    </el-table>
+
+      <el-table class="tableList hasLine" :data="formData1" v-else stripe style="width: 100%">
+        <el-table-column prop="gene" label="检测结果" width="" align="center">
+          <template slot-scope="scope">
+            <p>{{ scope.row.reportVariant.gene }}</p>
+            <p>{{ scope.row.reportVariant.variant }}</p>
+          </template>
+        </el-table-column>
+        <el-table-column label="基因组定位" width="120">
+          <template slot-scope="scope">
+            {{ scope.row.reportVariant.gdnaChange }}
+          </template>
+        </el-table-column>
+        <el-table-column label="基因型" width="80">
+          <template slot-scope="scope">
+            {{ scope.row.reportVariant.geneType }}
+          </template>
+        </el-table-column>
+        <el-table-column label="突变频率" width="100">
+          <template slot-scope="scope">
+            {{ scope.row.reportVariant.allelicDepth }}
+          </template>
+        </el-table-column>
+        <el-table-column label="外显子" width="80">
+          <template slot-scope="scope">
+            {{ scope.row.reportVariant.transcriptExon }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="" label="RS_ID" width="120">
+          <template slot-scope="scope">
+            {{ scope.row.reportVariant.rsId }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="" label="Cosmic_ID" width="120">
+          <template slot-scope="scope">
+            {{ scope.row.reportVariant.cosmicId }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="" label="临床意义" width="100">
+          <template slot-scope="scope">
+            {{ scope.row.reportVariant.clinsig }}
+          </template>
+        </el-table-column>
+        <!-- <el-table-column prop="" label="证据等级" width="100">
+          <template slot-scope="scope">
+            {{ scope.row.reportVariant.clinsig }}
+          </template>
+        </el-table-column> -->
+        <el-table-column prop="" label="FDA/CFDA/NCCN/CSCO" width="180">
+          <template slot-scope="scope">
+            <div class="drugLine" v-if="!scope.row.isEdit" v-for="(item,index) in scope.row.fcncThisCancerDrugList" :key="index">{{ item.reportTherapy.drugName}}</div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="" label="潜在临床试验（敏感性，适应症）" width="160">
+          <!-- <template slot-scope="scope">
+            {{ scope.row.reportVariant.cdnaChange }}
+          </template> -->
+        </el-table-column>
+      </el-table>
+
+
+    </div>
+
+
+  </div>
+</template>
+<script>
+  export default {
+    props: {
+        formDatas:{
+            type: Array
+        }
+    },
+    created() {
+    },
+    data () {
+      return {
+        isBlood: this.$route.params.shapeType, // 0 是血液  1是常规
+        isEdit1: false,
+        isEdit2: false,
+        formData: [],
+        formData1: []
+        // pageSize: 10
+      }
+    },
+    methods: {
+      changeEdit(val, index) {
+        let that = this
+        // that.formData1.list[index].isEdit = val == 'true' ?  true : false
+        that.$set(that.formData1.list[index], 'isEdit', true)
+      },
+      cancerChange(index) {
+        let that = this
+        // that.formData1.list[index].isEdit = false
+        that.$set(that.formData1.list[index], 'isEdit', false)
+        // 重新给formData赋值    取消的时候，重置内容
+        let n = Object.assign({}, that.formDatas)
+        that.formData1 = n
+      },
+      saveChange (vale, index) {
+      	let that = this
+      	// that.formData1.list[index].isEdit = false
+      	that.$set(that.formData1.list[index], 'isEdit', false)
+      	let n = Object.assign({}, that.formData1)
+      	that.formData = n
+        that.$emit('saveChange', vale)
+      }
+    },
+    watch: {
+      formDatas: function(newVal,oldVal){
+      	let that = this
+        this.formData = newVal
+        this.formData1 = JSON.parse(JSON.stringify(this.formData))
+        // for (let i in that.formData1.list) {
+        // 	// that.formData1.list[i]['isEdit'] = false
+        // 	that.$set(that.formData1.list[i], 'isEdit', false)
+        // }
+      }
+    },
+    computed: {
+
+    }
+  }
+</script>

@@ -1,0 +1,490 @@
+<template>
+  <div class="base_msg blockContent">
+
+
+    <div class="subItems">
+      <h3>
+        <!-- <a href="javascript:;" @click="changeEdit('true', 'isEdit1')" class="editBtn"><i class="el-icon-edit-outline"></i></a> -->
+        {{ formData.blockCode == '06' ? '基因突变检出情况' : '变异的基因突变检出情况' }}
+      </h3>
+      
+      <div class="search-wrapper">
+        <el-form :inline="true" :model="formInline" class="demo-form-inline query-form">
+          <el-form-item label="基因：">
+            <!-- <el-input size="medium" v-model="formInline.gene" placeholder="请输入名称"></el-input> -->
+            <el-autocomplete
+              class="inline-input"
+              v-model="formInline.gene"
+              :fetch-suggestions="querySearch"
+              placeholder="请输入名称"
+              :trigger-on-focus="false"
+            ></el-autocomplete>
+          </el-form-item>
+          <el-form-item label="突变位点：">
+            <el-input size="medium" v-model="formInline.mutation" placeholder="变异"></el-input>
+          </el-form-item>
+          <el-form-item label="外显子：">
+            <el-input size="medium" v-model="formInline.transcriptExon" placeholder="外显子"></el-input>
+          </el-form-item>
+          <el-form-item label="临床意义：">
+            <el-input size="medium" v-model="formInline.clinicalSignificance" placeholder="临床意义"></el-input>
+          </el-form-item>
+          <el-form-item label="变异类型：">
+            <el-input size="medium" v-model="formInline.variantClassification" placeholder="变异类型"></el-input>
+          </el-form-item>
+          <el-form-item label="DmDp：">
+            <el-input size="medium" v-model="formInline.hgmdDmDp" placeholder="DmDp"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" size="medium" @click="blockSearch(formInline)">查询</el-button>
+          </el-form-item>
+        </el-form>
+      </div>
+      <div class="addBar" v-if='formData.blockCode == "06"' style="padding:0px 0 10px 0; text-align:right;">
+        <el-button type="primary" @click="goAdd()">添加</el-button>
+        <el-button type="primary" @click="sendEmail">发送邮件</el-button>
+      </div>
+      <div class="tableBig">
+        <el-table class="tableList hasLine" :data="formData1.list" border stripe style="width: 100%" @sort-change="sortChange">
+  	      	<!-- <el-table-column prop="geneVariant" label="检测项目" width="180">
+  	      	</el-table-column> -->
+  	      	<el-table-column prop="gene" label="基因" fixed width="80" align="center">
+  	      		<template slot-scope="scope">
+                <!-- <span v-if="!scope.row.isAdd" :class="{'color_red': shapeType == 0 && scope.row.bloodColor == 'red'}">{{scope.row.gene}}</span> -->
+                <popdialog v-if="!scope.row.isAdd" :text="scope.row.gene" :scope="scope.row" windowType="gene" :popData="popData1" :formDatas="formData1" :minMark="minMark" :checkMark="checkMark" :cacheData="cacheData" @cmmk="cmmk" @sWindow="sWindow" @pushHead="pushHead" @changeTab="changeTab" @closePanel="closePanel"></popdialog>
+                <!-- <a href="javascript:;" @click="showMsg(scope.$index, scope.row.gene)">点击这里</a> -->
+      					<el-input v-if="scope.row.isAdd" v-model="scope.row.gene" placeholder=""></el-input>
+  	      		</template>
+  	      	</el-table-column>
+  	      	<el-table-column prop="variant" fixed label="突变位点" width="150" align="center">
+  	      		<template slot-scope="scope">
+      					<!-- <span v-if="!scope.row.isAdd">{{ scope.row.variant }}</span> -->
+                <popdialog v-if="!scope.row.isAdd" :text="scope.row.variant" :scope="scope.row" windowType="variant" :popData="popData1" :formDatas="formData1" :minMark="minMark" :checkMark="checkMark" :cacheData="cacheData" @cmmk="cmmk" @sWindow="sWindow" @pushHead="pushHead" @changeTab="changeTab" @closePanel="closePanel" @blockSearch="blockSearch"></popdialog>
+      					<el-input v-if="scope.row.isAdd" v-model="scope.row.variant" placeholder=""></el-input>
+  	      		</template>
+  	      	</el-table-column>
+
+            <el-table-column prop="gdnaChange" label="基因组定位" width="200">
+              <template slot-scope="scope">
+                <span v-if="!scope.row.isAdd">{{ scope.row.gdnaChange }}</span>
+                <el-input v-if="scope.row.isAdd" v-model="scope.row.gdnaChange" placeholder=""></el-input>
+              </template>
+            </el-table-column>
+            <el-table-column prop="geneType" label="基因型">
+              <template slot-scope="scope">
+                <span v-if="!scope.row.isAdd">{{ scope.row.geneType }}</span>
+                <el-input v-if="scope.row.isAdd" v-model="scope.row.geneType" placeholder=""></el-input>
+              </template>
+            </el-table-column>
+            <el-table-column prop="rsId" label="RS_ID" width="100">
+              <template slot-scope="scope">
+                <span v-if="!scope.row.isAdd"><a :href="'https://www.snpedia.com/index.php/' + scope.row.rsId" target="_blank">{{ scope.row.rsId }}</a></span>
+                <el-input v-if="scope.row.isAdd" v-model="scope.row.rsId" placeholder=""></el-input>
+              </template>
+            </el-table-column>
+            <el-table-column prop="hzInfo" label="突变频率" width="200">
+              <template slot-scope="scope">
+                <span v-if="!scope.row.isAdd">{{ scope.row.hzInfo }}</span>
+                <el-input v-if="scope.row.isAdd" v-model="scope.row.hzInfo" placeholder=""></el-input>
+              </template>
+            </el-table-column>
+            <el-table-column prop="transcriptExon" label="外显子" width="120" sortable="custom">
+              <template slot-scope="scope">
+                <span v-if="!scope.row.isAdd">{{ scope.row.transcriptExon }}</span>
+                <el-input v-if="scope.row.isAdd" v-model="scope.row.transcriptExon" placeholder=""></el-input>
+              </template>
+            </el-table-column>
+            <el-table-column prop="variantType" label="变异类型" width="100">
+              <template slot-scope="scope">
+                <span v-if="!scope.row.isAdd">{{translateKeyWord(scope.row.variantType)}}</span>
+                <el-input v-if="scope.row.isAdd" v-model="scope.row.variantType" placeholder=""></el-input>
+              </template>
+            </el-table-column>
+            <el-table-column prop="lovdClinicalSignificance" label="LOVD">
+              <template slot-scope="scope">
+                <span v-if="!scope.row.isAdd">{{ scope.row.lovdClinicalSignificance }}</span>
+                <el-input v-if="scope.row.isAdd" v-model="scope.row.lovdClinicalSignificance" placeholder=""></el-input>
+              </template>
+            </el-table-column>
+            <el-table-column prop="bicClinicalSignificance" label="BIC">
+              <template slot-scope="scope">
+                <span v-if="!scope.row.isAdd">{{ scope.row.bicClinicalSignificance }}</span>
+                <el-input v-if="scope.row.isAdd" v-model="scope.row.bicClinicalSignificance" placeholder=""></el-input>
+              </template>
+            </el-table-column>
+            <el-table-column prop="utahClinicalSignificance" label="UTAH">
+              <template slot-scope="scope">
+                <span v-if="!scope.row.isAdd">{{ scope.row.utahClinicalSignificance }}</span>
+                <el-input v-if="scope.row.isAdd" v-model="scope.row.utahClinicalSignificance" placeholder=""></el-input>
+              </template>
+            </el-table-column>
+            <!-- <el-table-column prop="clinvarClinicalSignificance" label="ClinVar" width="150">
+              <template slot-scope="scope">
+                <span v-if="!scope.row.isAdd">{{ scope.row.clinvarClinicalSignificance }}</span>
+                <el-input v-if="scope.row.isAdd" v-model="scope.row.clinvarClinicalSignificance" placeholder=""></el-input>
+              </template>
+            </el-table-column> -->
+            <el-table-column prop="hgmdCancer" label="hgmd相关疾病" width="150">
+              <template slot-scope="scope">
+                <span v-if="!scope.row.isAdd">{{ scope.row.hgmdCancer }}</span>
+                <el-input v-if="scope.row.isAdd" v-model="scope.row.hgmdCancer" placeholder=""></el-input>
+              </template>
+            </el-table-column>
+            <el-table-column prop="hgmdDmDp" label="DM/DP">
+              <template slot-scope="scope">
+                <span v-if="!scope.row.isAdd">{{ scope.row.hgmdDmDp }}</span>
+                <el-input v-if="scope.row.isAdd" v-model="scope.row.hgmdDmDp" placeholder=""></el-input>
+              </template>
+            </el-table-column>
+            <el-table-column prop="clinsig" label="临床意义" width="120">
+              <template slot-scope="scope">
+                <span v-if="!scope.row.isEdit && !scope.row.isAdd">{{ scope.row.clinsig }}</span>
+                <el-select v-if="scope.row.isEdit || scope.row.isAdd" clearable v-model="scope.row.clinsig" placeholder="">
+                  <el-option label="致病" value="致病"></el-option>
+                  <el-option label="可能致病" value="可能致病"></el-option>
+                  <el-option label="风险因素" value="风险因素"></el-option>
+                  <el-option label="良性" value="良性"></el-option>
+                  <el-option label="可能良性" value="可能良性"></el-option>
+                  <el-option label="意义未明确" value="意义未明确"></el-option>
+                  <el-option label="结论存在争议" value="结论存在争议"></el-option>
+                </el-select>
+              </template>
+            </el-table-column>
+            <el-table-column prop="clinicalSignificancePrediction" label="临床意义预测" width="120">
+              <template slot-scope="scope">
+                <span v-if="!scope.row.isAdd">{{ scope.row.clinicalSignificancePrediction }}</span>
+                <el-input v-if="scope.row.isAdd" v-model="scope.row.clinicalSignificancePrediction" placeholder=""></el-input>
+              </template>
+            </el-table-column>
+            <el-table-column prop="allelicDepth" label="丰度" width="80">
+              <template slot-scope="scope">
+                <span v-if="!scope.row.isAdd">{{ scope.row.allelicDepth }}</span>
+                <el-input v-if="scope.row.isAdd" v-model="scope.row.allelicDepth" placeholder=""></el-input>
+              </template>
+            </el-table-column>
+            <el-table-column prop="" v-if="formData.blockCode == '15302351683171404'" label="说明">
+              <template slot-scope="scope">
+                <span v-if="!scope.row.isAdd">{{ scope.row.siteNote }}</span>
+                <el-input v-if="scope.row.isAdd" v-model="scope.row.siteNote" placeholder=""></el-input>
+              </template>
+            </el-table-column>
+  	      	<el-table-column label="操作" width="80" fixed='right' align="center">
+  	      		<template slot-scope="scope">
+  	            	<a href="javascript:;" v-if="scope.row.isAdd || scope.row.isEdit" @click="cancerChange(scope.$index, scope.row)" class="editBtn"><i class="el-icon-circle-close-outline"></i></a>
+                  <a href="javascript:;" v-if="!scope.row.isEdit && !scope.row.isAdd" @click="changeEdit('true', scope.$index)" class="editBtn"><i class="el-icon-edit-outline"></i></a>
+                  <a href="javascript:;" v-if="!scope.row.isEdit && !scope.row.isAdd" @click="pushListItem('del', scope.row.code)" class="editBtn"><i class="el-icon-delete"></i></a>
+  	            	<a href="javascript:;" v-if="scope.row.isAdd || scope.row.isEdit" @click="saveChange(scope.row, scope.row.code)" class="editBtn"><i class="el-icon-circle-check-outline"></i></a>
+  	        	</template>
+  	      </el-table-column>
+  	    </el-table>
+      </div>
+
+    </div>
+
+
+  </div>
+</template>
+<script>
+import popdialog from '@/components/examine/examineModel/popModel/popdialog'
+  export default {
+    props: {
+        formDatas:{
+            type:Object
+        },
+        formInline: {
+          type: Object
+        },
+        popData: {
+          type: Object
+        }
+    },
+    created() {
+    },
+    data () {
+      return {
+        isEdit1: false,
+        isEdit2: false,
+        formData: {},
+        shapeType: this.$route.params.shapeType,
+        code: this.$route.params.id,
+        formData1: {},
+        restaurants: [],
+        restaurantsList: [],
+        needAddsList: {"allelicDepth":"","annotationTranscript":"","bicClinicalSignificance":"","cdnaChange":"","chromosomeSite":"","clinicalSignificancePrediction":"","clinsig":"","clinvarClinicalSignificance":"","code":"","cosmicId":"","cosmicOverlappingMutations":"","describe":"","ensemblSoTerm":"","excludedType": '',"fusionType":"","gdnaChange":"","gene":"","geneType":"","hasInOncokb": '',"hgmdCancer":"","hgmdDmDp":"","hgvsCodingDnaChange":"","hgvsProteinChange":"","hzInfo":"","lovdClinicalSignificance":"","mutationType":'',"mutationalLoad":"","nature":"","nccnCscoCount":'',"otherTranscripts":"","parpInfluence":"","projectCode":"","proteinChange":"","rsId":"","siteNote":"","transcriptExon":"","transcriptType":'',"type":"","utahClinicalSignificance":"","variant":"","variantClassification":"","variantType":"","wildType":'','isAdd': true},
+        checkMark: 'base',
+        minMark: '1',
+        cacheData: {},
+        popData1: {
+          headList: [],
+          datas: {
+            cancers: {},
+            desc: '',
+            drugControls: [],
+            gene: '',
+            listReportVariant: [],
+            molecularNetworkImg: '',
+            panels: [],
+            pathwayInfos: [],
+            termsImg: ''
+          }
+        },
+        // formInline: {
+        //   code: '',
+        //   drug: '',
+        //   gene: '',
+        //   mutation: '',
+        //   sourceEvidence: '',
+        //   langType: '',
+        //   projectCode: '',
+        //   clinicalSignificance: '',
+        //   variantClassification: '',
+        //   hgmdDmDp: '',
+        //   checkItem: ''
+        // }
+        // pageSize: 10
+      }
+    },
+    methods: {
+      showMsg(index, obj) {
+        let that = this
+        console.log(index)
+        that.formData1.list.splice(index + 1, 0, obj)
+        console.log(that.formData1.list)
+      },
+      changeEdit(val, index) {
+        let that = this
+        // that.formData1.list[index].isEdit = val == 'true' ?  true : false
+        that.$set(that.formData1.list[index], 'isEdit', true)
+      },
+      cancerChange(index, scope) {
+        let that = this
+        if (scope.code == '') {
+          that.formData1.list.splice(index, 1)
+        } else {
+          // that.formData1.list[index].isEdit = false
+          that.$set(that.formData1.list[index], 'isEdit', false)
+          // 重新给formData赋值    取消的时候，重置内容
+          let n = Object.assign({}, that.formDatas)
+          that.formData1 = n
+        }
+      },
+      saveChange (vale, code) {
+      	let that = this
+        if (vale.isAdd) {
+          that.pushListItem('add', '0', that.formData1.list[0])
+        } else {
+          let n = {}
+          n['clinsig'] = vale.clinsig
+          n['code'] = code
+          n['projectCode'] = that.code
+          that.$emit('saveChange', n)
+        }
+        
+      },
+      blockSearch(formInline) {
+        // 查询
+        let that = this
+        that.$emit('search', formInline)
+      },
+      inputSub(itemCode, keyName, keyValue) {
+        // 修改
+        let that = this
+        that.$emit('saveChange', that.formDatas.code, itemCode, keyName, keyValue)
+      },
+      goAdd() {
+        let that = this
+        that.formData1.list.splice(0, 0, that.needAddsList)
+      },
+      pushListItem(type, code) {
+        // 添加，删除 的操作
+        let that = this
+        if(type == 'add') { 
+          if (that.formData1.list[0]['gene'] == '' || that.formData1.list[0]['variant'] == '') {
+            that.$message({
+              type: 'error',
+              message: '添加失败：基因、突变不能为空',
+              duration: 1000
+            })
+            return false
+          } else {
+            delete that.needAddsList.isAdd
+            delete that.needAddsList.isEdit
+            that.needAddsList['variantType'] = '基因突变'
+            that.$emit('pushListItem', type, code, that.needAddsList)
+          }
+        } else if (type == 'del') {
+          // console.log(code)
+          that.$emit('pushListItem', type, code)
+        }
+      },
+      querySearch(queryString, cb) {
+        let restaurants = this.restaurants
+        let results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants
+        // 调用 callback 返回建议列表的数据
+        cb(results)
+      },
+      createFilter(queryString) {
+        return (restaurant) => {
+          return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
+        }
+      },
+      translateKeyWord (keyWord) {
+        // 无变异、基因突变、过滤的基因突变 翻译
+        switch (keyWord) {
+          case 'Frame_Shift_Del':
+            return '缺失移码'
+            break
+          case 'Frame_Shift_Ins':
+            return '插入移码'
+            break
+          case 'In_Frame_Del':
+            return '框内缺失'
+            break
+          case 'Frame_Shift_Ins':
+            return '框内插入'
+            break
+          case 'Missense_Mutation':
+            return '错义'
+            break
+          case 'Nonsense_Mutation':
+            return '无义'
+            break
+          case 'Silent':
+            return '同义'
+            break
+          case 'Splice_Site':
+            return '剪切点'
+            break
+          case 'Translation_Start_Site':
+            return '翻译起始位点'
+            break
+          case 'Nonstop_Mutation':
+            return '非终止突变'
+            break
+          case 'Intron':
+            return '内含子区'
+            break
+          case 'Targeted Region':
+            return '靶向区域'
+            break
+          case 'De_novo_Start_InFrame':
+            return '框内新发起始突变'
+            break
+          case 'De_novo_Start_OutOfFrame':
+            return '框外新发起始突变'
+            break
+          case 'Splice_Region':
+            return '剪接区'
+            break
+          case 'Unknown':
+            return '未知'
+            break
+        }
+      },
+      sortChange(column, prop, order) {
+        let that = this
+        that.formInline["sort"] = column.prop == null ? '' : column.prop
+        if (that.formInline["sortType"] == '') {
+          that.formInline.sortType = 'asc'
+        } else if (that.formInline.sortType === 'asc') {
+          that.formInline.sortType = 'desc'
+        } else if (that.formInline.sortType == 'desc') {
+          that.formInline.sortType = ''
+        }
+        // return false
+        that.$emit('search', that.formInline)
+      },
+      sWindow(type, keyVal) {
+        // 查询的类型   基因、疾病、药物    keyVal 是查询参数
+        let that = this
+        that.$emit('sWindow', type, keyVal)
+      },
+      changeTab(item, i) {
+        // 改变选中的选项
+        let that = this
+        for(let ec in that.popData1.headList) {
+          that.popData1.headList[ec].checkNum = false
+        }
+        // that.popData1.headList[i].checkNum = true
+        that.$set(that.popData1.headList[i], 'checkNum', true)
+        that.checkMark = item
+        if (that.popData1.headList[i].data) {
+          that.cacheData = that.popData1.headList[i].data
+        }
+      },
+      closePanel(i) {
+        // 关闭可关闭的当前选项卡
+        let that = this
+        that.cacheData = {}
+        that.popData1.headList.splice(i, 1)
+        let n = parseInt(i) - 1
+        let items = that.popData1.headList[n].mark
+        that.changeTab(items, n)
+      },
+      cmmk(i) {
+        this.minMark = i
+      },
+      pushHead(type, scope) {
+        let that = this
+        let n = {
+          canClose: true,
+          mark: type,
+          checkNum: false
+        }
+        if (type == 'disease') {
+          n['label'] = scope.name
+        } else if (type == 'drug') {
+          n['label'] = scope.drugName ? scope.drugName : scope.drugEnName
+        }
+        let isneedinsert = true
+        for (let i in that.popData1.headList) {
+          if(that.popData1.headList[i].label == n.label) {
+            isneedinsert = false
+            that.changeTab(that.popData1.headList[i].mark, i)
+            break
+          }
+        }
+        if(isneedinsert) {
+          n['data'] = scope
+          that.popData1.headList.push(n)
+          that.cacheData = n['data']
+          let xx = that.popData1.headList.length - 1
+          that.changeTab(type, xx)
+        }
+        // 临时内容
+        console.log(that.cacheData)
+        //跳转到当前选中的栏目
+        that.checkMark = type
+      },
+      sendEmail() {
+        let that = this
+        that.$emit('sendEmail')
+      }
+    },
+    watch: {
+      formDatas: function(newVal,oldVal){
+      	let that = this
+        this.formData = newVal
+        this.formData1 = JSON.parse(JSON.stringify(this.formData))
+        for (let i in that.formData1.list) {
+        	// that.formData1.list[i]['isEdit'] = false
+        	that.$set(that.formData1.list[i], 'isEdit', false)
+        }
+      },
+      popData: function(newVal, oldVal){
+        let that = this
+        // 重设基本选择位置
+        console.log('is popData changed')
+        console.log(newVal)
+        that.popData1 = newVal
+        that.checkMark = that.popData1.headList[0].mark
+      }
+    },
+    computed: {
+
+    },
+    components: {
+      popdialog
+    }
+  }
+</script>

@@ -1,0 +1,99 @@
+<template>
+  <div class="base_msg blockContent">
+
+    <div class="subItems">
+      <h3 style="margin-top:10px;">
+        <a href="javascript:;" @click="changeEdit('true', 'isEdit1')" class="editBtn"><i class="el-icon-edit-outline"></i></a>
+        复发风险评估结果分析
+      </h3>
+      <div class="inlineItem">
+        <el-row :gutter="10">
+          <el-col :span="3">复发分数（RS）：</el-col>
+          <el-col :span="4" style="margin-left:-40px;">
+            <div class="tableListItem"  v-if="!isEdit1">{{ '123' }}&nbsp;</div>
+            <el-input class="editFrom" v-if="isEdit1" v-model="formData1.jsonValue.sampleId" placeholder=""></el-input>
+          </el-col>
+          <el-col :span="3">平均远期复发率：</el-col>
+          <el-col :span="4" style="margin-left:-50px;">
+            <div class="tableListItem" v-if="!isEdit1">{{ '12333' }}&nbsp;</div>
+            <el-input class="editFrom" v-if="isEdit1" v-model="formData1.jsonValue.sampleType" placeholder=""></el-input>
+          </el-col>
+          <el-col :span="3">复发风险等级：</el-col>
+          <el-col :span="4" style="margin-left:-50px;">
+            <div class="tableListItem" v-if="!isEdit1">{{ '2323' }}&nbsp;</div>
+            <el-select class="editFrom" clearable v-if="isEdit1" v-model="formData1.jsonValue.gender" placeholder="请选择">
+              <el-option label="低风险" :value="1"></el-option>
+              <el-option label="中偏低" :value="1"></el-option>
+              <el-option label="中" :value="1"></el-option>
+              <el-option label="中偏高" :value="1"></el-option>
+              <el-option label="高" :value="1"></el-option>
+            </el-select>
+          </el-col>
+         
+        </el-row>
+        
+        
+        <el-row :gutter="10" v-if="isEdit1">
+          <el-col :span="24" align="center">
+            <el-button size="small" @click="cancerChange('isEdit1')">取消</el-button>
+            <el-button size="small" type="primary" @click="saveChange(formData1, 'isEdit1')">保存</el-button>
+          </el-col>
+          <!-- <el-col :span="2"></el-col> -->
+        </el-row>
+      </div>
+    </div>
+
+    <p>说明：乳腺癌 21 基因检测使用分支 DNA-液相芯片技术检测肿瘤组织中 21 个基因的表达情况。复发分数（RS 评分）是根据基因表达的结果计算得来的，复发分数的范围从 0-100。复发分数越低的乳腺癌患者，其 10 年远期复发风险越低，接受他莫西芬+化疗的治疗方案获益不显著。</p>
+
+
+  </div>
+</template>
+<script>
+  export default {
+    props: {
+        formDatas:{
+            type:Object
+        }
+    },
+    created() {
+    },
+    data () {
+      return {
+        isEdit1: false,
+        isEdit2: false,
+        formData: {},
+        formData1: {}
+        // pageSize: 10
+      }
+    },
+    methods: {
+      changeEdit(val, editorName) {
+        let that = this
+        that[editorName] = val == 'true' ?  true : false
+      },
+      cancerChange(editorName) {
+        let that = this
+        that[editorName] = false
+        // 重新给formData赋值    取消的时候，重置内容
+        let n = Object.assign({}, that.formDatas)
+        that.formData1 = n
+      },
+      saveChange (vale, editorName) {
+        let that = this
+        this[editorName] = false
+        let n = Object.assign({}, that.formData1)
+        this.formData = n
+        this.$emit('saveChange', vale)
+      }
+    },
+    watch: {
+      formDatas: function(newVal,oldVal){
+        this.formData = newVal
+        this.formData1 = JSON.parse(JSON.stringify(this.formData))
+      }
+    },
+    computed: {
+
+    }
+  }
+</script>

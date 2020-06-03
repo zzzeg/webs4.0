@@ -1,0 +1,413 @@
+<template>
+  <div class="list">
+    <div class="crumbs">
+      <el-breadcrumb separator=">">
+        <el-breadcrumb-item>审核模块</el-breadcrumb-item>
+        <el-breadcrumb-item>邮件列表</el-breadcrumb-item>
+        <el-breadcrumb-item>发送邮件</el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
+    
+    <div class="tableData">
+      <el-form :model="formData" ref="formData" label-width="100px">
+        <el-form-item label="收件人">
+          <el-col :span="20">
+            <el-input v-model="formData.email.tos" multiple style="width:100%;"></el-input>
+          </el-col> 
+        </el-form-item>
+        <el-form-item label="抄送" >
+          <el-col :span="20">
+            <el-input v-model="formData.email.ccs" multiple style="width:100%;"></el-input>
+          </el-col> 
+        </el-form-item>
+        <el-form-item label="主题">
+          <el-col :span="20">
+            <el-input v-model="formData.email.subject" style="width:100%;"></el-input>
+          </el-col>
+        </el-form-item>
+        <el-form-item label="报告附件">
+          <el-col :span="20">
+            <el-select v-model="reportFiles" @remove-tag="(val)=>removeSelectTags(val)" multiple style="width:100%;"></el-select>
+          </el-col> 
+          <el-col :span="3">
+            &nbsp;&nbsp;&nbsp;&nbsp;<el-button type="primary" size="mini" :loading="isLoading" @click="selectReport">
+              {{ '选择报告' }}
+          </el-button>
+          </el-col>
+        </el-form-item>
+        <el-form-item label="" prop="platinum">
+          <el-col :span="20">
+            <quillEditor v-model="formData.email.text" class="xnm"></quillEditor>
+          </el-col>
+        </el-form-item>
+        <el-form-item>
+          <!-- <el-button type="primary" :loading="isLoading" @click="save()">
+              {{ isLoading ? '正在保存' : '保存' }}
+          </el-button> -->
+          <el-button type="primary" :loading="isLoading" @click="send()">
+              {{ isLoading ? '正在发送' : '发送' }}
+          </el-button>
+          <el-button @click="$router.go(-1)">返回</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
+    
+    <!--报告选择-->
+    <el-dialog title="报告选择" :visible.sync="dialogVisible" width="80%">
+      <div class="search-wrapper">
+        <el-form :inline="true" :model="formInline" class="demo-form-inline query-form">
+        <el-form-item label="报告名称：">
+          <el-input v-model="formInline.flowName" placeholder="请输入报告名称"></el-input>
+        </el-form-item>
+        <el-form-item label="受检人">
+          <el-input v-model="formInline.sickName" size="medium" placeholder="请输入受检人姓名"></el-input>
+        </el-form-item>
+        <el-form-item label="报告时间">
+          <el-date-picker
+            v-model="formInline.startTime"
+            type="date"
+            :editable='false'
+            @change="beginTimeRules"
+            placeholder="选择日期时间">
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item label="至">
+          <el-date-picker
+            v-model="formInline.endTime"
+            type="date"
+            :editable='false'
+            @change="endTimeRules"
+            placeholder="选择日期时间">
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" size="small" @click="search">查询</el-button>
+        </el-form-item>
+      </el-form>
+      </div>
+      <div class="clinicalTrialsData">
+        <el-table :data="updateData" border style="width: 100%">
+        <el-table-column label="序号" width="80">
+          <template slot-scope="scope">
+            {{ (currentPage - 1) * pageSize + scope.$index + 1 }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="projectName" label="名称" sortable>
+        </el-table-column>
+        <!-- <el-table-column prop="sex" label="性别" width="100">
+        </el-table-column> -->
+        <el-table-column label="受检人">
+          <template slot-scope="scope">
+            {{ scope.row.sickName}}
+          </template>
+        </el-table-column>
+        <el-table-column prop="productName" label="产品名称" sortable>
+        </el-table-column>
+        <el-table-column prop="createTime" :formatter="dateFormat" label="创建时间" width="180" sortable>
+        </el-table-column>
+        <el-table-column prop="status" label="状态" width="160" sortable>
+          <template slot-scope="scope">
+            {{ scope.row.status === 3 ? '待审核' : scope.row.status === 4 ? '已完成' : '审核中' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="createUserName" v-if="status === 3 || status === 4" label="创建人" width="160">
+        </el-table-column>
+        <el-table-column prop="currentAduitName" v-if="status === 96" label="当前审核人" width="160">
+        </el-table-column>
+        <el-table-column label="操作" width='80'>
+          <template slot-scope="scope">
+            <el-button type="primary" :disabled="scope.row.canCheck" size="small" @click="checkthis(scope.row.code, scope.$index)">选择</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      </div>
+      <!-- 分页 -->
+      <pager :current-page="currentPage" v-on:handleSizeChange="handelCurrent" :pageSize="pageSize" :total-count="totalCount" v-on:handleCurrentChange="(val)=>getListData(val)"></pager>
+    </el-dialog>
+    
+  </div>
+</template>
+<script>
+  import URL from '@/common/js/URL.js'
+  import Pager from '@/components/common/pager'
+  import axios from 'axios'
+  import moment from 'moment'
+  import { quillEditor } from 'vue-quill-editor'
+  export default {
+    created () {
+      // this.getListData(this.pager)
+    },
+    data () {
+      return {
+        nums: 0,
+        formData: {
+          reportFile:[],
+          email:{
+            ccs: "dingyan@bainuo.cn,georgehuang@bainuo.cn,liuxin@bainuo.cn",// 抄送人
+            subject:"检测报告查收",
+            tos:"liuning@bainuo.cn", //
+            from:"", // 来自谁
+            text:"<p>刘宁，</p><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;你好，附件是检测报告，请查收。</p><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p><p>&nbsp;</p>"
+          }
+        },
+        reportFiles: [],
+        reportFileAll: [],
+        formInline: {
+          sickName: '',
+          flowName: '',
+          endTime: '',
+          startTime: ''
+        },
+        status: 3,
+        dialogFrom: [],
+        isLoading: false,
+        listLoading: false,
+        pager: this.$route.params.pager,
+        dialogVisible: false,
+        tableData: [],
+        currentPage: 1,
+        pageSize: 10,
+        pageNum: 0,
+        totalCount: 0,
+        loading: false
+      }
+    },
+    components: {
+      Pager: Pager,
+      quillEditor: quillEditor
+    },
+    computed: {
+      uploadHeader () {
+        return {
+          // token: JSON.parse(localStorage.getItem('authtoken'))
+        }
+      }
+    },
+    methods: {
+      search (status) {
+        this.getListData(1)
+      },
+      handelCurrent(val) {
+        let that = this
+        that.pageSize = val
+        that.getListData(that.currentPage)
+      },
+      save() {
+        // 保存
+      },
+      send () {
+        // 发送
+        let that = this
+        that.$confirm('确认发送邮件?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          that.isLoading = true
+          let url = 'report/email/send'
+          axios.post(URL.api_name + url, that.formData).then(function (res) {
+            // console.log('x2')
+            if (res.data.code === '100') {
+              that.$message({
+                type: 'success',
+                message: '发送成功',
+                duration: 1000,
+                onClose: function(){
+                  that.$router.push({
+                    path: '/service/1'
+                  })
+                }
+              })
+            } else {
+              that.$message({
+                type: 'error',
+                message: '发送失败：' + res.data.message,
+                duration: 2000
+              })
+            }
+            that.isLoading = false
+            // that.part11.infos.summary_msg = that.formData.description
+          }, function (error) {
+            console.log(error)
+            that.$message({
+              type: 'error',
+              message: '发送失败',
+              duration: 1000
+            })
+          })
+        }).catch(() => {
+          // this.$message({
+          //   type: 'info',
+          //   message: '已取消'
+          // })         
+        })
+      },
+      numse() {
+        return this.nums
+      },
+      beginTimeRules (val) {
+        let date1 = moment(val)
+        let date2 = moment(this.formInline.signupEnd)
+        this.formInline.startTime = val
+        // console.log(date2)
+        if (date2 !== 'NaN' && date1.diff(date2) > 0) {
+          this.$message({
+            message: '开始时间不能大于结束时间',
+            type: 'error'
+          })
+          this.formInline.startTime = ''
+        }
+        this.formInline.startTime = moment(val).format('YYYY-MM-DD')
+      },
+      endTimeRules (val) {
+        let date1 = moment(this.formInline.startTime)
+        let date2 = moment(val)
+        this.formInline.signupEnd = val
+        // console.log(date2)
+        if (date1 !== 'NaN' && date1.diff(date2) > 0) {
+          this.$message({
+            message: '结束时间不能小于开始时间',
+            type: 'error'
+          })
+          this.formInline.signupEnd = ''
+        }
+        this.formInline.endTime = moment(val).format('YYYY-MM-DD')
+      },
+      removeSelectTags(item) {
+        console.log(item)
+        let that = this
+        that.nums = that.nums - 1
+        let value = item.value.split(".")[0]
+        for (let i = 0; i < that.reportFileAll.length; i++) {
+          if (value === that.reportFileAll[i].fileName) {
+            that.reportFileAll.splice(i, 1)
+            that.formData.reportFile.splice(i, 1)
+          }
+        }
+      },
+      getListData (num) {
+        // console.log(num)
+        this.currentPage = parseInt(num)
+        let that = this
+        that.loading = true
+        axios.get(URL.api_name + 'cloud/listHasFileProject', {
+          params: {
+            status: 3,
+            startTime: that.formInline.startTime,
+            endTime: that.formInline.endTime,
+            projectName: that.formInline.flowName,
+            pageSize: that.pageSize,
+            pageNumber: num,
+            sickName: that.formInline.sickName
+          }
+        }).then(function (res) {
+          that.loading = false
+          let data = res.data
+          that.tableData = data.data.list
+          that.totalCount = data.data.total
+          // for (let n = 0; n < data.data.list.length; n++) {
+          //   that.tableData[n].jsonValue = JSON.parse(data.data.list[n].jsonValue)
+          // }
+        }, function (error) {
+          console.log(error)
+          that.loading = false
+          that.$message({
+            type: 'error',
+            message: '查询失败',
+            duration: 1000
+          })
+        })
+      },
+      dateFormat (row, column) {
+        let date = row[column.property]
+        if (date === undefined) {
+          return ''
+        }
+        return moment(date).format('YYYY-MM-DD HH:mm:ss')
+      },
+      goDetail(id) {
+        // this.$router.push({
+        //   path: '/emailInfo/' + id + '/' + this.currentPage
+        // })
+      },
+      back() {  
+      },
+      selectReport () {
+        // 
+        let that = this
+        that.dialogVisible = true
+        that.getListData(1)
+      },
+      checkthis (projectCode, index) {
+        let that = this
+        axios.get(URL.api_name + 'report/file/getPdf', {
+          params: {
+            projectCode: projectCode,
+            langType: 'CN'
+          }
+        }).then(function (res) {
+          if(res.data.code === '100' && res.data.data != null) {
+            that.reportFiles.push(res.data.data.fileName + '.' + res.data.data.fileSuf)
+            that.reportFileAll.push(res.data.data)
+            that.formData.reportFile.push({
+              fileSize: res.data.data.fileSize,
+              projectCode: res.data.data.projectCode,
+              langType: res.data.data.langType
+            })
+
+            that.$message({
+              type: 'success',
+              message: '添加成功',
+              duration: 1000
+            })
+            that.nums = that.nums + 1
+          } else {
+            that.$message({
+              type: 'error',
+              message: '未查询到该项目的PDF报告',
+              duration: 3000
+            })
+          }
+          // let data = respose.data
+          // that.tableData = data.list
+        }, function (error) {
+          // console.log(error)
+          that.loading = false
+          that.$message({
+            type: 'error',
+            message: '查询失败',
+            duration: 1000
+          })
+        })
+      }
+    },
+    computed: {
+      updateData() {
+        let that = this
+        // 改变值 => 计算是否可选
+        let data = that.tableData
+        let source = that.formData.reportFile
+        if(data != [] && data.length > 0) {
+          for(let i = 0; i < data.length; i++) {
+            if (source != [] && source.length > 0) {
+              for(let e = 0; e < source.length; e++) {
+                if (source[e].projectCode == data[i].code) {
+                  data[i]['canCheck'] = true
+                  // 及时更新视图
+                  that.$set(data, i, data[i])
+                }
+              }
+            } else {
+              data[i]['canCheck'] = false
+              that.$set(data, i, data[i])
+            }
+          }
+        }
+        return data
+      }
+    }
+  }
+</script>
+<style lang="less">
+.quill-editor.xnm .ql-editor.ql-blank{min-height: 300px!important;}
+</style>

@@ -1,0 +1,233 @@
+<template>
+  <div class="login-wrap">
+    <div class="login-content">
+      <!-- <h1 class="login-title">百诺基因云解读平台</h1> -->
+      <div class="login-from">
+        <div style="text-align:center;  margin: 25px 0 25px 0;">
+          <img src="../../common/images/logo@3x.png" width="150" alt="">
+        </div>
+        <el-form :model="formData" :rules="rules" ref="formData" label-width="0px">
+          <el-form-item prop="name" style="background: #F6F9F9; margin:40px 0 32px 0;border-radius: 5px;">
+            <i class="icons people"></i>
+            <el-input type="text" clearable placeholder="请输入用户名" class="lab_20" v-model="formData.name"></el-input>
+            <i class="icons del"></i>
+          </el-form-item>
+					
+          <el-form-item prop="password" style="background: #F6F9F9; margin:0px 0 32px 0;border-radius: 5px;">
+            <i class="icons lock"></i>
+            <el-input type="password" clearable placeholder="请输入密码" v-model="formData.password" class="lab_20" v-on:keyup.enter.native="login('formData')"></el-input>
+            <i class="icons del"></i>
+          </el-form-item>
+					
+          <el-form-item v-if="isNeedYZM" prop="picLyanzhengma" style="border-bottom:solid 1px #EAEBEC; margin:0px 0 40px 0;border-radius: 5px;">
+            <i class="icons yzm"></i>
+            <el-input type="text" clearable placeholder="请输入验证码" class="lab_20" style="width:calc(100% - 140px);" @blur="" v-model="formData.picLyanzhengma" v-on:keyup.enter.native="login('formData')"></el-input>
+            <!-- <input class="lab_20" type="text" placeholder="请输入验证码" @blur="checkLpicma" v-model="picLyanzhengma"> -->
+            <!-- <input type="button" id="code" @click="createCode1" style="font-size:0;" class="verification1" v-model="checkCode"/> -->
+            <a @click="createCode1"><img :src="erweimasrc"/></a>
+          </el-form-item>
+					
+          <el-form-item>
+            <!-- <el-button :loading="isLogin" type="primary" class="login-btn" v-on:click="login('formData')">
+              {{ isLogin ? '登录中' : '登录' }}
+            </el-button> -->
+            <el-button :loading="isLogin" type="primary" class="login-btn btn_style loginBtn" v-on:click="login('formData')">
+              {{ isLogin ? '登录中' : '登录' }}
+            </el-button>
+            <p class="el-form-item__error" v-if="errorMsg">登录失败</p>
+          </el-form-item>
+        </el-form>
+        <!-- <p style="text-align:right;"><a href="javascript:;" style="color:#008AFF">忘记密码</a></p> -->
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+  import URL from '@/common/js/URL.js'
+  import axios from 'axios'
+  export default {
+    created () {
+      this.haslogin()
+      this.createCode1()
+      this.getNum()
+      // this.getCode()
+    },
+    data () {
+      var checkCodes = (rule, value, callback) => {
+        if (value == '') {
+          callback(new Error('请输入验证码'));
+        } else if (value.toUpperCase() != this.checkCode) {
+          callback(new Error('验证码不正确'));
+        } else {
+          callback();
+        }
+      };
+      return {
+        formData: {
+          name: '',
+          password: '',
+          picLyanzhengma: ''
+        },
+        checkCode: '',
+        text: '',
+        imgsrc:  URL.api_name,
+        isNeedYZM: false,
+        erweimasrc: '',
+        errorMsg: null,
+        rules: {
+          name: [
+            {required: true, message: '用户名不能为空', trigger: 'blur'}
+          ],
+          password: [
+            {required: true, message: '密码不能为空', trigger: 'blur'}
+          ]
+        },
+        isLogin: false
+      }
+    },
+    methods: {
+      // 图片验证码
+      createCode(){
+        let code = ""; 
+        var codeLength = 4;//验证码的长度 
+        var random = new Array(0,1,2,3,4,5,6,7,8,9,'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R', 
+           'S','T','U','V','W','X','Y','Z');//随机数 
+        for(var i = 0; i < codeLength; i++) {
+         //循环操作 
+         var index = Math.floor(Math.random()*36);//取得随机数的索引（0~35） 
+         code += random[index];//根据索引取得随机数加到code上 
+        } 
+        this.checkCode = code;//把code值赋给验证码 
+      },
+      createCode1() {
+        let that = this
+        that.erweimasrc = '';
+        that.erweimasrc = URL.api_name + 'cloud/getVerificationCode?'+ new Date().getTime();
+      },
+      // 失焦验证图和密码
+      checkLpicma(){
+        let that = this
+        this.formData.picLyanzhengma.toUpperCase();//取得输入的验证码并转化为大写   
+        if(this.formData.picLyanzhengma == '') {
+          // that.isshow = true
+        }else if(this.formData.picLyanzhengma.toUpperCase() != this.checkCode ) { 
+         this.createCode();//刷新验证码 
+         this.formData.picLyanzhengma = '';
+        }else {
+         return true;
+        } 
+      },
+      login1 () {
+        let that = this
+        that.$router.push({
+          // 跳转到欢迎页
+          path: '/home'
+        })
+      },
+      haslogin () {
+        if (JSON.parse(localStorage.getItem('authtoken'))) {
+          let that = this
+          that.$router.push({
+            // 跳转到欢迎页
+            path: '/home'
+          })
+        }
+      },
+      login (formName) {
+        var that = this
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            that.isLogin = true
+            axios.get(URL.api_name + 'cloud/login', {
+              params: {
+                userName: that.formData.name,
+                password: that.formData.password,
+                verificationCode: that.formData.picLyanzhengma
+              }
+            }).then((res) => {
+              if (res.data.code === '100') {
+                that.isLogin = false 
+                // return false
+                localStorage.clear()
+                localStorage.setItem('userInfo', JSON.stringify(res.data.data.userInfo))
+                // setCookie
+                localStorage.setItem('authtoken', JSON.stringify(res.data.data.token))
+                that.$message({
+                  type: 'success',
+                  message: res.data.message,
+                  duration: 1000,
+                  onClose: function () {
+                  }
+                })
+                window.location.reload()
+                that.$router.push({
+                  path: '/home'
+                })
+              } else {
+                that.isLogin = false
+                that.$message({
+                  type: 'error',
+                  message: '登录失败：' + res.data.message
+                })
+                that.getNum()
+                if(that.isNeedYZM)
+                  that.createCode1()
+              }
+            }).catch((err) => {
+              console.log(err)
+              that.isLogin = false
+              that.$message({
+                type: 'error',
+                message: '登录失败，请联系管理员'
+              })
+            })
+          } else {
+            return false
+          }
+        })
+      },
+      getCode() {
+        // 获取验证码
+        let that = this
+        let ul = 'cloud/getVerificationCode'
+        axios.get(URL.api_name + ul, {
+          params: {
+            verificationCode: that.formData.picLyanzhengma
+          }
+        }).then((res) => {
+          that.erweimasrc = res.data
+        })
+      },
+      getNum() {
+        let that = this
+        let url = 'cloud/isValidateCodeLogin'
+        axios.get(URL.api_name + url).then((res) => {
+          that.isNeedYZM = JSON.parse(res.data.data).isNeedYZM
+          // that.erweimasrc = res.data
+        })
+      }
+    }
+  }
+</script>
+<style scoped  lang="scss">
+  .login-wrap{position: fixed;top: 0;bottom: 0;left: 0;right: 0;background: rgba(56,157,170, 1);
+						background: url(../../common/images/bj1.jpg) no-repeat center;background-size: cover;color: #fff;}
+  .login-content{position: absolute;margin-top: -300px;top: 50%;right: 18%;}
+  .login-from{width: 310px;margin: 0 auto 0 auto;padding: 30px 35px 30px 35px;background: #FFFFFF;box-shadow: 0 10px 28px 0 rgba(0,27,78,0.16);border-radius: 6px;}
+  .login-btn{width: 100%;text-align: center;}
+  .login-title{text-align: center;font-size: 30px; padding-bottom:25px;line-height: 1;text-shadow: 0 2px 4px #0E2F4F;color:#fff;font-weight: normal;}
+  .errorMsg{ color: #ff4949;}
+  .btn_style{background:#B0BBCF; margin: 0 .5rem 0 0; box-shadow: 0 4px 13px 0 rgba(80,138,235,0.34);border-radius: 51px; line-height: 2.5; color:#fff; border:none; padding:0 1rem;}
+  .primary{background: #508AEB;}
+  .success{background:#4ebb52;}
+  .loginBtn{display:block; margin:0 auto; box-shadow: 0 10px 28px 0 rgba(64,130,255,0.16);background: #008AFF;border-radius: 4px; height:45px; font-size:1rem; text-align: center; font-weight: normal; font-size:18px;}
+	.lab_20{margin-bottom: 1px;}
+	.lab_20 .el-input input{ border:none!important;}
+	.icons{ display: inline-block; width: 20px; height:20px; background: #fff; vertical-align: middle;}
+	.icons.people{ background: url(../../common/images/icon_a@3x.png) no-repeat center;  background-size:100% 100%;}
+	.icons.del{ background: url(../../common/images/icon_f@3x.png) no-repeat center;  background-size:100% auto; display: none;}
+	.icons.lock{ background: url(../../common/images/icon_p@3x.png) no-repeat center;  background-size:100% 100%;}
+	.icons.yzm{ background: url(../../common/images/icon_y@3x.png) no-repeat center;  background-size:80% auto;}
+	.verification1{vertical-align: middle;width: 70px; background: #f9f9f9;border: solid 1px #ddd;color: blue;height: 2rem;}
+	.login-content .el-form-item:hover{ border: 1px solid #008AFF!important;border-radius: 5px}
+</style>

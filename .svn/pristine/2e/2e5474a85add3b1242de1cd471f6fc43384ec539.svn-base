@@ -1,0 +1,128 @@
+<template>
+	<div class="base_msg blockContent">
+		<div class="subItems">
+			<div class="subtable dtitleBg">
+				<span>BRCA参考文献</span>
+				<el-button type="primary" size="mini" style="float: right;margin-right: -40px;"  @click="goAdd()">添加</el-button>
+			</div>
+			<div class="table-data" v-loading="loading" element-loading-text="拼命加载中">
+					<el-table :data="formData1.list" style="width: 100%" stripe border>
+						<el-table-column label="#" width="100" align="center">
+						  <template slot-scope="scope">
+						    {{ (currentPage - 1) * pageSize + scope.$index + 1 }}
+						  </template>
+						</el-table-column>
+						<!-- <el-table-column type="index" width="80" align="center"></el-table-column> -->
+						<el-table-column prop="name" label="标题" >
+							<template slot-scope="scope">
+								<span v-if="!scope.row.isEdit && !scope.row.isAdd">{{ scope.row.name }}</span>
+								<el-input type="textarea" v-if="scope.row.isEdit || scope.row.isAdd" v-model="scope.row.name" autosize  placeholder="输入标题结果"></el-input>
+							</template>
+						</el-table-column>
+						<el-table-column prop="url" label="连接地址" >
+							<template slot-scope="scope">
+								 <span v-if="!scope.row.isEdit && !scope.row.isAdd">{{ scope.row.url }}</span>
+								 <el-input  type="textarea" v-if="scope.row.isEdit || scope.row.isAdd" v-model="scope.row.url" autosize placeholder="输入连接地址"></el-input>
+							</template>
+						</el-table-column>
+						<el-table-column prop="status" label="操作" width="120">
+							<template slot-scope="scope">
+								<el-button type="text" size="medium" v-if="scope.row.isAdd || scope.row.isEdit" @click="cancerChange(scope.$index, scope.row)"><i class="el-icon-circle-close-outline" style="font-size: 18px;"></i></el-button>
+								<el-button type="text" size="medium" v-if="scope.row.isAdd || scope.row.isEdit" @click="saveChange(scope.row, scope.row)"><i class="el-icon-circle-check-outline" style="font-size: 18px;"></i></el-button>
+								<el-button type="text" size="medium" v-if="!scope.row.isEdit && !scope.row.isAdd" @click="changeEdit('true', scope.$index)"><i class="el-icon-edit-outline" style="font-size: 18px;"></i></el-button>
+								<el-button type="text"  size="small" v-if="!scope.row.isEdit && !scope.row.isAdd" @click="pushListItem('del', scope.row.code)"><i class="el-icon-delete" style="font-size: 18px;"></i></el-button>
+							</template>
+						</el-table-column>
+					</el-table>
+				</div>
+			</div>
+	</div>
+</template>
+<script>
+	export default {
+		props: {
+			formDatas: {
+				type: Object
+			},
+			popData: {
+			  type: Object
+			}
+			
+		},
+		created() {
+		},
+		data() {
+			return {
+				isEdit: false,
+				loading:false,
+				formData: [],
+				formData1: [],
+				currentPage: 1,
+				pageSize: 10,
+				pageNumber: 1,
+				totalCount: 0,
+				brcalist:{code: '', name: '', url: '', isAdd:true}
+			}
+		},
+		methods: {
+			// 编辑
+			changeEdit(val, index) {
+			  let that = this
+			  that.$set(that.formData1.list[index], 'isEdit', true)
+			},
+			//取消
+			cancerChange(index, scope) {
+			  let that = this
+			  if (scope.code == '') {
+			    that.formData1.list.splice(index, 1)
+			  } else {
+			    that.$set(that.formData1.list[index], 'isEdit', false)
+			    // 重新给formData赋值    取消的时候，重置内容
+			    let n = Object.assign({}, that.formDatas)
+			    that.formData1 = n
+			  }
+			},
+			//保存
+			saveChange(vale, editorName) {
+				let that = this
+				this[editorName] = false
+				// let n = Object.assign({}, that.formData1)
+				// this.formData = n
+				this.$emit('saveChange', vale)
+			},
+			goAdd() {//添加
+			  let that = this
+			  that.formData1.list.splice(0, 0, that.brcalist)//第一个参数位置，第二个参数添加几个
+			},
+			pushListItem(type, code) { // 添加，删除 的操作			
+				let that = this
+				if(type == 'add') {
+					if(that.formData1.list[0]['name'] == '' || that.formData1.list[0]['url'] == '') {
+						that.$message({
+							type:'error',
+							message:'添加失败：标题、连接地址不能为空',
+							duration: 1000
+						})
+						return false
+					}else {
+						delete that.brcalist.isAdd
+						delete that.brcalist.isEdit
+						that.$emit('pushListItem', type, code, that.brcalist)
+					}
+				}else if(type == 'del'){
+					that.$emit('pushListItem', type, code)
+				}
+			}
+		},
+		watch: {
+			formDatas(newVal, oldVal) {
+			let that = this
+			that.formData = newVal
+			that.formData1 = JSON.parse(JSON.stringify(that.formData))
+				for (let i in that.formData1.list) {
+					that.$set(that.formData1.list[i], 'isEdit', false)
+				}
+			}
+		}
+	}
+</script>

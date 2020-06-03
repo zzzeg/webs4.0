@@ -1,0 +1,80 @@
+<template>
+  <div class="list">
+        <div class="contentTitle pdlr20">修改组织</div>
+        <el-form ref="organizeVal" :model="formData" label-width="80px" :rules="rules">
+            <el-form-item label="组织名称" prop="name">
+                <el-input v-model="formData.name" style="width:20%;" placeholder="请输入组织名称"></el-input>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="success" @click="saveBtn">保存</el-button>
+                <el-button type="danger" @click="cancleEdi">取消</el-button>
+            </el-form-item>
+        </el-form>
+   </div>
+</template>
+
+<script>
+
+import URL from '@/common/js/URL.js'
+import axios from 'axios'
+
+export default {
+    created() {
+          this.getRoleData()
+    },
+    data() {
+      return {
+        formData: {
+            name: '',
+            states: '',
+            id: '',
+            des: ''
+        },
+        rules: {
+            organizeName: [
+                {required: true, message: '组织名称不能为空', trigger: 'blur'}
+            ]
+        }
+      }
+    },
+    methods: {
+        getRoleData() {
+        let that = this
+          axios.get(URL.api_name + 'cloud/org_info', {
+              params: {
+                  code: that.$route.params.id
+              }
+          }).then(function(resp){
+              if(resp.data.code === '100'){
+                  that.formData = resp.data.data
+              }
+          })
+        },
+    saveBtn() {
+        let that = this
+        axios.post(URL.api_name + 'cloud/org_update', that.formData).then(function(resp){
+            if(resp.data.code === '100'){
+                 that.$message({
+                    type: 'success',
+                    message: '新增成功',
+                    duration: '1000'
+                })
+                that.$router.push({
+                    path: '/organize'
+                })
+            }
+        })
+      },
+    cancleEdi(){
+          this.$router.push({
+              path: '/organize'
+          })
+      }
+    }
+
+}
+</script>
+
+<style lang="less">
+
+</style>

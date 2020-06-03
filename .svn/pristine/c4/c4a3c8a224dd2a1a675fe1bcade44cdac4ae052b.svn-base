@@ -1,0 +1,67 @@
+<template>
+  <div class="base_msg blockContent">
+
+    <div class="subItems">
+      <h3>
+        <!-- <a href="javascript:;" @click="changeEdit('true', 'isEdit1')" class="editBtn"><i class="el-icon-edit-outline"></i></a> -->
+        常见用药标志物检测结果<!-- {{ formData.blockName }} -->
+      </h3>
+      <br>
+      <div v-if="formData.blockCode == '06'" class="addBar" style="padding:0px 0 10px 0; text-align:right;">
+        <!-- <el-button type="primary" @click="pushListItem('add')">添加</el-button> -->
+        <!-- <el-button type="primary" @click="">发送邮件</el-button> -->
+      </div>
+      <div class="">
+        <el-table class="tableList hasLine" :data="formData1" border stripe style="width: 100%">
+  	      	<el-table-column prop="gene" label="检测基因" width="180">
+  	      	</el-table-column>
+  	      	<el-table-column prop="variantTypes" label="变异类型">
+  	      	</el-table-column>
+  	      	<el-table-column prop="detectionResult" label="检测结果" >
+  	      	</el-table-column>
+  	    </el-table>
+      </div>
+
+    </div>
+
+
+  </div>
+</template>
+<script>
+  export default {
+    props: {
+        formDatas: {
+            type: Array
+        }
+    },
+    created() {
+    },
+    data () {
+      return {
+        isEdit1: false,
+        isEdit2: false,
+        formData: [],
+        formData1: [],
+        restaurants: [],
+        restaurantsList: []
+      }
+    },
+    methods: {
+      blockSearch(formInline) {
+        // 查询
+        let that = this
+        that.$emit('search', formInline)
+      }
+    },
+    watch: {
+      formDatas: function(newVal,oldVal){
+      	let that = this
+        this.formData = newVal
+        this.formData1 = JSON.parse(JSON.stringify(this.formData))
+      }
+    },
+    computed: {
+
+    }
+  }
+</script>

@@ -1,0 +1,57 @@
+<template>
+  <div class="base_msg blockContent">
+    <div class="subItems">
+			<div class="subtable dtitleBg">预后情况分析</div>
+      <!-- <h3 style="margin-top:10px;">预后情况分析</h3> -->
+      <p style="text-align:center;">对淋巴结阴性，雌激素受体阳性患者的预后情况分析</p>
+      <img :src="formData.targetImages" alt="" style="max-width:60%; display:block; margin:0 auto;">
+      <p style="font-size: 14px;color: #555;"><small>注：上图的研究数据为淋巴结阴性、雌激素受体阳性、并已接受他莫昔芬治疗 5 年的乳腺癌Ⅰ、Ⅱ期女性患者。由上图可知：乳腺癌复发分数越高，平均远期复发率就越高，乳腺癌复发风险将加大。 </small></p>
+    </div>
+  </div>
+</template>
+<script>
+  export default {
+    props: {
+        formDatas:{
+            type:Object
+        }
+    },
+    created() {
+    },
+    data () {
+      return {
+        isEdit1: false,
+        isEdit2: false,
+        formData: {},
+        formData1: {}
+        // pageSize: 10
+      }
+    },
+    methods: {
+      changeEdit(val, editorName) {
+        let that = this
+        that[editorName] = val == 'true' ?  true : false
+      },
+      cancerChange(editorName) {
+        let that = this
+        that[editorName] = false
+        // 重新给formData赋值    取消的时候，重置内容
+        let n = Object.assign({}, that.formDatas)
+        that.formData1 = n
+      },
+      saveChange (vale, editorName) {
+      	let that = this
+      	this[editorName] = false
+      	let n = Object.assign({}, that.formData1)
+      	this.formData = n
+        this.$emit('saveChange', vale)
+      }
+    },
+    watch: {
+      formDatas: function(newVal,oldVal){
+        this.formData = newVal
+        this.formData1 = JSON.parse(JSON.stringify(this.formData))
+      }
+    }
+  }
+</script>

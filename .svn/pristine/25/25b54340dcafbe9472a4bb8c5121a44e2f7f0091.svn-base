@@ -1,0 +1,330 @@
+<template>
+  <div class="list">
+		<div class="contentTitle pdlr20">解读项目</div>
+    <div class="search-wrapper">
+      <el-form :inline="true" :model="formInline" class="demo-form-inline">
+        <el-form-item label="检测项目">
+          <el-input v-model="formInline.name" size="medium" placeholder="请输入项目名"></el-input>
+        </el-form-item>
+        <el-form-item label="受检人">
+          <el-input v-model="formInline.sickName" size="medium" placeholder="请输入受检人"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" size="medium" @click="search">查询</el-button>
+          <el-button type="primary" size="medium" @click="goSend()">发送邮件</el-button>
+          <!-- <el-button type="success" size="medium" @click="addItem">添加</el-button> -->
+        </el-form-item>
+      </el-form>
+    </div>
+    <div class="table-data" v-loading="loading" element-loading-text="拼命加载中">
+      <el-table :data="tableData" style="width: 100%" stripe>
+        <el-table-column label="序号" width="80" align="center">
+          <template slot-scope="scope">
+            {{ (currentPage - 1) * pageSize + scope.$index + 1 }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="code" label="报告编号" width="180">
+        </el-table-column>
+        <el-table-column prop="projectName" label="项目名" width="220">
+        </el-table-column>
+        <el-table-column prop="productName" label="产品名称">
+        </el-table-column>
+        <el-table-column label="受检人" width="200">
+          <template slot-scope="scope">
+            {{ scope.row.jsonValue.userName }}
+          </template>
+        </el-table-column>
+        <el-table-column label="性别" width="80">
+          <template slot-scope="scope">
+            {{ scope.row.jsonValue.gender === 1 ? '男' : '女' }}
+          </template>
+        </el-table-column>
+        <!--<el-table-column label="地址">-->
+          <!--<template slot-scope="scope">-->
+            <!--{{ scope.row.jsonValue.address }}-->
+          <!--</template>-->
+        <!--</el-table-column>-->
+        <el-table-column prop="race" label="国家" width="100">
+          <template slot-scope="scope">
+            {{ scope.row.jsonValue.race === 1  ? '中国' : scope.row.jsonValue.race === 2 ? '美国' : scope.row.jsonValue.race === 3 ? '日本' : scope.row.jsonValue.race === 4 ? '韩国' : scope.row.jsonValue.race === 5 ? '马来西亚' : '' }}
+          </template>
+        </el-table-column>
+          <el-table-column prop="createTime" :formatter="dateFormat" label="创建时间" width="180">
+        </el-table-column>
+        <el-table-column prop="status" label="状态" width="120">
+          <template slot-scope="scope">
+            {{ scope.row.status == 1 ? '草稿' : scope.row.status == 2 ? '运行中...' : scope.row.status == 3 ? '未审核' : scope.row.status == 4 ? '解读完成' : scope.row.status == 6 ? '分析流程异常' : scope.row.status == 96 ? '审核中' : scope.row.status == 11 ? '未审核' : scope.row.status == 100 ? '订单完成' : scope.row.status == 60 ? '已收样' : scope.row.status == 65 ? '已检测' : '已删除' }}
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="230">
+          <template slot-scope="scope">
+            <el-button type="text" v-if="scope.row.businessCode === ''" @click="gopush(scope.row)">接收</el-button>
+            <el-button type="text" v-if="scope.row.status === 1" @click="goEdit(scope.row, scope.row.businessCode, scope.row.code, currentPage, scope.row.productCode, scope.row.productType)">修改</el-button>
+            <el-button type="text"  v-if="scope.row.status === 1" @click="goDel(scope.row.code)">删除</el-button>
+            <el-button type="text"  v-if="scope.row.status === 1" :loading="btnloading" @click="goRun(scope.row.code)">生成报告</el-button>
+            <el-button type="text" v-if="scope.row.status === 4" @click="goReportInfo('cn', scope.row.code, currentPage)">中文报告</el-button>
+            <el-button type="text" v-if="scope.row.status === 4" @click="goReportInfo('en', scope.row.code, currentPage)">英文报告</el-button>
+            <!-- <el-button type="text" @click="copyItem(scope.row.code)">复制</el-button> -->
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+    <!-- 分页 -->
+    <pager :current-page="currentPage" v-on:handleSizeChange="handelCurrent" :pageSize="pageSize" :total-count="totalCount" v-on:handleCurrentChange="getListData"></pager>
+  </div>
+</template>
+<script>
+  import URL from '@/common/js/URL.js'
+  import Pager from '@/components/common/pager'
+  import axios from 'axios'
+  import moment from 'moment'
+  export default {
+    created () {
+      this.getListData(this.$route.params.pager)
+      // this.getCategoryList()
+    },
+    data () {
+      return {
+        formInline: {
+          sickName: '',
+          name: ''
+        },
+        tableData: [],
+        currentPage: 1,
+        pageSize: 10,
+        pageNum: 0,
+        totalCount: 0,
+        btnloading: false,
+        loading: false,
+        categoryList: []
+      }
+    },
+    components: {
+      Pager: Pager
+    },
+    methods: {
+      handelCurrent(val) {
+        let that = this
+        that.pageSize = val
+        that.getListData(that.currentPage)
+      },
+      search () {
+        let that = this
+        axios.get(URL.api_name + 'cloud/project_list', {
+          params: {
+            pageSize : 10,
+            pageNumber : 1,
+            projectName: that.formInline.name,
+            sickName: that.formInline.sickName
+          }
+        }).then(function(respose){
+            let data = respose.data
+            that.tableData = data.data.list
+            // JSON字符串转换JSON对象
+            that.totalCount = data.data.total
+            for (let i = 0; i < data.data.list.length; i++) {
+              if (that.tableData[i].jsonValue) {
+                that.tableData[i].jsonValue = JSON.parse(data.data.list[i].jsonValue)
+              }
+            }
+        }),function(error){
+          that.$message({
+            type: 'error',
+            message: '查询失败',
+            duration: '1000'
+          })
+        }
+      },
+      goSend() {
+      	this.$router.push({
+          path: '/email/new'
+        })
+      },
+      addItem () {
+        this.$router.push({
+          path: '/ServiceAdd'
+        })
+      },
+      getListData (num) {
+        // console.log(typeof(num))
+        // this.$route.params.pager = num
+        this.currentPage = parseInt(num)
+        let that = this
+        that.loading = true
+        axios.get(URL.api_name + 'cloud/project_list', {
+          params: {
+            startTime: '',
+            endTime: '',
+            flowName: that.formInline.name,
+            orgName: that.formInline.category,
+            pageSize: that.pageSize,
+            pageNumber: num
+            // name: that.formInline.name
+            // storeId: JSON.parse(localStorage.getItem('store')).k
+          }
+        }).then(function (respose) {
+          let data = respose.data
+          that.tableData = data.data.list
+          // JSON字符串转换JSON对象
+          for (let i = 0; i < data.data.list.length; i++) {
+            if (that.tableData[i].jsonValue) {
+              that.tableData[i].jsonValue = JSON.parse(data.data.list[i].jsonValue)
+            }
+          }
+          // console.log(that.tableData)
+          that.loading = false
+          that.totalCount = data.data.total
+          // 格式化jsonValue
+          // for (let n = 0; n < data.data.list.length; n++) {
+          //   that.tableData[n].jsonValue = JSON.parse(data.data.list[n].jsonValue)
+          // }
+          // console.log(that.formInline)
+        }, function (error) {
+          console.log(error)
+          that.loading = false
+          that.$message({
+            type: 'error',
+            message: '查询失败',
+            duration: 1000
+          })
+        })
+      },
+      gopush (item) {
+        let that = this
+        localStorage.setItem('projectcode', JSON.stringify(item.code))
+        this.$router.push({
+          path: '/Processlist/' + item.productCode
+        })
+      },
+      dateFormat (row, column) {
+        let date = row[column.property]
+        if (date === undefined) {
+          return ''
+        }
+        return moment(date).format('YYYY-MM-DD HH:mm:ss')
+      },
+      goRun (id) {
+        // this.$router.push({
+        //   path: '/serviceToReportItem/' + id
+        // })
+        let that = this
+        that.btnloading = true
+        axios.get(URL.api_name + 'report/product_report', {
+          params: {
+            projectCode: id
+          }
+        }).then(function (respose) {
+          if (respose.data.code === '100') {
+            that.getListData(that.currentPage)
+            that.$message({
+              type: 'success',
+              message: '提交成功',
+              duration: 1000
+            })
+          } else {
+            that.$message({
+              type: 'error',
+              message: '提交失败：' + respose.data.message,
+              duration: 1000
+            })
+          }
+          that.btnloading = false
+        }, function (error) {
+          that.loading = false
+          that.$message({
+            type: 'error',
+            message: '提交失败：' + error,
+            duration: 1000
+          })
+        })
+      },
+      goEdit (scope, id, typeid, pager, productCode, productType) {
+        localStorage.setItem('keyer', JSON.stringify(scope.jsonValue))
+        // let ids = scope.oldBusinessCode === null ? id : scope.oldBusinessCode
+        // console.log(ids)
+        this.$router.push({
+          // path: '/ServiceEdit/' + id + '/' + typeid
+          path: '/serviceEdit/' + id + '/' + typeid + '/' + pager + '/' + productCode + '/' + productType
+        })
+      },
+      goReportInfo (language, id, pager) {
+        this.$router.push({
+          path: '/examineDetial/' + language + '/' + id + '/' + pager + '/service'
+        })
+      },
+      goDel (id) {
+        var that = this
+        that.$confirm('确定删除吗？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          axios.post(URL.api_name + 'cloud/del_project', {
+            code: id
+          }).then(res => {
+            if (res.data.code === '100') {
+              that.$message({
+                type: 'success',
+                message: '删除成功',
+                duration: 1000
+              })
+              that.getListData(that.currentPage)
+            }
+          }).catch(err => {
+            that.$message({
+              type: 'error',
+              message: '删除失败',
+              duration: 1000
+            })
+            console.log(err)
+          })
+        }).catch(() => {})
+      },
+      copyItem(code) {
+        var that = this
+        that.$confirm('确定复制吗？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          axios.post(URL.api_name + 'cloud/copy_project', {
+            code: code,
+            sickName: ''
+          }).then(res => {
+            if (res.data.code === '100') {
+              that.$message({
+                type: 'success',
+                message: '复制成功',
+                duration: 3000
+              })
+              that.getListData(that.currentPage)
+            } else {
+              that.$message({
+                type: 'error',
+                message: '复制失败：' + res.data.message,
+                duration: 3000
+              })
+            }
+          }).catch(err => {
+            that.$message({
+              type: 'error',
+              message: '复制失败：' + err.data.message,
+              duration: 3000
+            })
+            console.log(err)
+          })
+        }).catch(() => {})
+      }
+    }
+  }
+</script>
+<style lang="less" scoped>
+  .coupon-logo{
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    vertical-align: bottom;
+  }
+</style>
+

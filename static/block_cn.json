@@ -1,0 +1,281 @@
+{
+    "code": "100",
+    "message": "操作成功",
+    "data": {
+        "projectCode": "22e540020fa5467cb9a05be66d8cdc5c",
+        "name": "新脚本新脚本新脚本新脚本新脚本新脚本",
+        "createTime": 1509968659931,
+        "blocks": {
+            "block_01": {
+                "blockName": "受检者基本信息",
+                "infos": {
+                    "birthday": "1992-11-04 19:42:41",
+                    "address": "深圳",
+                    "gender": "1",
+                    "race": "1",
+                    "user_name": "中文报告测试2",
+                    "upload_file": "/data/uploadFiles/projectFiles/a2bbc19ec0fd421999b93855346802c9/1f50df6c542b4512af8501a969c7c750/1f50df6c542b4512af8501a969c7c750.vcf"
+                }
+            },
+            "block_02": {
+                "blockName": "疾病信息",
+                "infos": {
+                    "clinical_diagnosis": "123456",
+                    "family_medical_history": "123456",
+                    "disease_risk_factory": "123456",
+                    "before_medical_history": "123456123456",
+                    "pathology_diagnosis": "123456",
+                    "recent_medical_history": "123456"
+                }
+            },
+            "block_03": {
+                "blockName": "样本信息",
+                "infos": {
+                    "sample_id": "123456",
+                    "sample_attribute": "123456",
+                    "sample_collection_time": "2017-11-06 19:43:39",
+                    "sample_type": "123456",
+                    "sample_testing_time": "2017-11-06 19:43:45"
+                }
+            },
+            "block_04": {
+                "blockName": "检测平台信息及分析参考类目",
+                "infos": {
+                    "sequencing_information": "Next generation sequencing,NextSeq_TruSight_panel",
+                    "sequencing_platform": "Illumina",
+                    "test_gene_num": 56,
+                    "analysis_version": "BaiNuo_exon_0.5",
+                    "ref": "hg19",
+                    "genes": {
+                        "CDA": true,
+                        "PTEN": false,
+                        "CASP7": true,
+                        "CYP2D6": false,
+                        "AKT1": false,
+                        "ABCC2": false,
+                        "DSCAM": false,
+                        "WNT5B": false,
+                        "GPX5": false,
+                        "IL16": false,
+                        "AXIN2": false,
+                        "PIK3CA": false,
+                        "IL1B": false,
+                        "CMPK1": false,
+                        "RAF1": false,
+                        "ABCG2": false,
+                        "ABCB1": false,
+                        "ACSS2": false,
+                        "SEMA3C": false,
+                        "GSTP1": true,
+                        "SLC22A2": false,
+                        "XPA": false,
+                        "CYP3A4": false,
+                        "CXXC4": false,
+                        "EGFR": true,
+                        "SLCO1B1": false,
+                        "CYP3A": false,
+                        "NRAS": false,
+                        "PRDX4": false,
+                        "WIF1": false,
+                        "SLCO1B3": false,
+                        "UGT1A9": false,
+                        "SLC19A1": false,
+                        "NQO1": false,
+                        "XBP1": false,
+                        "RRM1": false,
+                        "UBE2I": false,
+                        "MAP3K1": false,
+                        "HSPA5": false,
+                        "XRCC4": false,
+                        "SLC31A1": false,
+                        "EPHX1": true,
+                        "XRCC1": false,
+                        "MTHFR": true,
+                        "GGH": true,
+                        "C8orf34": false,
+                        "DHFR": false,
+                        "ERCC3": false,
+                        "ERCC4": false,
+                        "ERCC1": false,
+                        "APLF": false,
+                        "ERCC2": true,
+                        "FOLR3": true,
+                        "SLC28A2": true,
+                        "SLC28A1": false,
+                        "EIF3A": false
+                    }
+                }
+            },
+            "block_05": {
+                "blockName": "基因变异结果总览",
+                "infos": [
+                    {
+                        "code": "e16ab2947d8a478dae3ba45ef5d64888",
+                        "gene": "GSTP1",
+                        "mutation": "c.313A>G,p.I105V（正链）",
+                        "refSeq": "NM_000852,NP_000843.1",
+                        "clinicalSignificance": "",
+                        "nccnCsco": 0,
+                        "nccnCscoCount": 0,
+                        "fdaCfda": 0,
+                        "fdaCfadCount": 0,
+                        "other": 0,
+                        "other_count": 0,
+                        "clinicalTrails": 0,
+                        "clinicalTrails_count": 2,
+                        "preClinicalTrails": 0,
+                        "functionPrediction": 0
+                    },
+                    {
+                        "code": "7d6e2864a6114541b8f873d1d2960156",
+                        "gene": "CDA",
+                        "mutation": "c.79A>C,p.K27Q（正链）",
+                        "refSeq": "NM_001785,NP_001776.1",
+                        "clinicalSignificance": "",
+                        "nccnCsco": 0,
+                        "nccnCscoCount": 0,
+                        "fdaCfda": 0,
+                        "fdaCfadCount": 0,
+                        "other": 0,
+                        "other_count": 0,
+                        "clinicalTrails": 0,
+                        "clinicalTrails_count": 1,
+                        "preClinicalTrails": 0,
+                        "functionPrediction": 0
+                    }
+                ]
+            },
+            "block_0601": {
+                "blockName": "治疗方案汇总",
+                "infos": [
+                    {
+                        "code": "b9346cba2d054af4a6144eb7b1286bd9",
+                        "gene": "CDA",
+                        "mutation": "c.79A>C,p.K27Q（正链）",
+                        "drugTherapy": "gemcitabine",
+                        "clinicalSignificance": null,
+                        "nccnCsCo": 5,
+                        "fdaCfda": 5,
+                        "other": 5,
+                        "clinicalTrails": 5,
+                        "preClinicalTrails": 5,
+                        "functionPrediction": 5
+                    },
+                    {
+                        "code": "295702a8affb48a49b0a331d91d070d2",
+                        "gene": "GSTP1",
+                        "mutation": "c.313A>G,p.I105V（正链）",
+                        "drugTherapy": "anthracyclines",
+                        "clinicalSignificance": null,
+                        "nccnCsCo": 5,
+                        "fdaCfda": 5,
+                        "other": 5,
+                        "clinicalTrails": 5,
+                        "preClinicalTrails": 5,
+                        "functionPrediction": 5
+                    },
+                    {
+                        "code": "25aee960ea5d4d8583829012ca301fe0",
+                        "gene": "GSTP1",
+                        "mutation": "c.313A>G,p.I105V（正链）",
+                        "drugTherapy": "Cabozantinib",
+                        "clinicalSignificance": null,
+                        "nccnCsCo": 5,
+                        "fdaCfda": 5,
+                        "other": 5,
+                        "clinicalTrails": 5,
+                        "preClinicalTrails": 5,
+                        "functionPrediction": 5
+                    }
+                ]
+            },
+            "block_0602": {
+                "blockName": "治疗方案详情",
+                "infos": [
+                    {
+                        "clinicalEvidence": "多项研究表明GSTP1 rs1695等位基因G(基因型GG+GA)增加乳腺癌患者对蒽环类药物的响应(PMID:23812950;DOI: 10.3724/SP.J.1008.2013.00879)",
+                        "code": "94c78e83cb924f8db4b857acf107326a",
+                        "drugTherapy": "蒽环类  Anthracyclines    ",
+                        "gene": "GSTP1",
+                        "mutation": "c.313A>G,p.I105V(正链)",
+                        "type": 2
+                    },
+                    {
+                        "clinicalEvidence": "多项研究表明GSTP1 rs1695等位基因G(基因型GG+GA)降低患者奥沙利铂或铂类药物的血液毒性、嗜中性白血球减少症毒性，但不会消除，影响患者的神经毒性(对神经毒性的影响存在冲突:增加/降低)(PMID:17409936;19203783;20530282)。",
+                        "code": "31626a9fed7c4f9c824e54c7508cfce5",
+                        "drugTherapy": "铂类药物  Platinum-based chemotherapy    ",
+                        "gene": "GSTP1",
+                        "mutation": "c.313A>G,p.I105V(正链)",
+                        "type": 2
+                    }
+                ]
+            },
+            "block_0603": {
+                "blockName": "预后相关解读信息",
+                "infos": []
+            },
+            "block_07": {
+                "blockName": "临床试验入组推荐",
+                "infos": []
+            },
+            "block_08": {
+                "blockName": "疾病信号通路图",
+                "infos": [
+                    {
+                        "code": "6e80cc866c4e456e80a07edf8978183a",
+                        "pathway_path": "http://yanfa.test.bainuo.cn:8888/flowImages/20171021/a7c9c76a01fb4fd1bc1c1597ece85192.jpg",
+                        "pathway_name": "xxxx"
+                    }
+                ]
+            },
+            "block_09": {
+                "blockName": "参考文献",
+                "infos": [
+                    {
+                        "code": "20aa9abdb26845598889cd751f34023b",
+                        "literature_name": "NCCN Clinical Practice Guidelines in Oncology_Non-Small Cell Lung Cancer( Version 9.2017)",
+                        "literature_url": "www.nccn.org/patients"
+                    },
+                    {
+                        "code": "21dd8260a886456e85bdcd951d1f5dd8",
+                        "literature_name": "CSCO原发性肺癌诊疗指南（2017.V1）",
+                        "literature_url": null
+                    },
+                    {
+                        "code": "10b2fb2cc59440abb9df1818e397d5b4",
+                        "literature_name": "ASCO Clinical Practice Guideline of Systemic Therapy for Stage IV Non–Small-Cell Lung Cancer(2017),J Clin Oncol.",
+                        "literature_url": null
+                    },
+                    {
+                        "code": "4ad38f0c3f8d43f7985153db09b1457d",
+                        "literature_name": "ZYKADIA® (ceritinib) capsules, for oral use Initial U.S. Approval: 2014",
+                        "literature_url": "https://www.fda.gov "
+                    },
+                    {
+                        "code": "69e920420d414255a396597fc9c78146",
+                        "literature_name": "NCT01970865 A Study Of PF-06463922 An ALK/ROS1 Inhibitor In Patients With Advanced Non Small Cell Lung Cancer With Specific Molecular Alterations.",
+                        "literature_url": "https://www.clinicaltrials.gov/ct2/show/NCT01970865 "
+                    },
+                    {
+                        "code": "489bca1a00a344ae867a3fad61c28118",
+                        "literature_name": "阿法替尼，CFDA，2017",
+                        "literature_url": null
+                    }
+                ]
+            },
+            "block_10": {
+                "blockName": "免责声明",
+                "infos": {
+                    "disclaimer": "This report is only responsible for the test samples or uploaded sequencing data, the clinical significance of genetic variation still need a generation of sequencing and other testing methods to verify. This sample or sequencing data should be collected in the correct subject and have a valid sample ID. If the sample or data label is found to be incorrect, we reserve the right to refuse follow-up analysis. The structure design of this report refers to some guidelines and consensus, such as “Standards and Guidelines for the Interpretation and Reporting of Sequence Variants in Cancer”, “Clinical molecular pathology laboratory second generation gene sequencing expert consensus”. The clinical recommendations (potential effective or ineffective judgment) provided in this report are based on the genetic variation of the patient, based on evidence-based medicine, with reference to a Knowledge base which is a summary of previous medical research literatures or public database information, and may not be exhaustive. The report is only for the clinician reference, whether to choose and how to choose the recommended drug or treatment program, by the attending physician to decide. The results in this report do not imply that the listed drugs or regimens are applicable to the same indications or have the same safety or efficacy for similar subjects, and that the decision on the treatment and care of the subject must be based on Doctors independent comprehensive medical judgment, the required information including but not limited to: the subject and his/her family history, medical information, information from other diagnostic tests, pre-treatment and standard care options, personal preferences of the subject, etc. Prescription and treatment decisions should not be based solely on single test or data results, such as the second generation sequencing (NGS) method or the information contained in this report. With the deepening of medical research, the accumulation of research evidence, the classification or interpretation of biomarker variation and the corresponding clinical application suggest that changes may occur. The information contained in this report is as of the date of this report and the publication of Bainuo_Version1.0."
+                }
+            },
+            "block_11": {
+                "blockName": "Summary",
+                "infos": {
+                    "summary_msg": ""
+                }
+            }
+        },
+        "blockInfos": null
+    }
+}

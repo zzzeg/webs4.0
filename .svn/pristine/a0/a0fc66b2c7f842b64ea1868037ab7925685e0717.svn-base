@@ -1,0 +1,184 @@
+<template>
+  <div class="list">
+    <div class="crumbs">
+      <el-breadcrumb separator=">">
+        <el-breadcrumb-item>> 系统模块</el-breadcrumb-item>
+        <el-breadcrumb-item>资源管理</el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
+    <div class="table-data">
+      <el-form :model="formData" :rules="rules" ref="formData" label-width="100px">
+        <el-form-item label="名称：">
+          <el-col :span="8">
+            <el-input type="text" size="medium" v-model="formData.name" placeholder="请输入名称"></el-input>
+          </el-col>
+        </el-form-item>
+        <el-form-item label="地址：">
+          <el-col :span="8">
+            <el-input type="text" size="medium" v-model="formData.href" placeholder="请输入地址"></el-input>
+          </el-col>
+        </el-form-item>
+        <el-form-item label="图标：">
+          <el-col :span="8">
+            <el-input type="text" size="medium" v-model="formData.icon" placeholder="请输入图标名称"></el-input>
+          </el-col>
+        </el-form-item>
+        <el-form-item label="排序：">
+          <el-col :span="8">
+            <el-input type="text" size="medium" v-model="formData.sort" placeholder="请输入序号"></el-input>
+          </el-col>
+        </el-form-item>
+        <el-form-item label="是否显示：">
+          <el-col :span="8">
+            <el-radio v-model="formData.isShow" :label="1">显示</el-radio>
+            <el-radio v-model="formData.isShow" :label="0">不显示</el-radio>
+          </el-col>
+        </el-form-item>
+        <el-form-item label="父节点：">
+          <el-col :span="8">
+            <el-select size="medium" v-model="formData.parentCode" clearable placeholder="请选择">
+              <el-option :label="item.name" :value="item.code" v-for="item in parentNodes" :key="item.id"></el-option>
+            </el-select>
+          </el-col>
+        </el-form-item>
+        <el-form-item label="角色：">
+          <el-col :span="8">
+            <el-checkbox-group 
+              v-model="roleCheckActive"
+              :min="1">
+              <el-checkbox v-for="city in roleCheckList" :label="city" :key="city">{{city}}</el-checkbox>
+            </el-checkbox-group>
+            <p style="color:#999;">*至少要选择一个角色</p>
+          </el-col>
+        </el-form-item>
+        <el-form-item label="　">
+          <el-col :span="8">
+            <el-button type="primary" size="medium" @click="sub()">提交</el-button>
+          </el-col>
+        </el-form-item>
+      </el-form>
+    </div>
+  </div>
+</template>
+<script>
+  import URL from '@/common/js/URL.js'
+  import axios from 'axios'
+  import moment from 'moment'
+  export default {
+    created () {
+      this.getRoleList()
+      this.getMenuList()
+    },
+    data () {
+      return {
+        fileList: [],
+        formData: {
+          name: '',
+          href: '',
+          icon: '',
+          sort: '',
+          parentCode: '',
+          isShow: 1,
+          menuRoleList: []
+        },
+        parentNodes: [],
+        roleList: [],
+        roleCheckList: [],
+        roleCheckActive: [],
+        rules: [],
+        formInline: {
+          name: '',
+        },
+        tableData: [],
+        isLoading: false,
+        loading: false
+      }
+    },
+    methods: {
+      dateFormat (row, column) {
+        let date = row[column.property]
+        if (date === undefined) {
+          return ''
+        }
+        return moment(date).format('YYYY-MM-DD HH:mm:ss')
+      },
+      getMenuList() {
+        // 父节点集合
+        var that = this
+        axios.get(URL.api_name + 'cloud/security/menu_list').then(function (res) {
+          if (res.data.code === '100') {
+            that.parentNodes = res.data.data
+          }
+        }, function (error) {
+          that.$message({
+            type: 'error',
+            message: '查询失败',
+            duration: 1000
+          })
+        })
+      },
+      getRoleList() {
+        // 角色集合
+        var that = this
+        axios.get(URL.api_name + 'cloud/security/role_list').then(function (res) {
+          if (res.data.code === '100') {
+            that.roleList = res.data.data
+            for (let i = 0; i < that.roleList.length; i++) {
+              that.roleCheckList.push(that.roleList[i].roleName)
+            }
+            that.roleCheckActive.push(that.roleList[0].roleName)
+          }
+        }, function (error) {
+          that.$message({
+            type: 'error',
+            message: '查询失败',
+            duration: 1000
+          })
+        })
+      },
+      sub () {
+        let that = this
+        // 把一位数组转换为list post提交
+        that.formData.menuRoleList = []
+        for (let n = 0; n < that.roleList.length; n++) {
+          for (let i = 0; i < that.roleCheckActive.length; i++) {
+            if (that.roleCheckActive[i] === that.roleList[n].roleName) {
+              that.formData.menuRoleList.push({
+                roleCode: that.roleList[n].code
+              })
+            }
+          }
+        }
+        axios.post(URL.api_name + 'cloud/security/menu_add', that.formData).then(function (res) {
+          if (res.data.code === '100') {
+              that.$message({
+                type: 'success',
+                message: '提交成功',
+                duration: 1000,
+                onClose: function (){
+                  that.$router.push({
+                    path: '/resourceList'
+                  })
+                }
+              })
+            } else{
+              that.$message({
+                type: 'error',
+                message: '提交失败：' + res.data.message,
+                duration: 1000
+              })
+            // that.formData = res.data.data
+          }
+        }, function (error) {
+          that.$message({
+            type: 'error',
+            message: '查询失败',
+            duration: 1000
+          })
+        })
+      }
+    }
+  }
+</script>
+<style lang="less" scoped>
+</style>

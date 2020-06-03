@@ -1,0 +1,110 @@
+<template>
+  <div class="base_msg blockContent">
+    <div class="subItems">
+			<div class="subname">
+				<span>检测基因列表</span>
+			</div>
+      <div class="table-cont" style="position:relative">
+          <div class="h_title">
+          基因突变
+          {{ formData1.mutationgenes == '[]' ? '' : '(' + formData1.mutationgenes.length + ')' }}
+          </div>
+          <span style="display:inline-block; width:9%; line-height:20px; padding:15px 10px; margin:-1px 0 0 -1px; font-size:14px; border:solid 1px #eee; box-sizing:border-box;" v-for="(i, index) in formData1.mutation" :key="index" :class="i | hasName(formData1.mutationgenes) ? 'color_red': ''">
+              {{ i }}
+          </span>
+      </div>
+
+      <div class="table-cont" style="position:relative">
+          <div class="h_title">
+          拷贝数变异
+          {{ formData1.geneCopygenes == '[]' ? '' : '(' + formData1.geneCopygenes.length + ')' }}
+          </div>
+          <span style="display:inline-block; width:9%; line-height:20px; padding:15px 10px; margin:-1px 0 0 -1px; font-size:14px; border:solid 1px #eee; box-sizing:border-box;"
+          v-for="(i, index) in formData1.amplification"
+          :key="index">
+            <span :class="{'color_red': formData1.geneCopygenes.indexOf(i) != -1, '': formData1.geneCopygenes.indexOf(i) == -1}">{{ i }}</span>
+          </span>
+      </div>
+
+      <div class="table-cont" style="position:relative">
+          <div class="h_title">
+          基因融合
+          {{ formData1.fusionsgenes == '[]' ? '' : '(' + formData1.fusionsgenes.length + ')' }}
+          </div>
+          <span style="display:inline-block; width:9%; line-height:20px; padding:15px 10px; margin:-1px 0 0 -1px; font-size:14px; border:solid 1px #eee; box-sizing:border-box;"
+          v-for="(i, index) in formData1.fusion"
+          :key="index">
+            <span :class="{'color_red': formData1.fusionsgenes.indexOf(i) != -1, '': formData1.fusionsgenes.indexOf(i) == -1}">{{ i }}</span>
+          </span>
+      </div>
+    </div>
+
+
+  </div>
+</template>
+<script>
+  export default {
+    props: {
+        formDatas:{
+            type:Object
+        }
+    },
+    created() {
+    },
+    data () {
+      return {
+        isEdit1: false,
+        isEdit2: false,
+        formData: {},
+        formData1: {}
+        // pageSize: 10
+      }
+    },
+    methods: {
+      changeEdit(val, editorName) {
+        let that = this
+        that[editorName] = val == 'true' ?  true : false
+      },
+      cancerChange(editorName) {
+        let that = this
+        that[editorName] = false
+        // 重新给formData赋值    取消的时候，重置内容
+        let n = Object.assign({}, that.formDatas)
+        that.formData1 = n
+      },
+      saveChange (vale, editorName) {
+        let that = this
+        this[editorName] = false
+        let n = Object.assign({}, that.formData1)
+        this.formData = n
+        this.$emit('saveChange', vale)
+      },
+      inputSub(itemCode, keyName, keyValue) {
+        let that = this
+        // return false
+        that.$emit('saveChange', that.formDatas.code, itemCode, keyName, keyValue)
+      }
+    },
+    watch: {
+      formDatas: function(newVal,oldVal){
+        let that = this
+        that.formData = newVal
+        that.formData1 = JSON.parse(JSON.stringify(that.formData))
+        console.log(that.formData)
+      }
+    },
+    filters : {
+      hasName (data, param) {
+        let isOK = false
+        for (let i in param) {
+          if (param[i] == data) {
+            isOK = true
+            break
+          }
+        }
+        console.log(isOK)
+        return isOK
+      }
+    }
+  }
+</script>

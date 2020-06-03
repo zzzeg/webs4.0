@@ -1,0 +1,66 @@
+<template>
+  <div class="list">
+        <div class="contentTitle pdlr20">添加组织</div>
+        <el-form ref="organizeVal" :model="formData" label-width="80px" :rules="rules">
+            <el-form-item label="组织名称" prop="name">
+                <el-input v-model="formData.name" style="width:20%;" placeholder="请输入组织名称"></el-input>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" @click="onSubmit">添加</el-button>
+                <el-button @click="cancleAdd">取消</el-button>
+            </el-form-item>
+        </el-form>
+   </div>
+</template>
+
+<script>
+
+import URL from '@/common/js/URL.js'
+import axios from 'axios'
+
+export default {
+   data() {
+      return {
+        formData: {
+            orgId: '',
+            name: '',
+            states: ''
+        },
+        rules: {
+            organizeName: [
+                {required: true, message: '组织名称不能为空', trigger: 'blur'}
+            ]
+        }
+      }
+    },
+    methods: {
+      onSubmit() {
+        let that = this
+        axios.post(URL.api_name + 'cloud/org_add', that.formData).then(function(resp){
+            if(resp.data.code === '100'){
+                 that.$message({
+                    type: 'success',
+                    message: '新增成功',
+                    duration: '1000',
+                    onClose: function () {
+                      that.$router.push({
+                          path: '/organize'
+                      })
+                    }
+                })
+            }
+        })
+      },
+      cancleAdd(){
+          this.$router.push({
+              path: '/organize'
+          })
+      }
+    }
+
+}
+</script>
+
+<style lang="less">
+
+</style>

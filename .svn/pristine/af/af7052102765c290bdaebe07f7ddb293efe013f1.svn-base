@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        div {
+            word-break: break-all;
+        }
+        .content div img {
+            text-align: center;
+            max-width: 80%;
+            max-height: 500px;
+            border: 1px solid #9c9fa3;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h4>快捷创建服务项目</h4>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;首页可快速创建一个项目，界面显示部分项目以及项目简介，点击“进入”可快速创建该项目，下方可查看最近解读的部分项目；</p>
+        <div><img src="../image/home_01.png" alt=""></div>
+        <div>
+            <p>a、点击服务项目框中的进入，可以进入到对应服务的添加项目界面，如下图所示；</p>
+            <img src="../image/home_02.png" alt="">
+            <p>b、为确保项目的规范性，每项都是必填项，输入各自内容，点击提交即可创建项目；</p>
+            <p>c、点击首页“更多”，可进入到服务项目列表界面；</p>
+        </div>
+        <h4>最近解读列表</h4>
+        <div><img src="../image/home_03.png" alt=""></div>
+        <div>
+            <p>a、列表中会显示最近解读过的项目，点击“更多”可进入“服务项目”列表界面；</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,604 @@
+{
+  "code": "100",
+  "message": "操作成功",
+  "data": [
+    {
+      "code": "01",
+      "name": "受检者基本信息",
+      "dynamicInfoDto": [
+        {
+          "code": "0101",
+          "label": "id",
+          "name": "id",
+          "blockCode": "01",
+          "type": "hidden",
+          "element": "input",
+          "initValue": null,
+          "required": 1,
+          "itemValue": null
+        },
+        {
+          "code": "0102",
+          "label": "姓名",
+          "name": "user_name",
+          "blockCode": "01",
+          "type": "text",
+          "element": "input",
+          "initValue": null,
+          "required": 1,
+          "itemValue": null
+        },
+        {
+          "code": "0103",
+          "label": "性别",
+          "name": "gender",
+          "blockCode": "01",
+          "type": "text",
+          "element": "radio",
+          "initValue": [
+            {
+              "label": "男",
+              "value": 1
+            },
+            {
+              "label": "女",
+              "value": 2
+            }
+          ],
+          "required": 1,
+          "itemValue": null
+        },
+        {
+          "code": "0104",
+          "label": "出生日期",
+          "name": "birthday",
+          "blockCode": "01",
+          "type": "date",
+          "element": "input",
+          "initValue": null,
+          "required": 1,
+          "itemValue": null
+        },
+        {
+          "code": "0105",
+          "label": "种族",
+          "name": "race",
+          "blockCode": "01",
+          "type": "text",
+          "element": "select",
+          "initValue": [
+            {
+              "label": "东亚",
+              "value": 1
+            },
+            {
+              "label": "欧洲",
+              "value": 2
+            },
+            {
+              "label": "非洲",
+              "value": 3
+            },
+            {
+              "label": "北美",
+              "value": 4
+            },
+            {
+              "label": "南亚",
+              "value": 5
+            }
+          ],
+          "required": 1,
+          "itemValue": null
+        },
+        {
+          "code": "0106",
+          "label": "籍贯",
+          "name": "nation",
+          "blockCode": "01",
+          "type": "text",
+          "element": "input",
+          "initValue": null,
+          "required": 1,
+          "itemValue": null
+        },
+        {
+          "code": "0107",
+          "label": "电话",
+          "name": "phone",
+          "blockCode": "01",
+          "type": "text",
+          "element": "input",
+          "initValue": null,
+          "required": 1,
+          "itemValue": null
+        },
+        {
+          "code": "0108",
+          "label": "住址",
+          "name": "address",
+          "blockCode": "01",
+          "type": "text",
+          "element": "input",
+          "initValue": null,
+          "required": 2,
+          "itemValue": null
+        }
+      ]
+    },
+    {
+      "code": "02",
+      "name": "疾病信息",
+      "dynamicInfoDto": [
+        {
+          "code": "0201",
+          "label": "临床诊断",
+          "name": "clinical_diagnosis",
+          "blockCode": "02",
+          "type": "text",
+          "element": "textarea",
+          "initValue": null,
+          "required": 2,
+          "itemValue": null
+        },
+        {
+          "code": "0202",
+          "label": "病理诊断",
+          "name": "pathology_diagnosis",
+          "blockCode": "02",
+          "type": "text",
+          "element": "textarea",
+          "initValue": null,
+          "required": 2,
+          "itemValue": null
+        },
+        {
+          "code": "0203",
+          "label": "疾病史",
+          "name": "previous_history",
+          "blockCode": "02",
+          "type": "text",
+          "element": "textarea",
+          "initValue": null,
+          "required": 1,
+          "itemValue": null
+        },
+        {
+          "code": "0204",
+          "label": "现病史",
+          "name": "recent_medical_history",
+          "blockCode": "02",
+          "type": "text",
+          "element": "textarea",
+          "initValue": null,
+          "required": 2,
+          "itemValue": null
+        },
+        {
+          "code": "0205",
+          "label": "家族史",
+          "name": "family_medical_history",
+          "blockCode": "02",
+          "type": "text",
+          "element": "textarea",
+          "initValue": null,
+          "required": 2,
+          "itemValue": null
+        },
+        {
+          "code": "0206",
+          "label": "高危风险",
+          "name": "disease_risk_factory",
+          "blockCode": "02",
+          "type": "text",
+          "element": "textarea",
+          "initValue": null,
+          "required": 2,
+          "itemValue": null
+        },
+        {
+          "code": "0207",
+          "label": "即往治疗史",
+          "name": "before_medical_history",
+          "blockCode": "02",
+          "type": "text",
+          "element": "textarea",
+          "initValue": null,
+          "required": 2,
+          "itemValue": null
+        }
+      ]
+    },
+    {
+      "code": "03",
+      "name": "样本信息",
+      "dynamicInfoDto": [
+        {
+          "code": "0301",
+          "label": "样本id",
+          "name": "sample_id",
+          "blockCode": "03",
+          "type": "text",
+          "element": "input",
+          "initValue": null,
+          "required": 2,
+          "itemValue": null
+        },
+        {
+          "code": "0302",
+          "label": "样本类型",
+          "name": "sample_type",
+          "blockCode": "03",
+          "type": "text",
+          "element": "input",
+          "initValue": null,
+          "required": 2,
+          "itemValue": null
+        },
+        {
+          "code": "0303",
+          "label": "样本属性",
+          "name": "sample_attribute",
+          "blockCode": "03",
+          "type": "text",
+          "element": "select",
+          "initValue": [
+            {
+              "label": "肿瘤样本",
+              "value": 1
+            },
+            {
+              "label": "正常组织",
+              "value": 2
+            }
+          ],
+          "required": 2,
+          "itemValue": null
+        },
+        {
+          "code": "0304",
+          "label": "取样位置",
+          "name": "sampling_location",
+          "blockCode": "03",
+          "type": "text",
+          "element": "input",
+          "initValue": null,
+          "required": 1,
+          "itemValue": null
+        },
+        {
+          "code": "0305",
+          "label": "样本采集时间",
+          "name": "sample_collection_time",
+          "blockCode": "03",
+          "type": "date",
+          "element": "input",
+          "initValue": null,
+          "required": 2,
+          "itemValue": null
+        },
+        {
+          "code": "0306",
+          "label": "样本检测时间",
+          "name": "sample_testing_time",
+          "blockCode": "03",
+          "type": "date",
+          "element": "input",
+          "initValue": null,
+          "required": 2,
+          "itemValue": null
+        }
+      ]
+    },
+    {
+      "code": "04",
+      "name": "检测平台信息及分析参考类目",
+      "dynamicInfoDto": [
+        {
+          "code": "0401",
+          "label": "检测信息",
+          "name": "sequencing_information",
+          "blockCode": "04",
+          "type": "text",
+          "element": "input",
+          "initValue": null,
+          "required": 2,
+          "itemValue": null
+        },
+        {
+          "code": "0402",
+          "label": "测序平台",
+          "name": "sequencing_platform",
+          "blockCode": "04",
+          "type": "text",
+          "element": "select",
+          "initValue": [
+            {
+              "label": "lllumina",
+              "value": 1
+            }
+          ],
+          "required": 1,
+          "itemValue": null
+        },
+        {
+          "code": "0403",
+          "label": "测序类型",
+          "name": "type",
+          "blockCode": "04",
+          "type": "text",
+          "element": "input",
+          "initValue": null,
+          "required": 0,
+          "itemValue": null
+        },
+        {
+          "code": "0404",
+          "label": "参考基因组",
+          "name": "ref",
+          "blockCode": "04",
+          "type": "text",
+          "element": "input",
+          "initValue": null,
+          "required": 0,
+          "itemValue": null
+        },
+        {
+          "code": "0405",
+          "label": "知识库版本",
+          "name": "knowledge_ver",
+          "blockCode": "04",
+          "type": "text",
+          "element": "select",
+          "initValue": [
+            {
+              "label": "Bainuo Knowledge Base Version 1.0",
+              "value": 1
+            }
+          ],
+          "required": 0,
+          "itemValue": null
+        },
+        {
+          "code": "0406",
+          "label": "分析流程版本",
+          "name": "analysis_version",
+          "blockCode": "04",
+          "type": "text",
+          "element": "select",
+          "initValue": [
+            {
+              "label": "Bainuo_ OncoAnalyzer_exon_ Version 0.5",
+              "value": 1
+            }
+          ],
+          "required": 0,
+          "itemValue": null
+        }
+      ]
+    },
+    {
+      "code": "05",
+      "name": "检测结果上传",
+      "dynamicInfoDto": [
+        {
+          "code": "0501",
+          "label": "基因突变(.vcf)",
+          "name": "upload_file",
+          "blockCode": "05",
+          "type": "file",
+          "element": "input",
+          "initValue": null,
+          "required": 2,
+          "itemValue": null
+        },
+        {
+          "code": "0502",
+          "label": "基因融合",
+          "name": "gene_fusion",
+          "blockCode": "05",
+          "type": null,
+          "element": "list",
+          "initValue": [
+            {
+              "fusion": "",
+              "fusionType": "",
+              "gene": ""
+            }
+          ],
+          "required": 0,
+          "itemValue": [
+            {
+              "name": "基因"
+            },
+            {
+              "name": "基因融合(阳性/阴性)"
+            },
+            {
+              "name": "融合基因类型"
+            }
+          ]
+        },
+        {
+          "code": "0503",
+          "label": "基因（mRNA/蛋白）表达",
+          "name": "gene_expression",
+          "blockCode": "05",
+          "type": null,
+          "element": "list",
+          "initValue": [
+            {
+              "expressionLevel": "",
+              "expression": "",
+              "gene": ""
+            }
+          ],
+          "required": 0,
+          "itemValue": [
+            {
+              "name": "基因"
+            },
+            {
+              "name": "mRNA/蛋白表达(阳性/阴性)"
+            },
+            {
+              "name": "表达水平(超高/高/中/低)"
+            }
+          ]
+        },
+        {
+          "code": "0504",
+          "label": "基因扩增",
+          "name": "gene_amplification",
+          "blockCode": "05",
+          "type": null,
+          "element": "list",
+          "initValue": [
+            {
+              "amplification": "",
+              "gene": ""
+            }
+          ],
+          "required": 0,
+          "itemValue": [
+            {
+              "name": "基因"
+            },
+            {
+              "name": "扩增(阳性/阴性)"
+            }
+          ]
+        },
+        {
+          "code": "0505",
+          "label": "基因拷贝数变异",
+          "name": "gene_copy",
+          "blockCode": "05",
+          "type": null,
+          "element": "list",
+          "initValue": [
+            {
+              "copyLevel": "",
+              "gene": "",
+              "copy": ""
+            }
+          ],
+          "required": 0,
+          "itemValue": [
+            {
+              "name": "基因"
+            },
+            {
+              "name": "拷贝数"
+            },
+            {
+              "name": "CNV（高/中/低）"
+            }
+          ]
+        },
+        {
+          "code": "0506",
+          "label": "基因微卫星不稳定（MSI）和错配修复（MMR）",
+          "name": "gene_msi",
+          "blockCode": "05",
+          "type": null,
+          "element": "list",
+          "initValue": [
+            {
+              "msi": "",
+              "mmr": "",
+              "results": {
+                "D5S346": "阴性",
+                "MLH1": "阴性",
+                "MLH3": "阴性",
+                "MSH6": "阴性",
+                "MSH2": "阴性",
+                "MSH3": "阴性",
+                "D17S250": "阴性",
+                "POLD1": "阴性",
+                "BAT25": "阴性",
+                "BAT26": "阴性",
+                "PMS2": "阴性",
+                "D2S123": "阴性",
+                "POLE": "阴性",
+                "PMS1": "阴性"
+              }
+            }
+          ],
+          "required": 0,
+          "itemValue": [
+            {
+              "name": "MSI"
+            },
+            {
+              "name": "MMR"
+            }
+          ]
+        },
+        {
+          "code": "0507",
+          "label": "肿瘤负荷",
+          "name": "gene_tumor_burden",
+          "blockCode": "05",
+          "type": null,
+          "element": "list",
+          "initValue": [
+            {
+              "checkItem": "标题1",
+              "mutationalLoad": "",
+              "judgeStand": ""
+            },
+            {
+              "checkItem": "标题2",
+              "mutationalLoad": "",
+              "judgeStand": ""
+            }
+          ],
+          "required": 0,
+          "itemValue": [
+            {
+              "name": "检测项"
+            },
+            {
+              "name": "突变负荷（个/Mb）"
+            },
+            {
+              "name": "判断标准"
+            }
+          ]
+        },
+        {
+          "code": "0508",
+          "label": "HLA基因",
+          "name": "gene_gla",
+          "blockCode": "05",
+          "type": null,
+          "element": "list",
+          "initValue": [
+            {
+              "alleleOne": "",
+              "hla1": "",
+              "alleleTwo": "",
+              "hla": ""
+            }
+          ],
+          "required": 0,
+          "itemValue": [
+            {
+              "name": "HLA"
+            },
+            {
+              "name": "HLA"
+            },
+            {
+              "name": "Allele 1"
+            },
+            {
+              "name": "Allele 2"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

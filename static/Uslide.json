@@ -1,0 +1,60 @@
+{
+  "data": [
+    {
+      "id": "1",
+      "label": "首页",
+      "path": "/home",
+      "icon": "icons_01",
+      "parentId": null,
+      "resourceId": 0,
+      "privilegeVOs": null
+    },
+    {
+      "id": "2",
+      "label": "服务项目",
+      "path": "/service",
+      "icon": "icons_02",
+      "parentId": null,
+      "resourceId": 0,
+      "privilegeVOs": null
+    },
+    {
+      "id": 4,
+      "label": "个人中心",
+      "path": null,
+      "icon": "icons_04",
+      "parentId": null,
+      "resourceId": 0,
+      "privilegeVOs": [
+        {
+          "id": 4001,
+          "label": "个人信息",
+          "path": "/userinfo",
+          "icon": "1",
+          "parentId": null,
+          "resourceId": 10,
+          "privilegeVOs": null
+        },
+        {
+          "id": 4002,
+          "label": "修改密码",
+          "path": "/userpwd",
+          "icon": "2",
+          "parentId": null,
+          "resourceId": 11,
+          "privilegeVOs": null
+        }
+      ]
+    },
+    {
+      "id": "7",
+      "label": "操作说明",
+      "path": "/instruction",
+      "icon": "icons_07",
+      "parentId": null,
+      "resourceId": 0,
+      "privilegeVOs": null
+    }
+  ],
+  "status": "success"
+}

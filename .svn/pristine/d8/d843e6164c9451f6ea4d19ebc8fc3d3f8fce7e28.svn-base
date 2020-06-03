@@ -1,0 +1,296 @@
+<template>
+	<div class="list">
+		<div class="contentTitle pdlr20">个人中心</div>
+		<div class="userInfo">
+			<el-form ref="formData" :model="formData" label-width="100px">
+				<div class="logoImg">
+					<!-- <img :src="formData.iconUrl"> -->
+					<img src="../../common/images/head_portrait.jpg" width="150" alt="">
+				</div>
+				<el-form-item label="姓名：" prop="orgName">
+					<el-input type="text" v-model="formData.orgName" disabled></el-input>
+				</el-form-item>
+
+				<el-form-item label="登录账号：" prop="userName">
+					<el-input v-model="formData.userName" disabled></el-input>
+				</el-form-item>
+
+				<el-form-item label="性别：" prop="sex">
+					<el-input type="text" v-model="formData.sex == '1' ? '男' : '女'" disabled></el-input>
+				</el-form-item>
+
+				<el-form-item label="登录密码：" prop="userPassword">
+					<el-input type="password" v-model="formData.userPassword" disabled></el-input>
+				</el-form-item>
+
+				<el-form-item style="width: 50px;">
+					<el-button type="warning" :loading="isLoading" @click="dialogFormVisible = true">修改密码</el-button>
+				</el-form-item>
+			</el-form>
+		</div>
+
+		<!-- 模态框 -->
+		<el-dialog title="修改密码" :visible.sync="dialogFormVisible">
+			<el-form :model="formPassword" :rules="rules">
+				<el-form-item label="原密码" prop="oldPassword" :label-width="formLabelWidth">
+					<el-input type="password" v-model="formPassword.oldPassword" autocomplete="off" placeholder="请输入当前密码"></el-input>
+				</el-form-item>
+				<br />
+				<el-form-item label="新密码" prop="newPassword" :label-width="formLabelWidth">
+					<el-input type="password" v-model="formPassword.newPassword" autocomplete="off" placeholder="请输入新密码"></el-input>
+				</el-form-item>
+				<br />
+				<el-form-item label="确认密码" prop="reNewPassword" :label-width="formLabelWidth">
+					<el-input type="password" v-model="formPassword.reNewPassword" autocomplete="off" placeholder="请输入当前密码"></el-input>
+				</el-form-item>
+			</el-form>
+			<div slot="footer" class="dialog-footer">
+				<el-button type="success" @click="sub('formData')">确 定</el-button>
+			</div>
+		</el-dialog>
+
+	</div>
+</template>
+<script>
+	import URL from '@/common/js/URL.js'
+	import Pager from '@/components/common/pager'
+	import axios from 'axios'
+	import moment from 'moment'
+	export default {
+		created() {
+			this.getInfo(1)
+		},
+		data() {
+			return {
+				formData: {
+					iconUrl: '',
+					orgName: '',
+					userName: '',
+					sex: '',
+					userPassword: '666666'
+				},
+				formPassword: {
+					oldPassword: '',
+					newPassword: '',
+					reNewPassword: ''
+				},
+				dialogFormVisible: false,
+				formLabelWidth: '120px',
+				isLoading: false,
+				token: this.$route.params.token,
+				rules: {
+					oldPassword: [{
+						required: true,
+						message: '原密码不能为空',
+						trigger: 'blur'
+					}],
+					newPassword: [{
+						required: true,
+						message: '新密码不能为空',
+						trigger: 'blur'
+					}],
+					reNewPassword: [{
+							required: true,
+							message: '确认密码不能为空',
+							trigger: 'blur'
+						},
+						{
+							required: true,
+							min: 6,
+							message: '密码长度不能低于6位',
+							trigger: 'change'
+						}
+					]
+				}
+			}
+		},
+		methods: {
+			getInfo() { //获取信息
+				let that = this
+				axios.get(URL.api_name + 'cloud/user_info').then(res => {
+					if (res.data.code === '100') {
+						that.formData = res.data.data
+						if (that.formData.userPassword == '') { //登录密码重新赋值
+							that.formData.userPassword = '666666'
+						}
+						that.fileList = []
+						that.fileList.push({
+							name: '',
+							url: res.data.data.iconUrl
+						})
+					}
+				}, function(error) {
+					that.$message({
+						type: 'error',
+						message: '获取信息失败',
+						duration: 1000
+					})
+				})
+			},
+			sub(formName) {
+				let that = this
+				that.dialogFormVisible = false
+				that.$refs[formName].validate((valid) => {
+					if (valid) {
+						// 如果验证通过，即提交
+						if (that.formPassword.newPassword !== that.formPassword.reNewPassword) {
+							that.$message({
+								message: '两次密码不一致',
+								type: 'error'
+							})
+							return false
+						}
+						that.isLoading = true
+						axios.post(URL.api_name + 'cloud/modify_password', that.formPassword).then((res) => {
+							that.isLoading = false
+							if (res.data.code === '100') {
+								that.$message({
+									message: res.data.message,
+									type: 'success'
+								})
+								that.dialogFormVisible = false //成功打开模态框修改密码
+							} else {
+								that.$message({
+									message: '提交失败,请重新输入',
+									type: 'error',
+									duration: 1000
+								})
+							}
+						})
+						// that.isLoading = false
+					} else {
+						// 上面是验证失败...
+						console.log('error submit!!')
+						return false
+					}
+				})
+			},
+
+		}
+	}
+</script>
+<style lang="less" scoped>
+	.userInfo {
+		width: 700px;
+		float: left;
+		margin-left: 20px;
+
+		.logoImg {
+			display: block;
+			width: 78px;
+			height: 78px;
+			float: left;
+
+			img {
+				margin-left: 14px;
+				margin-top: 6px;
+				border: 1px solid #eee;
+				width: 70px;
+				height: 70px;
+				border-radius: 50%;
+			}
+		}
+
+		.el-form {
+			float: left;
+			margin-top: 40px !important;
+
+			.el-form-item {
+				float: left;
+				margin-bottom: 0px;
+
+				/deep/.el-form-item__label {
+					color: #7F8493;
+					height: 35px;
+					line-height: 35px;
+					font-size: 14px;
+					margin-top: 5px;
+				}
+
+				/deep/.el-form-item__content {
+					width: 150px;
+				}
+
+				/deep/.el-input__inner {
+					border: 0px;
+					outline: none;
+					cursor: pointer;
+					height: 35px;
+					font-size: 12px;
+				}
+
+				/deep/.el-input.is-disabled .el-input__inner {
+					background-color: #fff;
+					color: #7F8493;
+					width: 100px;
+					text-align: left;
+					padding-left: 5px;
+					margin-left: -8px;
+				}
+			}
+		}
+
+		.el-button--warning {
+			margin-left: -130px;
+			height: 40px;
+			line-height: 4px;
+			font-size: 14px;
+			background: #FFA911;
+			border-color: #FFA911;
+		}
+	}
+	/deep/.el-dialog__wrapper{
+			top: 100px;
+	}
+	/deep/.el-dialog {
+		width: 30%;
+		
+		/deep/.el-dialog__header {
+			// background: #008AFF;
+			padding: 13px 20px 10px;
+		}
+		/deep/.el-dialog__body{
+			padding: 30px 20px 20px 20px;
+		}
+		/deep/.el-dialog__headerbtn .el-dialog__close {
+			color: #5a5e66;
+		}
+
+		/deep/.el-dialog__title {
+			color: #5a5e66;
+			font-size: 16px;
+		}
+
+		/deep/.el-dialog__footer {
+			text-align: center;
+			padding: 10px 20px 30px 20px;
+		}
+
+		/deep/.el-button--success {
+			width: 80px;
+			height: 40px;
+			line-height: 10px;
+			background: #008AFF;
+			border-color: #008AFF;
+			border-radius: 2px;
+		}
+
+		/deep/.el-input__inner {
+			width: 200px;
+		}
+
+		/deep/.el-form {
+			margin-left: 50px;
+
+			/deep/.el-form-item {
+				margin-bottom: 2px;
+			}
+		}
+	}
+	.list /deep/.el-form-item.is-success .el-input__inner{
+		border-color: #008aff!important;
+	}
+	.list /deep/.el-form-item .el-form-item__error{
+		left: 18px !important;
+	}
+</style>

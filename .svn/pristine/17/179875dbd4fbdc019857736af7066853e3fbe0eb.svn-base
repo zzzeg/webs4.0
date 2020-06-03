@@ -1,0 +1,2009 @@
+<template>
+  <div class="list" style="height:100%;">
+    <div class="crumbs">
+      <el-breadcrumb separator=">">
+        <el-breadcrumb-item>> 审核模块</el-breadcrumb-item>
+        <el-breadcrumb-item>查看报告</el-breadcrumb-item>
+      </el-breadcrumb>
+    </div>
+
+    <!--报告-->
+    <div class="table-data reportsStyle" style="height:calc(100% - 50px); position:relative">
+      <a style="position: absolute; right:390px; top:-60px; text-decoration:none;" target="_blank">
+        <el-button size="mini" type="none" @click="gobackList">返回列表</el-button>
+      </a>
+      <!-- <a style="position: absolute; right:285px; top:-60px; text-decoration:none;" target="_blank">
+        <el-upload
+          class="upload-demo"
+          :headers="uploadHeader"
+          :action="upurl"
+          :data="updata"
+          :on-success="handlePDFSuccess"
+          :before-upload="beforePDFUpload"
+          :file-list="fileList">
+          <el-button size="mini" type="success">上传PDF</el-button>
+        </el-upload>
+      </a> -->
+      <a style="position: absolute; top:-60px; right:200px; text-decoration:none;" target="_blank" :href="url + 'report/downloadMafFile?projectCode=' + code + '&token=' + token"><el-button type="primary" size="mini">下载maf</el-button></a>
+      <!-- <a style="position: absolute; top:-60px; right:105px; text-decoration:none;"><el-button size="mini" type="primary" @click="wordList = true">下载word</el-button></a> -->
+      <a style="position: absolute; top:-60px; right:105px; text-decoration:none;"><el-button size="mini" type="primary" :disabled="buttonloading" @click="wordList = true, getWordList()">附件下载</el-button></a>
+      <!-- <a style="position: absolute; right:17px; top:-60px; text-decoration:none;" target="_blank" :href="pdfUrlF"><el-button size="mini" type="primary">下载PDF</el-button></a> -->
+
+      <!--dom_begin-->
+      <div class="table-data" style="height:calc(100% - 0px); box-sizing:border-box; padding:20px 40px; border:solid 1px #ddd; overflow:auto;" element-loading-text="拼命加载中..." v-loading="pageLoading">
+
+        <!--基本信息-->
+        <div class="blockContent" v-if="formData.subjectInformation != null">
+          <h3 style="margin-top:10px;">{{ formData.subjectInformationName }}</h3>
+          <div class="inlineItem" style="overflow: hidden;">
+            <el-row :gutter="10">
+              <el-col :span="2">姓名：</el-col>
+              <el-col :span="6" style="margin-left:-30px;"><div class="tableListItem">{{ formData.subjectInformation.userName }}&nbsp;</div></el-col>
+              <el-col :span="2">性别：</el-col>
+              <el-col :span="6" style="margin-left:-30px;"><div class="tableListItem">{{ formData.subjectInformation.gender === 1 ? '男' : formData.subjectInformation.gender === 2 ? '女' : '错误' }}&nbsp;</div></el-col>
+              <el-col :span="2">年龄：</el-col>
+              <el-col :span="6" style="margin-left:-30px;"><div class="tableListItem">{{ formData.subjectInformation.age }}&nbsp;</div></el-col>
+            </el-row>
+            <el-row :gutter="10">
+              <el-col :span="2">受检者编号：</el-col>
+              <el-col :span="10"><div class="tableListItem">{{ formData.subjectInformation.examinerCode }}&nbsp;</div></el-col>
+              <el-col :span="2">联系方式：</el-col>
+              <el-col :span="9"><div class="tableListItem">{{ formData.subjectInformation.phone }}&nbsp;</div></el-col>
+            </el-row>
+            <el-row :gutter="10">
+              <el-col :span="2">临床诊断：</el-col>
+              <el-col :span="22"><div class="tableListItem">{{formData.subjectInformation.clinicalDiagnosis}}&nbsp;</div></el-col>
+            </el-row>
+            <el-row :gutter="10">
+              <el-col :span="2">病理诊断：</el-col>
+              <el-col :span="22"><div class="tableListItem">{{formData.subjectInformation.pathologyDiagnosis}}&nbsp;</div></el-col>
+            </el-row>
+            <el-row :gutter="10">
+              <el-col :span="2">既&nbsp;&nbsp;往&nbsp;&nbsp;史：</el-col>
+              <el-col :span="22"><div class="tableListItem">{{formData.subjectInformation.beforeMedicalHistory}}&nbsp;</div></el-col>
+            </el-row>
+            <el-row :gutter="10">
+              <el-col :span="2">家&nbsp;&nbsp;族&nbsp;&nbsp;史：</el-col>
+              <el-col :span="22"><div class="tableListItem">{{formData.subjectInformation.familyMedicalHistory}}&nbsp;</div></el-col>
+            </el-row>
+          </div>
+        </div>
+
+        <!-- 样本信息-->
+        <div class="blockContent" v-if="formData.specimenInformation != null">
+          <h3 style="margin-top:10px;">{{formData.specimenInformationName}}</h3>
+          <table class="inlineItem">
+            <tr>
+              <td width="80px">样本编号：</td>
+              <td><div class="tableListItem">{{formData.specimenInformation.sampleId}}&nbsp;</div></td>
+              <td width="80px">样本类型：</td>
+              <td><div class="tableListItem">{{formData.specimenInformation.sampleType}}&nbsp;</div></td>
+            </tr>
+            <tr>
+              <td>取样位置：</td>
+              <td><div class="tableListItem">{{formData.specimenInformation.samplingLocation}}&nbsp;</div></td>
+              <td>收样日期：</td>
+              <td><div class="tableListItem">{{formData.specimenInformation.sampleCollectionTime}}&nbsp;</div></td>
+            </tr>
+            <tr>
+              <td>送检医院：</td>
+              <td><div class="tableListItem">{{formData.specimenInformation.inspectionHospital}}&nbsp;</div></td>
+              <td>送检科室：</td>
+              <td><div class="tableListItem">{{formData.specimenInformation.inspectionDepartment}}&nbsp;</div></td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- 检测内容-->
+        <div class="blockContent" v-if="formData.testPlatformInformationAndAnalysisRefereneceCategory != null">
+          <h3 style="margin-top:10px;">{{ formData.testPlatformInformationAndAnalysisRefereneceCategoryName }}</h3>
+          <table class="inlineItem">
+            <tr>
+              <td width="100px">检测项目：</td>
+              <td><div class="tableListItem">{{formData.testPlatformInformationAndAnalysisRefereneceCategory.productName}}&nbsp;</div></td>
+              <td width="120px">测序平台：</td>
+              <td><div class="tableListItem">{{formData.testPlatformInformationAndAnalysisRefereneceCategory.sequencingPlatform}}&nbsp;</div></td>
+            </tr>
+            <tr>
+              <td>检测日期：</td>
+              <td><div class="tableListItem">{{formData.testPlatformInformationAndAnalysisRefereneceCategory.sequencingDate}}&nbsp;</div></td>
+              <td>参考基因组：</td>
+              <td><div class="tableListItem">{{formData.testPlatformInformationAndAnalysisRefereneceCategory.ref}}&nbsp;</div></td>
+            </tr>
+            <tr>
+              <td>检测基因数：</td>
+              <td><div class="tableListItem">{{formData.testPlatformInformationAndAnalysisRefereneceCategory.productGeneNum}}&nbsp;</div></td>
+              <td>知识库版本：</td>
+              <td><div class="tableListItem">{{formData.testPlatformInformationAndAnalysisRefereneceCategory.knowledgeVersion}}&nbsp;</div></td>
+            </tr>
+            <tr>
+              <td>检出基因数：</td>
+              <td><div class="tableListItem">{{formData.testPlatformInformationAndAnalysisRefereneceCategory.detectionGeneNum}}&nbsp;</div></td>
+              <td>分析流程版本：</td>
+              <td><div class="tableListItem">{{formData.testPlatformInformationAndAnalysisRefereneceCategory.analysisVersion}}&nbsp;</div></td>
+            </tr>
+          </table>
+        </div>
+
+        <!--检测结果总览-->
+        <div class="blockContent" v-if="formData.overview != null">
+          <h3 style="margin-top:10px;">{{formData.overviewName}}</h3>
+          <div class="table-cont no-center" style="position:relative">
+            <table class="modelTable overview_table">
+              <tr>
+                <th width="10%" style="border-left: solid 1px #ddd;">个体化诊疗</th>
+                <th width="8%">基因名称</th>
+                <th width="10%">检测结果</th>
+                <th width="32.6%">相关药物</th>
+                <th>适应症</th>
+                <th width="8%">丰度</th>
+                <th width="8%">操作</th>
+              </tr>
+              <tr v-for="(i, iindex) in formData.overview" :key="iindex">
+                <td>
+                  <div class="cells">
+                    <div style="font-size:14px;">{{i.drugType.name}}&nbsp;</div>
+                  </div>
+                </td>
+                <td colspan="5">
+                  <div class="cells cells_2 nopd" style="position:relative; z-index:1;" v-for="(iteme, index) in i.variantOverviewSummaryList" :key="index">
+                    <div class="cells genes" style="display:inline-block; width:calc(10%)" >
+                      <div style="font-size:14px;">{{iteme.gene}}&nbsp;</div>
+                    </div>
+                    <div class="cells vertais" style="display:inline-block; width:calc(12.5%)" >
+                      <div style="font-size:14px;">{{iteme.variant}}&nbsp;</div>
+                    </div>
+                    <div class="cells nopd drugs" style="display:inline-block; width:calc(67.5%)">
+                      <div class="cells cells_3 nopd" style="position:relative; z-index:1;" v-for="(itemese, indexe) in iteme.drugCancerOverviewSummaryList" :key="indexe">
+                        <div class="cells" style="display:inline-block; width:calc(60%)">
+                          <div class="xe" v-for="(n, e) in itemese.drugList" :key="e">
+                            <span v-for="(ne, ee) in n.cancerList" :key="ee" class="dunhao" style="font-size:14px;">{{  n.name }}&nbsp;</span>
+                          </div>
+                        </div>
+                        <div class="cells" style="display:inline-block; width:calc(40%)">
+                          <span v-for="(n, e) in itemese.cancerList" :key="e" class="dunhao" style="font-size:14px;">{{  n.name }}&nbsp;</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="cells fengdu" style="display:inline-block; width:calc(10%)">
+                      <div style="font-size:14px;">{{iteme.allelicDepth}}&nbsp;</div>
+                    </div>
+                  </div>
+                </td>
+                <td style="text-align:center;">
+                </td>
+              </tr>
+            </table>
+            <br>
+            <h4>*注：</h4>
+            <div v-if="formData.type == '0'">
+              <p style="font-size: 14px; color: #777; line-height: 1em; padding: 0px 0 10px 0;">1、红色字体表示耐药的药物。</p>
+              <p style="font-size: 14px; color: #777; line-height: 1em; padding: 0px 0 10px 0;">2、“/”表示非点突变或插入缺失，无丰度数据。</p>
+              <p style="font-size: 14px; color: #777; line-height: 1em; padding: 0px 0 10px 0;">3、本次解读结果依据该样本检测出基因变异位点来匹配药物，不局限于本癌种。</p>
+            </div>
+            <div v-else>
+              <p style="font-size: 14px; color: #777; line-height: 1em; padding: 0px 0 10px 0;">1、上标中所有的药物均为本癌种相关药物。</p>
+              <p style="font-size: 14px; color: #777; line-height: 1em; padding: 0px 0 10px 0;">2、红色字体表示本癌种耐药药物。</p>
+            </div>
+          </div>
+        </div>
+
+        <!--常见的8个用药基因检测结果-->
+        <!-- <div class="blockContent" v-if="formData.checkpointSummary != null">
+          <h3 style="margin-top:10px;">{{ reportData.blockName }}</h3>
+          <div class="table-cont" style="position:relative">
+            <div class="table_add"><a href="javascript:;" class="el-button el-button--success el-button--small" @click="pushListItem('add')">+添加行</a></div>
+            <el-table style="width: 100%" :data="reportData.list" class="table-center">
+              <el-table-column label="检测基因" width="120">
+                <template slot-scope="scope">
+                  <div class="contextMenu" @contextmenu="showMenu(scope.$index * 3)">
+                    {{scope.row.gene}}
+                    <vue-context-menu :contextMenuData="contextMenuData"
+                                      :transferIndex="transferIndex"
+                                      @savedata="savedata()"
+                                      @newdata="newdata()"
+                                      @editCont="editCont(reportData.code, scope.row.code, 'gene', scope.row.gene)">
+                    </vue-context-menu>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="变异类型" width="360">
+                <template slot-scope="scope">
+                  <div class="contextMenu" @contextmenu="showMenu(scope.$index * 3 + 1)">
+                    {{scope.row.variantTypes}}
+                    <vue-context-menu :contextMenuData="contextMenuData"
+                                      :transferIndex="transferIndex"
+                                      @savedata="savedata()"
+                                      @newdata="newdata()"
+                                      @editCont="editCont(reportData.code, scope.row.code, 'variantTypes', scope.row.variantTypes)">
+                    </vue-context-menu>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="检测结果">
+                <template slot-scope="scope">
+                  <div class="contextMenu" @contextmenu="showMenu(scope.$index * 3 + 2)">
+                    {{scope.row.detectionResult}}
+                    <vue-context-menu :contextMenuData="contextMenuData"
+                                      :transferIndex="transferIndex"
+                                      @savedata="savedata()"
+                                      @newdata="newdata()"
+                                      @editCont="editCont(reportData.code, scope.row.code, 'detectionResult', scope.row.detectionResult)">
+                    </vue-context-menu>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="操作" width="80">
+                <template slot-scope="scope">
+                  <el-button type="danger" size="small" @click="pushListItem('del', scope.row.code)">删除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+        </div> -->
+
+        <!--block_06 基因突变-->
+        <div class="blockContent tableBig" v-if="formData.geneMutation != null">
+          <h3 style="margin-top:10px;">{{ formData.geneMutationName }}</h3>
+          <div class="table-cont" style="position:relative">
+            <el-table style="width: 100%" :data="formData.geneMutation" class="table-center">
+              <el-table-column label="基因突变检出情况">
+                <el-table-column label="基因" prop="gene" width="90">
+                </el-table-column>
+                <el-table-column label="突变" prop="mutation">
+                </el-table-column>
+                <el-table-column label="基因组定位 " width="120" prop="refSeq">
+                </el-table-column>
+                <el-table-column label="基因型" prop="geneType">
+                </el-table-column>
+                <el-table-column label="丰度" prop="allelicDepth">
+                </el-table-column>
+                <el-table-column label="外显子" prop="transcriptExon">
+                </el-table-column>
+                <el-table-column label="临床意义" prop="clinicalSignificance">
+                </el-table-column>
+                <el-table-column label="突变描叙" prop="describe">
+                </el-table-column>
+                <el-table-column label="定性" prop="nature">
+                </el-table-column>
+                <el-table-column label="变异类型" prop="variantClassification">
+                </el-table-column>
+                <el-table-column label="临床意义预测" width="130" prop="clinicalSignificancePrediction">
+                </el-table-column>
+                <el-table-column label="频率信息" prop="hzInfo">
+                </el-table-column>
+              </el-table-column>
+              <el-table-column label="参考药物数量">
+                <el-table-column label="NCCN/CSCO" width="130" prop="nccnCscoCount">
+                </el-table-column>
+                <el-table-column label="FDA/CFDA" width="110" prop="fdaCfadCount">
+                </el-table-column>
+                <el-table-column label="其他" width="70" prop="other_count">
+                </el-table-column>
+                <el-table-column label="临床研究" width="90" prop="clinicalTrails_count">
+                </el-table-column>
+                <el-table-column label="临床前研究" width="110" prop="preClinicalTrails">
+                </el-table-column>
+                <el-table-column label="功能预测" width="90" prop="functionPrediction">
+                </el-table-column>
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!--过滤的基因突变-->
+        <div class="blockContent tableBig" v-if="formData.excludedGeneMutation != null">
+          <h3 style="margin-top:10px;">{{ formData.excludedGeneMutationName }}</h3>
+          <div class="table-cont" style="position:relative">
+            <el-table style="width: 100%" :data="formData.excludedGeneMutation" class="table-center">
+              <el-table-column label="基因突变检出情况">
+                <el-table-column label="基因" prop="gene" width="90">
+                </el-table-column>
+                <el-table-column label="突变" prop="mutation">
+                </el-table-column>
+                <el-table-column label="基因组定位 " width="120" prop="refSeq">
+                </el-table-column>
+                <el-table-column label="基因型" prop="geneType">
+                </el-table-column>
+                <el-table-column label="丰度" prop="allelicDepth">
+                </el-table-column>
+                <el-table-column label="外显子" prop="transcriptExon">
+                </el-table-column>
+                <el-table-column label="临床意义" prop="clinicalSignificance">
+                </el-table-column>
+                <el-table-column label="突变描叙" prop="describe">
+                </el-table-column>
+                <el-table-column label="定性" prop="nature">
+                </el-table-column>
+                <el-table-column label="变异类型" prop="variantClassification">
+                </el-table-column>
+                <el-table-column label="临床意义预测" width="130" prop="clinicalSignificancePrediction">
+                </el-table-column>
+                <el-table-column label="频率信息" prop="hzInfo">
+                </el-table-column>
+              </el-table-column>
+              <el-table-column label="参考药物数量">
+                <el-table-column label="NCCN/CSCO" width="130" prop="nccnCscoCount">
+                </el-table-column>
+                <el-table-column label="FDA/CFDA" width="110" prop="fdaCfadCount">
+                </el-table-column>
+                <el-table-column label="其他" width="70" prop="other_count">
+                </el-table-column>
+                <el-table-column label="临床研究" width="90" prop="clinicalTrails_count">
+                </el-table-column>
+                <el-table-column label="临床前研究" width="110" prop="preClinicalTrails">
+                </el-table-column>
+                <el-table-column label="功能预测" width="90" prop="functionPrediction">
+                </el-table-column>
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!--基因融合-->
+        <div class="blockContent" v-if="formData.geneFusion &&  formData.geneFusion != null">
+          <h3 style="margin-top:12px;">{{ formData.geneFusionName }}</h3>
+          <div class="table-cont" style="position:relative">
+            <el-table :data="formData.geneFusion" class="table-center">
+              <el-table-column label="基因融合检出情况">
+                <el-table-column label="基因" prop="gene" width="90">
+                </el-table-column>
+                <el-table-column label="融合" prop="fusion">
+                </el-table-column>
+                <el-table-column label="融合类型 " prop="fusionType">
+                </el-table-column>
+                <el-table-column label="临床意义" prop="clinicalSignificance">
+                </el-table-column>
+              </el-table-column>
+              <el-table-column label="参考药物数量">
+                <el-table-column label="NCCN/CSCO" prop="nccnCscoCount">
+                </el-table-column>
+                <el-table-column label="FDA/CFDA" prop="fdaCfadCount">
+                </el-table-column>
+                <el-table-column label="其他" prop="other_count">
+                </el-table-column>
+                <el-table-column label="临床研究" prop="clinicalTrails_count">
+                </el-table-column>
+                <el-table-column label="临床前研究" prop="preClinicalTrails">
+                </el-table-column>
+                <el-table-column label="功能预测" prop="functionPrediction">
+                </el-table-column>
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!--block_08 基因（mRNA/蛋白）表达-->
+        <div class="blockContent" v-if="formData.geneInstabilityMmr && formData.geneInstabilityMmr != null">
+          <h3 style="margin-top:10px;">{{ reportData.geneInstabilityMmrName }}</h3>
+          <div class="table-cont" style="position:relative">
+            <el-table :data="reportData.geneInstabilityMmrName" class="table-center">
+              <el-table-column label="基因表达检出情况">
+                <el-table-column label="基因" width="90" prop="gene">
+                </el-table-column>
+                <el-table-column label="mRNA/蛋白表达" prop="expression">
+                </el-table-column>
+                <el-table-column label="表达情况" prop="expressionLevel">
+                </el-table-column>
+                <el-table-column label="临床意义" prop="clinicalSignificance">
+                </el-table-column>
+              </el-table-column>
+              <el-table-column label="参考药物数量">
+                <el-table-column label="NCCN/CSCO" prop="nccnCscoCount">
+                </el-table-column>
+                <el-table-column label="FDA/CFDA" prop="fdaCfadCount">
+                </el-table-column>
+                <el-table-column label="其他" prop="other_count">
+                </el-table-column>
+                <el-table-column label="临床研究" prop="clinicalTrails_count">
+                </el-table-column>
+                <el-table-column label="临床前研究" prop="preClinicalTrails">
+                </el-table-column>
+                <el-table-column label="功能预测" prop="functionPrediction">
+                </el-table-column>
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!--基因微卫星不稳定性-->
+        <div class="blockContent" v-if="formData.geneInstabilityMsi && formData.geneInstabilityMsi != null">
+          <h3 style="margin-top:10px;">{{ formData.geneInstabilityMsiName }}</h3>
+          <div class="table-cont" style="position:relative">
+            <el-table :data="formData.geneInstabilityMsi" class="table-center">
+              <el-table-column label="微卫星不稳定检出情况">
+                <el-table-column label="MSI" prop="msi">
+                </el-table-column>
+                <el-table-column label="检出情况" prop="mmr">
+                </el-table-column>
+                <el-table-column label="临床意义" prop="clinicalSignificance">
+                </el-table-column>
+              </el-table-column>
+              <el-table-column label="参考药物数量">
+                <el-table-column label="NCCN/CSCO" width="120" prop="nccnCscoCount">
+                </el-table-column>
+                <el-table-column label="FDA/CFDA" width="120" prop="fdaCfadCount">
+                </el-table-column>
+                <el-table-column label="其他" width="120" prop="other_count">
+                </el-table-column>
+                <el-table-column label="临床研究" width="120" prop="clinicalTrails_count">
+                </el-table-column>
+                <el-table-column label="临床前研究" width="120" prop="preClinicalTrails">
+                </el-table-column>
+                <el-table-column label="功能预测" width="120" prop="functionPrediction">
+                </el-table-column>
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!--基因和错配修复-->
+        <div class="blockContent" v-if="formData.geneInstabilityMmr && formData.geneInstabilityMmr != null">
+          <h3 style="margin-top:10px;">{{ formData.geneInstabilityMmrName }}</h3>
+          <div class="table-cont" style="position:relative">
+            <el-table :data="formData.geneInstabilityMmr" class="table-center">
+              <el-table-column label="基因错配修复检出情况">
+                <el-table-column label="MMR" prop="msi">
+                </el-table-column>
+                <el-table-column label="检出情况" prop="mmr">
+                </el-table-column>
+                <el-table-column label="临床意义" prop="clinicalSignificance">
+                </el-table-column>
+              </el-table-column>
+              <el-table-column label="参考药物数量">
+                <el-table-column label="NCCN/CSCO" width="120" prop="nccnCscoCount">
+                </el-table-column>
+                <el-table-column label="FDA/CFDA" width="120" prop="fdaCfadCount">
+                </el-table-column>
+                <el-table-column label="其他" width="120" prop="other_count">
+                </el-table-column>
+                <el-table-column label="临床研究" width="120" prop="clinicalTrails_count">
+                </el-table-column>
+                <el-table-column label="临床前研究" width="120" prop="preClinicalTrails">
+                </el-table-column>
+                <el-table-column label="功能预测" width="120" prop="functionPrediction">
+                </el-table-column>
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!--靶向临床试验入组推荐-->
+        <!--RECOMMENDED CLINICAL TRIALS-->
+        <div class="blockContent" v-if="formData.clinicalTrials && formData.clinicalTrials != null">
+          <div class="tableItems" style="margin-top:0;">
+            <h3 style="margin-top:10px;">{{ formData.clinicalTrialsName }}</h3>
+            <div class="table-describe">
+              <p>{{formData.clinicalTrialsDescribe}}</p>
+              <div class="table-cont" v-for="(recommended, index) in formData.clinicalTrials" :key="index">
+                <table>
+                  <tr>
+                    <th width="200">{{ index + 1 }}、{{ recommended.clinical_id }}</th>
+                    <th align="right"></th>
+                  </tr>
+                  <tr>
+                    <td>入组条件</td>
+                    <td><div style="display:inline-block;max-height:320px; width:100%; overflow:auto;" v-html="recommended.include"></div></td>
+                  </tr>
+                  <tr>
+                    <td>临床试验题目</td>
+                    <td>{{ recommended.clinical_name }}</td>
+                  </tr>
+                  <tr>
+                    <td>临床试验阶段</td>
+                    <td>{{ recommended.phase }}</td>
+                  </tr>
+                  <tr>
+                    <td>药物/治疗方案</td>
+                    <td>{{ recommended.intervention_name }}</td>
+                  </tr>
+                  <tr>
+                    <td>疾病/适应症</td>
+                    <td>{{ recommended.indications }}</td>
+                  </tr>
+                  <tr>
+                    <td>招募地点</td>
+                    <td>{{recommended.recruit_place}}</td>
+                  </tr>
+                  <tr>
+                    <td>联系方式</td>
+                    <td><pre>{{ recommended.contact_information }}</pre></td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 肿瘤细胞免疫治疗临床试验入组推荐-->
+        <!--RECOMMENDED CLINICAL TRIALS-->
+        <div class="blockContent" v-if="formData.tumourTrials && formData.tumourTrials != null">
+          <div class="tableItems" style="margin-top:0;">
+            <h3 style="margin-top:10px;">{{ formData.tumourTrialsName }}</h3>
+            <div class="table-describe">
+              <!-- <p>{{formData.clinicalTrialsDescribe}}</p> -->
+              <div class="table-cont" v-for="(recommended, index) in formData.tumourTrials" :key="index">
+                <table>
+                  <tr>
+                    <th width="200">{{ index + 1 }}、{{ recommended.clinical_id }}</th>
+                    <th align="right"></th>
+                  </tr>
+                  <tr>
+                    <td>入组条件</td>
+                    <td><div style="display:inline-block;max-height:320px; width:100%; overflow:auto;" v-html="recommended.include"></div></td>
+                  </tr>
+                  <tr>
+                    <td>临床试验题目</td>
+                    <td>{{ recommended.clinical_name }}</td>
+                  </tr>
+                  <tr>
+                    <td>临床试验阶段</td>
+                    <td>{{ recommended.phase }}</td>
+                  </tr>
+                  <tr>
+                    <td>药物/治疗方案</td>
+                    <td>{{ recommended.intervention_name }}</td>
+                  </tr>
+                  <tr>
+                    <td>疾病/适应症</td>
+                    <td>{{ recommended.indications }}</td>
+                  </tr>
+                  <tr>
+                    <td>招募地点</td>
+                    <td>{{recommended.recruit_place}}</td>
+                  </tr>
+                  <tr>
+                    <td>联系方式</td>
+                    <td><pre>{{ recommended.contact_information }}</pre></td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 化学治疗临床试验入组推荐-->
+        <!--RECOMMENDED CLINICAL TRIALS-->
+        <div class="blockContent" v-if="formData.chemotherapyClinicalTrials != null">
+          <div class="tableItems" style="margin-top:0px;">
+            <h3 style="margin-top:10px;">{{ formData.blockName }}</h3>
+            <div class="table-describe">
+              <!-- <p>{{formData.describe}}</p> -->
+              <div class="table-cont" v-for="(recommended, index) in formData.chemotherapyClinicalTrials" :key="index">
+                <table>
+                  <tr>
+                    <th width="200">{{ index + 1 }}、{{ recommended.clinical_id }}</th>
+                    <th align="right">
+                      <el-button type="danger" size="small" @click="pushListItem('del', recommended.code)">删除</el-button>
+                    </th>
+                  </tr>
+                  <tr>
+                    <td>入组条件</td>
+                    <td><div style="display:inline-block;max-height:320px; width:100%; overflow:auto;" v-html="recommended.include"></div></td>
+                  </tr>
+                  <tr>
+                    <td>临床试验题目</td>
+                    <td>{{ recommended.clinical_name }}</td>
+                  </tr>
+                  <tr>
+                    <td>临床试验阶段</td>
+                    <td>{{ recommended.phase }}</td>
+                  </tr>
+                  <tr>
+                    <td>药物/治疗方案</td>
+                    <td>{{ recommended.intervention_name }}</td>
+                  </tr>
+                  <tr>
+                    <td>疾病/适应症</td>
+                    <td>{{ recommended.indications }}</td>
+                  </tr>
+                  <tr>
+                    <td>招募地点</td>
+                    <td>{{recommended.recruit_place}}</td>
+                  </tr>
+                  <tr>
+                    <td>联系方式</td>
+                    <td><pre>{{ recommended.contact_information }}</pre></td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!--肿瘤负荷-->
+        <div class="blockContent" v-if="formData.tumorLoad && formData.tumorLoad != null">
+          <h3 style="margin-top:10px;">{{ formData.tumorLoadName }}</h3>
+          <div class="table-cont" style="position:relative">
+            <el-table :data="formData.tumorLoad" class="table-center">
+              <el-table-column label="检测项" prop="checkItem">
+              </el-table-column>
+              <el-table-column label="突变负荷（个/Mb）" prop="mutationalLoad">
+              </el-table-column>
+              <el-table-column label="负荷程度" prop="degree">
+              </el-table-column>
+              <el-table-column label="判断标准" prop="judgeStand">
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!-- 化疗方案汇总-->
+        <div class="blockContent" v-if="formData.chemotherapySummary && formData.chemotherapySummary != null">
+          <h3 style="margin-top:10px;">{{ formData.chemotherapySummaryName }}</h3>
+          <table class="tipList">
+            <tr>
+              <td><i class="icon-circle icon-size1 color-blue"></i> 本癌种</td>
+              <td><i class="icon-circle-blank icon-size1 color-blue"></i> 其他癌种</td>
+              <td><i class="icon-adjust icon-size1 color-blue"></i> 本癌种和其他癌种</td>
+              <td><i class="icon-circle icon-size1 color-red"></i> 本癌种耐药</td>
+              <td><i class="icon-circle-blank icon-size1 color-red"></i> 其他癌种耐药</td>
+              <td><i class="icon-adjust icon-size1 color-red"></i> 本癌种耐药和其他癌种耐药</td>
+              <td><i class="icon-remove icon-size1 color-gray"></i> 无循证医学证据</td>
+            </tr>
+          </table>
+          <div class="table-cont no-center" style="position:relative">
+            <el-table class="table-center" :data="reportData.list">
+              <el-table-column label="基因" prop="gene">
+              </el-table-column>
+              <el-table-column label="变异" prop="mutation">
+              </el-table-column>
+              <el-table-column label="药物" prop="drug">
+              </el-table-column>
+              <el-table-column label="NCCN/CSCO" prop="nccnCsCo">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.nccnCsCo === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.nccnCsCo === 2, 'icon-adjust icon-size1 color-blue':scope.row.nccnCsCo === 3, 'icon-circle icon-size1 color-red':scope.row.nccnCsCo === 41, 'icon-circle-blank icon-size1 color-red':scope.row.nccnCsCo === 42, 'icon-adjust icon-size1 color-red':scope.row.nccnCsCo === 412, 'icon-remove icon-size1 color-gray':scope.row.nccnCsCo === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="FDA/CFDA" prop="fdaCfda">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.fdaCfda === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.fdaCfda === 2, 'icon-adjust icon-size1 color-blue':scope.row.fdaCfda === 3, 'icon-circle icon-size1 color-red':scope.row.fdaCfda === 41, 'icon-circle-blank icon-size1 color-red':scope.row.fdaCfda === 42, 'icon-adjust icon-size1 color-red':scope.row.fdaCfda === 412, 'icon-remove icon-size1 color-gray':scope.row.fdaCfda === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="其他" prop="other">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.other === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.other === 2, 'icon-adjust icon-size1 color-blue':scope.row.other === 3,  'icon-circle icon-size1 color-red':scope.row.other === 41, 'icon-circle-blank icon-size1 color-red':scope.row.other === 42, 'icon-adjust icon-size1 color-red':scope.row.other === 412, 'icon-remove icon-size1 color-gray':scope.row.other === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="临床研究" prop="clinicalTrails">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.clinicalTrails === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.clinicalTrails === 2, 'icon-adjust icon-size1 color-blue':scope.row.clinicalTrails === 3, 'icon-circle icon-size1 color-red':scope.row.clinicalTrails === 41, 'icon-circle-blank icon-size1 color-red':scope.row.clinicalTrails === 42, 'icon-adjust icon-size1 color-red':scope.row.clinicalTrails === 412, 'icon-remove icon-size1 color-gray':scope.row.clinicalTrails === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="临床前研究" prop="preClinicalTrails">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.preClinicalTrails === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.preClinicalTrails === 2, 'icon-adjust icon-size1 color-blue':scope.row.preClinicalTrails === 3, 'icon-circle icon-size1 color-red':scope.row.preClinicalTrails === 41, 'icon-circle-blank icon-size1 color-red':scope.row.preClinicalTrails === 42, 'icon-adjust icon-size1 color-red':scope.row.preClinicalTrails === 412, 'icon-remove icon-size1 color-gray':scope.row.preClinicalTrails === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="功能预测" prop="functionPrediction">
+                <template slot-scope="scope">
+                   <i :class="{'icon-circle icon-size1 color-blue':scope.row.functionPrediction === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.functionPrediction === 2, 'icon-adjust icon-size1 color-blue':scope.row.functionPrediction === 3, 'icon-circle icon-size1 color-red':scope.row.functionPrediction === 41, 'icon-circle-blank icon-size1 color-red':scope.row.functionPrediction === 42, 'icon-adjust icon-size1 color-red':scope.row.functionPrediction === 412, 'icon-remove icon-size1 color-gray':scope.row.functionPrediction === 500}"></i>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!-- 化疗方案详情-->
+        <div class="blockContent" v-if="formData.chemotherapyDetails &&  formData.chemotherapyDetails != null">
+          <h3 style="margin-top:10px;">{{ formData.chemotherapyDetailsName }}</h3>
+          <div class="table-cont no-center" style="position:relative">
+            <el-table class="table-center" :data="formData.chemotherapyDetails">
+              <el-table-column label="基因" width="100" prop="gene">
+              </el-table-column>
+              <el-table-column label="变异" width="120" prop="mutation">
+              </el-table-column>
+              <el-table-column label="治疗方案" width="120" porp="drug">
+              </el-table-column>
+              <el-table-column label="临床注释" prop="clinicalEvidence">
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!--免疫检查点抑制剂治疗方案汇总-->
+        <div class="blockContent" v-if="formData.checkpointSummary && formData.checkpointSummary != null">
+          <h3 style="margin-top:10px;">{{ formData.checkpointSummaryName }}</h3>
+          <table class="tipList">
+            <tr>
+              <td><i class="icon-circle icon-size1 color-blue"></i> 本癌种</td>
+              <td><i class="icon-circle-blank icon-size1 color-blue"></i> 其他癌种</td>
+              <td><i class="icon-adjust icon-size1 color-blue"></i> 本癌种和其他癌种</td>
+              <td><i class="icon-circle icon-size1 color-red"></i> 本癌种耐药</td>
+              <td><i class="icon-circle-blank icon-size1 color-red"></i> 其他癌种耐药</td>
+              <td><i class="icon-adjust icon-size1 color-red"></i> 本癌种耐药和其他癌种耐药</td>
+              <td><i class="icon-remove icon-size1 color-gray"></i> 无循证医学证据</td>
+            </tr>
+          </table>
+          <div class="table-cont no-center" style="position:relative">
+            <el-table class="table-center" :data="formData.checkpointSummary">
+              <el-table-column label="基因" prop="gene">
+              </el-table-column>
+              <el-table-column label="变异" prop="mutation">
+              </el-table-column>
+              <el-table-column label="药物" prop="drug">
+              </el-table-column>
+              <el-table-column label="NCCN/CSCO" width="120" prop="nccnCsCo">
+                <template slot-scope="scope">
+                  <span class="el-dropdown-link">
+                    <i :class="{'icon-circle icon-size1 color-blue':scope.row.nccnCsCo === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.nccnCsCo === 2, 'icon-adjust icon-size1 color-blue':scope.row.nccnCsCo === 3, 'icon-circle icon-size1 color-red':scope.row.nccnCsCo === 41, 'icon-circle-blank icon-size1 color-red':scope.row.nccnCsCo === 42, 'icon-adjust icon-size1 color-red':scope.row.nccnCsCo === 412, 'icon-remove icon-size1 color-gray':scope.row.nccnCsCo === 500}"></i>
+                  </span>
+                </template>
+              </el-table-column>
+              <el-table-column label="FDA/CFDA" width="120" prop="fdaCfda">
+                <template slot-scope="scope">
+                  <span class="el-dropdown-link">
+                    <i :class="{'icon-circle icon-size1 color-blue':scope.row.fdaCfda === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.fdaCfda === 2, 'icon-adjust icon-size1 color-blue':scope.row.fdaCfda === 3, 'icon-circle icon-size1 color-red':scope.row.fdaCfda === 41, 'icon-circle-blank icon-size1 color-red':scope.row.fdaCfda === 42, 'icon-adjust icon-size1 color-red':scope.row.fdaCfda === 412, 'icon-remove icon-size1 color-gray':scope.row.fdaCfda === 500}"></i>
+                  </span>
+                </template>
+              </el-table-column>
+              <el-table-column label="其他" width="120" prop="other">
+                <template slot-scope="scope">
+                  <span class="el-dropdown-link">
+                    <i :class="{'icon-circle icon-size1 color-blue':scope.row.other === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.other === 2, 'icon-adjust icon-size1 color-blue':scope.row.other === 3,  'icon-circle icon-size1 color-red':scope.row.other === 41, 'icon-circle-blank icon-size1 color-red':scope.row.other === 42, 'icon-adjust icon-size1 color-red':scope.row.other === 412, 'icon-remove icon-size1 color-gray':scope.row.other === 500}"></i>
+                  </span>
+                </template>
+              </el-table-column>
+              <el-table-column label="临床研究" width="120" prop="clinicalTrails">
+                <template slot-scope="scope">
+                  <span class="el-dropdown-link">
+                    <i :class="{'icon-circle icon-size1 color-blue':scope.row.clinicalTrails === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.clinicalTrails === 2, 'icon-adjust icon-size1 color-blue':scope.row.clinicalTrails === 3, 'icon-circle icon-size1 color-red':scope.row.clinicalTrails === 41, 'icon-circle-blank icon-size1 color-red':scope.row.clinicalTrails === 42, 'icon-adjust icon-size1 color-red':scope.row.clinicalTrails === 412, 'icon-remove icon-size1 color-gray':scope.row.clinicalTrails === 500}"></i>
+                  </span>
+                </template>
+              </el-table-column>
+              <el-table-column label="临床前研究" width="120" prop="preClinicalTrails">
+                <template slot-scope="scope">
+                  <span class="el-dropdown-link">
+                    <i :class="{'icon-circle icon-size1 color-blue':scope.row.preClinicalTrails === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.preClinicalTrails === 2, 'icon-adjust icon-size1 color-blue':scope.row.preClinicalTrails === 3, 'icon-circle icon-size1 color-red':scope.row.preClinicalTrails === 41, 'icon-circle-blank icon-size1 color-red':scope.row.preClinicalTrails === 42, 'icon-adjust icon-size1 color-red':scope.row.preClinicalTrails === 412, 'icon-remove icon-size1 color-gray':scope.row.preClinicalTrails === 500}"></i>
+                  </span>
+                </template>
+              </el-table-column>
+              <el-table-column label="功能预测" width="120" prop="functionPrediction">
+                <template slot-scope="scope">
+                  <span class="el-dropdown-link">
+                    <i :class="{'icon-circle icon-size1 color-blue':scope.row.functionPrediction === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.functionPrediction === 2, 'icon-adjust icon-size1 color-blue':scope.row.functionPrediction === 3, 'icon-circle icon-size1 color-red':scope.row.functionPrediction === 41, 'icon-circle-blank icon-size1 color-red':scope.row.functionPrediction === 42, 'icon-adjust icon-size1 color-red':scope.row.functionPrediction === 412, 'icon-remove icon-size1 color-gray':scope.row.functionPrediction === 500}"></i>
+                  </span>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!--免疫检查点抑制剂治疗方案详情-->
+        <div class="blockContent" v-if="formData.checkpointDetails && formData.checkpointDetails !== null">
+          <h3 style="margin-top:10px;">{{ formData.checkpointDetailsName }}</h3>
+          <div class="table-cont no-center" style="position:relative">
+            <el-table class="table-center" :data="formData.checkpointDetails">
+              <el-table-column label="基因" prop="gene" width="220">
+              </el-table-column>
+              <el-table-column label="变异" width="100" prop="mutation">
+              </el-table-column>
+              <el-table-column label="治疗方案" width="180" prop="drug">
+              </el-table-column>
+              <el-table-column label="临床注释">
+                <template slot-scope="scope">
+                  <div v-html="scope.row.clinicalEvidence"></div>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!-- CAR-T细胞免疫治疗方案汇总-->
+        <div class="blockContent" v-if="formData.cartSummary && formData.cartSummary != null">
+          <h3 style="margin-top:10px;">{{ formData.cartSummaryName }}</h3>
+          <br/>
+          <table class="tipList">
+            <tr>
+              <td><i class="icon-circle icon-size1 color-blue"></i> 本癌种</td>
+              <td><i class="icon-circle-blank icon-size1 color-blue"></i> 其他癌种</td>
+              <td><i class="icon-adjust icon-size1 color-blue"></i> 本癌种和其他癌种</td>
+              <td><i class="icon-circle icon-size1 color-red"></i> 本癌种耐药</td>
+              <td><i class="icon-circle-blank icon-size1 color-red"></i> 其他癌种耐药</td>
+              <td><i class="icon-adjust icon-size1 color-red"></i> 本癌种耐药和其他癌种耐药</td>
+              <td><i class="icon-remove icon-size1 color-gray"></i> 无循证医学证据</td>
+              <!-- <td> (IV), (III), (II/III), (II), (I/II), (I)临床试验阶段</td> -->
+            </tr>
+          </table>
+          <div class="table-cont no-center" style="position:relative">
+            <el-table class="table-center" :data="reportData.list">
+              <el-table-column label="基因" prop="gene">
+              </el-table-column>
+              <el-table-column label="变异" prop="mutation">
+              </el-table-column>
+              <el-table-column label="药物" prop="drug">
+              </el-table-column>
+              <el-table-column label="NCCN/CSCO" prop="nccnCsCo">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.nccnCsCo === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.nccnCsCo === 2, 'icon-adjust icon-size1 color-blue':scope.row.nccnCsCo === 3, 'icon-circle icon-size1 color-red':scope.row.nccnCsCo === 41, 'icon-circle-blank icon-size1 color-red':scope.row.nccnCsCo === 42, 'icon-adjust icon-size1 color-red':scope.row.nccnCsCo === 412, 'icon-remove icon-size1 color-gray':scope.row.nccnCsCo === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="FDA/CFDA" prop="fdaCfda">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.fdaCfda === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.fdaCfda === 2, 'icon-adjust icon-size1 color-blue':scope.row.fdaCfda === 3, 'icon-circle icon-size1 color-red':scope.row.fdaCfda === 41, 'icon-circle-blank icon-size1 color-red':scope.row.fdaCfda === 42, 'icon-adjust icon-size1 color-red':scope.row.fdaCfda === 412, 'icon-remove icon-size1 color-gray':scope.row.fdaCfda === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="其他" prop="other">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.other === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.other === 2, 'icon-adjust icon-size1 color-blue':scope.row.other === 3,  'icon-circle icon-size1 color-red':scope.row.other === 41, 'icon-circle-blank icon-size1 color-red':scope.row.other === 42, 'icon-adjust icon-size1 color-red':scope.row.other === 412, 'icon-remove icon-size1 color-gray':scope.row.other === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="临床研究" prop="clinicalTrails">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.clinicalTrails === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.clinicalTrails === 2, 'icon-adjust icon-size1 color-blue':scope.row.clinicalTrails === 3, 'icon-circle icon-size1 color-red':scope.row.clinicalTrails === 41, 'icon-circle-blank icon-size1 color-red':scope.row.clinicalTrails === 42, 'icon-adjust icon-size1 color-red':scope.row.clinicalTrails === 412, 'icon-remove icon-size1 color-gray':scope.row.clinicalTrails === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="临床前研究" prop="preClinicalTrails">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.preClinicalTrails === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.preClinicalTrails === 2, 'icon-adjust icon-size1 color-blue':scope.row.preClinicalTrails === 3, 'icon-circle icon-size1 color-red':scope.row.preClinicalTrails === 41, 'icon-circle-blank icon-size1 color-red':scope.row.preClinicalTrails === 42, 'icon-adjust icon-size1 color-red':scope.row.preClinicalTrails === 412, 'icon-remove icon-size1 color-gray':scope.row.preClinicalTrails === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="功能预测" prop="functionPrediction">
+                <template slot-scope="scope">
+                   <i :class="{'icon-circle icon-size1 color-blue':scope.row.functionPrediction === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.functionPrediction === 2, 'icon-adjust icon-size1 color-blue':scope.row.functionPrediction === 3, 'icon-circle icon-size1 color-red':scope.row.functionPrediction === 41, 'icon-circle-blank icon-size1 color-red':scope.row.functionPrediction === 42, 'icon-adjust icon-size1 color-red':scope.row.functionPrediction === 412, 'icon-remove icon-size1 color-gray':scope.row.functionPrediction === 500}"></i>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!-- CAR-T细胞免疫治疗方案详情-->
+        <div class="blockContent" v-if="formData.cartDetails && formData.cartDetails != null">
+          <h3 style="margin-top:10px;">{{ formData.cartDetailsName }}</h3>
+          <div class="table-cont no-center" style="position:relative">
+            <el-table class="table-center" :data="formData.cartDetails">
+              <el-table-column label="治疗方案" width="260" prop="drug">
+              </el-table-column>
+              <el-table-column label="临床注释" prop="clinicalEvidence">
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!-- 其他治疗方案汇总-->
+        <div class="blockContent" v-if="formData.otherSummary & formData.otherSummary != null">
+          <h3 style="margin-top:10px;">{{ formData.otherSummaryName }}</h3>
+          <table class="tipList">
+            <tr>
+              <td><i class="icon-circle icon-size1 color-blue"></i> 本癌种</td>
+              <td><i class="icon-circle-blank icon-size1 color-blue"></i> 其他癌种</td>
+              <td><i class="icon-adjust icon-size1 color-blue"></i> 本癌种和其他癌种</td>
+              <td><i class="icon-circle icon-size1 color-red"></i> 本癌种耐药</td>
+              <td><i class="icon-circle-blank icon-size1 color-red"></i> 其他癌种耐药</td>
+              <td><i class="icon-adjust icon-size1 color-red"></i> 本癌种耐药和其他癌种耐药</td>
+              <td><i class="icon-remove icon-size1 color-gray"></i> 无循证医学证据</td>
+              <!-- <td> (IV), (III), (II/III), (II), (I/II), (I)临床试验阶段</td> -->
+            </tr>
+          </table>
+          <div class="table-cont no-center" style="position:relative">
+            <el-table class="table-center" :data="formData.otherSummary">
+              <el-table-column label="基因" prop="gene">
+              </el-table-column>
+              <el-table-column label="变异" prop="mutation">
+              </el-table-column>
+              <el-table-column label="药物" prop="drug">
+              </el-table-column>
+              <el-table-column label="NCCN/CSCO" prop="nccnCsCo">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.nccnCsCo === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.nccnCsCo === 2, 'icon-adjust icon-size1 color-blue':scope.row.nccnCsCo === 3, 'icon-circle icon-size1 color-red':scope.row.nccnCsCo === 41, 'icon-circle-blank icon-size1 color-red':scope.row.nccnCsCo === 42, 'icon-adjust icon-size1 color-red':scope.row.nccnCsCo === 412, 'icon-remove icon-size1 color-gray':scope.row.nccnCsCo === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="FDA/CFDA" prop="fdaCfda">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.fdaCfda === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.fdaCfda === 2, 'icon-adjust icon-size1 color-blue':scope.row.fdaCfda === 3, 'icon-circle icon-size1 color-red':scope.row.fdaCfda === 41, 'icon-circle-blank icon-size1 color-red':scope.row.fdaCfda === 42, 'icon-adjust icon-size1 color-red':scope.row.fdaCfda === 412, 'icon-remove icon-size1 color-gray':scope.row.fdaCfda === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="其他" prop="other">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.other === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.other === 2, 'icon-adjust icon-size1 color-blue':scope.row.other === 3,  'icon-circle icon-size1 color-red':scope.row.other === 41, 'icon-circle-blank icon-size1 color-red':scope.row.other === 42, 'icon-adjust icon-size1 color-red':scope.row.other === 412, 'icon-remove icon-size1 color-gray':scope.row.other === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="临床研究" prop="clinicalTrails">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.clinicalTrails === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.clinicalTrails === 2, 'icon-adjust icon-size1 color-blue':scope.row.clinicalTrails === 3, 'icon-circle icon-size1 color-red':scope.row.clinicalTrails === 41, 'icon-circle-blank icon-size1 color-red':scope.row.clinicalTrails === 42, 'icon-adjust icon-size1 color-red':scope.row.clinicalTrails === 412, 'icon-remove icon-size1 color-gray':scope.row.clinicalTrails === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="临床前研究" prop="preClinicalTrails">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.preClinicalTrails === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.preClinicalTrails === 2, 'icon-adjust icon-size1 color-blue':scope.row.preClinicalTrails === 3, 'icon-circle icon-size1 color-red':scope.row.preClinicalTrails === 41, 'icon-circle-blank icon-size1 color-red':scope.row.preClinicalTrails === 42, 'icon-adjust icon-size1 color-red':scope.row.preClinicalTrails === 412, 'icon-remove icon-size1 color-gray':scope.row.preClinicalTrails === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="功能预测" prop="functionPrediction">
+                <template slot-scope="scope">
+                   <i :class="{'icon-circle icon-size1 color-blue':scope.row.functionPrediction === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.functionPrediction === 2, 'icon-adjust icon-size1 color-blue':scope.row.functionPrediction === 3, 'icon-circle icon-size1 color-red':scope.row.functionPrediction === 41, 'icon-circle-blank icon-size1 color-red':scope.row.functionPrediction === 42, 'icon-adjust icon-size1 color-red':scope.row.functionPrediction === 412, 'icon-remove icon-size1 color-gray':scope.row.functionPrediction === 500}"></i>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!-- 其他治疗方案详情-->
+        <div class="blockContent" v-if="formData.otherDetails && formData.otherDetails != null">
+          <h3 style="margin-top:10px;">{{ formData.otherDetailsName }}</h3>
+          <div class="table-cont no-center" style="position:relative">
+            <el-table class="table-center" :data="formData.otherDetails">
+              <el-table-column label="基因" width="100" prop="gene">
+              </el-table-column>
+              <el-table-column label="变异" width="120" prop="mutation">
+              </el-table-column>
+              <el-table-column label="药物" width="120" prop="drug">
+              </el-table-column>
+              <el-table-column label="临床注释" prop="clinicalEvidence">
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!-- HLA基因-->
+        <div class="blockContent" v-if="formData.hLAGene && formData.hLAGene != null">
+          <h3 style="margin-top:10px;">HLA基因</h3>
+          <div class="table-cont" style="position:relative">
+            <el-table :data="formData.hLAGene" class="table-center">
+              <el-table-column label="HLA" prop="hla">
+              </el-table-column>
+              <el-table-column label="　" prop="hla1">
+              </el-table-column>
+              <el-table-column label="Allele 1" prop="alleleOne">
+              </el-table-column>
+              <el-table-column label="Allele 2" prop="alleleTwo">
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!--block_09 基因扩增-->
+        <div class="blockContent" v-if="formData.geneAmplification && formData.geneAmplification != null">
+          <h3 style="margin-top:10px;">基因扩增</h3>
+          <div class="table-cont" style="position:relative">
+            <el-table :data="formData.geneAmplification" class="table-center">
+              <el-table-column label="基因扩增检出情况">
+                <el-table-column label="基因" width="90" prop="gene">
+                </el-table-column>
+                <el-table-column label="基因扩增" prop="amplification">
+                </el-table-column>
+                <el-table-column label="临床意义" prop="clinicalSignificance">
+                </el-table-column>
+              </el-table-column>
+              <el-table-column label="参考药物数量">
+                <el-table-column label="NCCN/CSCO" prop="nccnCscoCount">
+                </el-table-column>
+                <el-table-column label="FDA/CFDA" prop="fdaCfadCount">
+                </el-table-column>
+                <el-table-column label="其他" prop="other_count">
+                </el-table-column>
+                <el-table-column label="临床研究" prop="clinicalTrails_count">
+                </el-table-column>
+                <el-table-column label="临床前研究" prop="preClinicalTrails">
+                </el-table-column>
+                <el-table-column label="功能预测" prop="functionPrediction">
+                </el-table-column>
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!-- 放疗方案汇总-->
+        <div class="blockContent" v-if="formData.radiotherapySummary && formData.radiotherapySummary != null">
+          <h3 style="margin-top:10px;">{{ formData.radiotherapySummaryName }}</h3>
+          <table class="tipList">
+            <tr>
+              <td><i class="icon-circle icon-size1 color-blue"></i> 本癌种</td>
+              <td><i class="icon-circle-blank icon-size1 color-blue"></i> 其他癌种</td>
+              <td><i class="icon-adjust icon-size1 color-blue"></i> 本癌种和其他癌种</td>
+              <td><i class="icon-circle icon-size1 color-red"></i> 本癌种耐药</td>
+              <td><i class="icon-circle-blank icon-size1 color-red"></i> 其他癌种耐药</td>
+              <td><i class="icon-adjust icon-size1 color-red"></i> 本癌种耐药和其他癌种耐药</td>
+              <td><i class="icon-remove icon-size1 color-gray"></i> 无循证医学证据</td>
+              <!-- <td> (IV), (III), (II/III), (II), (I/II), (I)临床试验阶段</td> -->
+            </tr>
+          </table>
+          <div class="table-cont no-center" style="position:relative">
+            <el-table class="table-center" :data="formData.radiotherapySummary">
+              <el-table-column label="基因" prop="gene">
+              </el-table-column>
+              <el-table-column label="变异" prop="mutation">
+              </el-table-column>
+              <el-table-column label="药物" prop="drug">
+              </el-table-column>
+              <el-table-column label="NCCN/CSCO" prop="nccnCsCo">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.nccnCsCo === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.nccnCsCo === 2, 'icon-adjust icon-size1 color-blue':scope.row.nccnCsCo === 3, 'icon-circle icon-size1 color-red':scope.row.nccnCsCo === 41, 'icon-circle-blank icon-size1 color-red':scope.row.nccnCsCo === 42, 'icon-adjust icon-size1 color-red':scope.row.nccnCsCo === 412, 'icon-remove icon-size1 color-gray':scope.row.nccnCsCo === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="FDA/CFDA" prop="fdaCfda">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.fdaCfda === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.fdaCfda === 2, 'icon-adjust icon-size1 color-blue':scope.row.fdaCfda === 3, 'icon-circle icon-size1 color-red':scope.row.fdaCfda === 41, 'icon-circle-blank icon-size1 color-red':scope.row.fdaCfda === 42, 'icon-adjust icon-size1 color-red':scope.row.fdaCfda === 412, 'icon-remove icon-size1 color-gray':scope.row.fdaCfda === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="其他" prop="other">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.other === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.other === 2, 'icon-adjust icon-size1 color-blue':scope.row.other === 3,  'icon-circle icon-size1 color-red':scope.row.other === 41, 'icon-circle-blank icon-size1 color-red':scope.row.other === 42, 'icon-adjust icon-size1 color-red':scope.row.other === 412, 'icon-remove icon-size1 color-gray':scope.row.other === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="临床研究" prop="clinicalTrails">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.clinicalTrails === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.clinicalTrails === 2, 'icon-adjust icon-size1 color-blue':scope.row.clinicalTrails === 3, 'icon-circle icon-size1 color-red':scope.row.clinicalTrails === 41, 'icon-circle-blank icon-size1 color-red':scope.row.clinicalTrails === 42, 'icon-adjust icon-size1 color-red':scope.row.clinicalTrails === 412, 'icon-remove icon-size1 color-gray':scope.row.clinicalTrails === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="临床前研究" prop="preClinicalTrails">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.preClinicalTrails === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.preClinicalTrails === 2, 'icon-adjust icon-size1 color-blue':scope.row.preClinicalTrails === 3, 'icon-circle icon-size1 color-red':scope.row.preClinicalTrails === 41, 'icon-circle-blank icon-size1 color-red':scope.row.preClinicalTrails === 42, 'icon-adjust icon-size1 color-red':scope.row.preClinicalTrails === 412, 'icon-remove icon-size1 color-gray':scope.row.preClinicalTrails === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="功能预测" prop="functionPrediction">
+                <template slot-scope="scope">
+                   <i :class="{'icon-circle icon-size1 color-blue':scope.row.functionPrediction === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.functionPrediction === 2, 'icon-adjust icon-size1 color-blue':scope.row.functionPrediction === 3, 'icon-circle icon-size1 color-red':scope.row.functionPrediction === 41, 'icon-circle-blank icon-size1 color-red':scope.row.functionPrediction === 42, 'icon-adjust icon-size1 color-red':scope.row.functionPrediction === 412, 'icon-remove icon-size1 color-gray':scope.row.functionPrediction === 500}"></i>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!-- 放疗方案详情-->
+        <div class="blockContent" v-if="formData.chemotherapyDetails & formData.chemotherapyDetails != null">
+          <h3 style="margin-top:10px;">{{ formData.chemotherapyDetailsName }}</h3>
+          <div class="table-cont no-center" style="position:relative">
+            <el-table class="table-center" :data="formData.chemotherapyDetails">
+              <el-table-column label="基因" width="100" prop="gene">
+              </el-table-column>
+              <el-table-column label="变异" width="120" prop="mutation">
+              </el-table-column>
+              <el-table-column label="药物" width="120" prop="drug">
+              </el-table-column>
+              <el-table-column label="临床注释" prop="clinicalEvidence">
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!-- 靶向治疗方案汇总-->
+        <div class="blockContent" v-if="formData.tagSummary && formData.tagSummary != null">
+          <h3 style="margin-top:10px;">{{ formData.tagSummaryName }}</h3>
+          <table class="tipList">
+            <tr>
+              <td><i class="icon-circle icon-size1 color-blue"></i> 本癌种</td>
+              <td><i class="icon-circle-blank icon-size1 color-blue"></i> 其他癌种</td>
+              <td><i class="icon-adjust icon-size1 color-blue"></i> 本癌种和其他癌种</td>
+              <td><i class="icon-circle icon-size1 color-red"></i> 本癌种耐药</td>
+              <td><i class="icon-circle-blank icon-size1 color-red"></i> 其他癌种耐药</td>
+              <td><i class="icon-adjust icon-size1 color-red"></i> 本癌种耐药和其他癌种耐药</td>
+              <td><i class="icon-remove icon-size1 color-gray"></i> 无循证医学证据</td>
+              <!-- <td> (IV), (III), (II/III), (II), (I/II), (I)临床试验阶段</td> -->
+            </tr>
+          </table>
+          <div class="table-cont no-center" style="position:relative">
+            <el-table class="table-center" :data="formData.tagSummary">
+              <el-table-column label="基因" prop="gene">
+              </el-table-column>
+              <el-table-column label="变异" prop="mutation">
+              </el-table-column>
+              <el-table-column label="药物" prop="drug">
+              </el-table-column>
+              <el-table-column label="NCCN/CSCO" prop="nccnCsCo">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.nccnCsCo === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.nccnCsCo === 2, 'icon-adjust icon-size1 color-blue':scope.row.nccnCsCo === 3, 'icon-circle icon-size1 color-red':scope.row.nccnCsCo === 41, 'icon-circle-blank icon-size1 color-red':scope.row.nccnCsCo === 42, 'icon-adjust icon-size1 color-red':scope.row.nccnCsCo === 412, 'icon-remove icon-size1 color-gray':scope.row.nccnCsCo === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="FDA/CFDA" prop="fdaCfda">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.fdaCfda === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.fdaCfda === 2, 'icon-adjust icon-size1 color-blue':scope.row.fdaCfda === 3, 'icon-circle icon-size1 color-red':scope.row.fdaCfda === 41, 'icon-circle-blank icon-size1 color-red':scope.row.fdaCfda === 42, 'icon-adjust icon-size1 color-red':scope.row.fdaCfda === 412, 'icon-remove icon-size1 color-gray':scope.row.fdaCfda === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="其他" prop="other">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.other === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.other === 2, 'icon-adjust icon-size1 color-blue':scope.row.other === 3,  'icon-circle icon-size1 color-red':scope.row.other === 41, 'icon-circle-blank icon-size1 color-red':scope.row.other === 42, 'icon-adjust icon-size1 color-red':scope.row.other === 412, 'icon-remove icon-size1 color-gray':scope.row.other === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="临床研究" prop="clinicalTrails">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.clinicalTrails === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.clinicalTrails === 2, 'icon-adjust icon-size1 color-blue':scope.row.clinicalTrails === 3, 'icon-circle icon-size1 color-red':scope.row.clinicalTrails === 41, 'icon-circle-blank icon-size1 color-red':scope.row.clinicalTrails === 42, 'icon-adjust icon-size1 color-red':scope.row.clinicalTrails === 412, 'icon-remove icon-size1 color-gray':scope.row.clinicalTrails === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="临床前研究" prop="preClinicalTrails">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.preClinicalTrails === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.preClinicalTrails === 2, 'icon-adjust icon-size1 color-blue':scope.row.preClinicalTrails === 3, 'icon-circle icon-size1 color-red':scope.row.preClinicalTrails === 41, 'icon-circle-blank icon-size1 color-red':scope.row.preClinicalTrails === 42, 'icon-adjust icon-size1 color-red':scope.row.preClinicalTrails === 412, 'icon-remove icon-size1 color-gray':scope.row.preClinicalTrails === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="功能预测" prop="functionPrediction">
+                <template slot-scope="scope">
+                   <i :class="{'icon-circle icon-size1 color-blue':scope.row.functionPrediction === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.functionPrediction === 2, 'icon-adjust icon-size1 color-blue':scope.row.functionPrediction === 3, 'icon-circle icon-size1 color-red':scope.row.functionPrediction === 41, 'icon-circle-blank icon-size1 color-red':scope.row.functionPrediction === 42, 'icon-adjust icon-size1 color-red':scope.row.functionPrediction === 412, 'icon-remove icon-size1 color-gray':scope.row.functionPrediction === 500}"></i>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!-- 靶向治疗方案详情-->
+        <div class="blockContent" v-if="formData.tagDetails && formData.tagDetails != null">
+          <h3 style="margin-top:10px;">{{ formData.blockName }}</h3>
+          <div class="table-cont no-center" style="position:relative">
+            <el-table class="table-center" :data="formData.tagDetails">
+              <el-table-column label="基因" width="100" prop="gene">
+              </el-table-column>
+              <el-table-column label="变异" width="120" prop="mutation">
+              </el-table-column>
+              <el-table-column label="药物" width="120" prop="drug">
+              </el-table-column>
+              <el-table-column label="临床注释" prop="clinicalEvidence">
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!--block_10 基因拷贝数变异-->
+        <div class="blockContent tableOverflow" v-if="formData.copyNumberVariations && formData.copyNumberVariations != null">
+          <h3 style="margin-top:10px;">基因拷贝数变异</h3>
+          <div class="table-cont" style="position:relative">
+            <el-table :data="formData.copyNumberVariations" class="table-center">
+              <el-table-column label="基因拷贝数变异检出情况">
+                <el-table-column label="染色体位置" prop="chromosome">
+                </el-table-column>
+                <el-table-column label="基因" width="90" prop="gene">
+                </el-table-column>
+                <el-table-column label="变异类型" prop="variantType">
+                </el-table-column>
+                <el-table-column label="临床意义" prop="clinicalSignificance">
+                </el-table-column>
+              </el-table-column>
+              <el-table-column label="参考药物数量">
+                <el-table-column label="NCCN/CSCO" prop="nccnCscoCount">
+                </el-table-column>
+                <el-table-column label="FDA/CFDA" prop="fdaCfadCount">
+                </el-table-column>
+                <el-table-column label="其他" prop="other_count">
+                </el-table-column>
+                <el-table-column label="临床研究" prop="clinicalTrails_count">
+                </el-table-column>
+                <el-table-column label="临床前研究" prop="preClinicalTrails">
+                </el-table-column>
+                <el-table-column label="功能预测" prop="functionPrediction">
+                </el-table-column>
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!--block_15 预后相关解读信息-->
+        <div class="blockContent" v-if="formData.prognostisInformation && formData.prognostisInformation != null">
+          <h3 style="margin-top:10px;">{{ formData.prognostisInformationName }}</h3>
+          <br/>
+          <table class="tipList">
+            <tr>
+              <td><i class="icon-circle icon-size1 color-blue"></i> 本癌种</td>
+              <td><i class="icon-circle-blank icon-size1 color-blue"></i> 其他癌种</td>
+              <td><i class="icon-adjust icon-size1 color-blue"></i> 本癌种和其他癌种</td>
+              <td><i class="icon-remove icon-size1 color-gray"></i> 无循证医学证据</td>
+              <!-- <td> (IV), (III), (II/III), (II), (I/II), (I)临床试验阶段</td> -->
+            </tr>
+          </table>
+          <div class="table-cont no-center" style="position:relative">
+            <el-table class="table-center" :data="formData.prognostisInformation">
+              <el-table-column label="基因" prop="gene">
+              </el-table-column>
+              <el-table-column label="变异" prop="mutation">
+              </el-table-column>
+              <el-table-column label="对预后的影响" prop="influenceOnPrognosis">
+              </el-table-column>
+              <el-table-column label="NCCN/CSCO" prop="nccnCsCo">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.nccnCsCo === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.nccnCsCo === 2, 'icon-adjust icon-size1 color-blue':scope.row.nccnCsCo === 3, 'icon-circle icon-size1 color-red':scope.row.nccnCsCo === 41, 'icon-circle-blank icon-size1 color-red':scope.row.nccnCsCo === 42, 'icon-adjust icon-size1 color-red':scope.row.nccnCsCo === 412, 'icon-remove icon-size1 color-gray':scope.row.nccnCsCo === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="FDA/CFDA" prop="fdaCfda">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.fdaCfda === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.fdaCfda === 2, 'icon-adjust icon-size1 color-blue':scope.row.fdaCfda === 3, 'icon-circle icon-size1 color-red':scope.row.fdaCfda === 41, 'icon-circle-blank icon-size1 color-red':scope.row.fdaCfda === 42, 'icon-adjust icon-size1 color-red':scope.row.fdaCfda === 412, 'icon-remove icon-size1 color-gray':scope.row.fdaCfda === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="其他" prop="other">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.other === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.other === 2, 'icon-adjust icon-size1 color-blue':scope.row.other === 3,  'icon-circle icon-size1 color-red':scope.row.other === 41, 'icon-circle-blank icon-size1 color-red':scope.row.other === 42, 'icon-adjust icon-size1 color-red':scope.row.other === 412, 'icon-remove icon-size1 color-gray':scope.row.other === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="临床研究" prop="clinicalTrails">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.clinicalTrails === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.clinicalTrails === 2, 'icon-adjust icon-size1 color-blue':scope.row.clinicalTrails === 3, 'icon-circle icon-size1 color-red':scope.row.clinicalTrails === 41, 'icon-circle-blank icon-size1 color-red':scope.row.clinicalTrails === 42, 'icon-adjust icon-size1 color-red':scope.row.clinicalTrails === 412, 'icon-remove icon-size1 color-gray':scope.row.clinicalTrails === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="临床前研究" prop="preClinicalTrails">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.preClinicalTrails === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.preClinicalTrails === 2, 'icon-adjust icon-size1 color-blue':scope.row.preClinicalTrails === 3, 'icon-circle icon-size1 color-red':scope.row.preClinicalTrails === 41, 'icon-circle-blank icon-size1 color-red':scope.row.preClinicalTrails === 42, 'icon-adjust icon-size1 color-red':scope.row.preClinicalTrails === 412, 'icon-remove icon-size1 color-gray':scope.row.preClinicalTrails === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="功能预测" prop="functionPrediction">
+                <template slot-scope="scope">
+                   <i :class="{'icon-circle icon-size1 color-blue':scope.row.functionPrediction === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.functionPrediction === 2, 'icon-adjust icon-size1 color-blue':scope.row.functionPrediction === 3, 'icon-circle icon-size1 color-red':scope.row.functionPrediction === 41, 'icon-circle-blank icon-size1 color-red':scope.row.functionPrediction === 42, 'icon-adjust icon-size1 color-red':scope.row.functionPrediction === 412, 'icon-remove icon-size1 color-gray':scope.row.functionPrediction === 500}"></i>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!-- 预后相关解读详情-->
+        <div class="blockContent" v-if="formData.prognostisInformationDetails && formData.prognostisInformationDetails != null">
+          <h3 style="margin-top:10px;">{{ formData.prognostisInformationDetailName }}</h3>
+          <div class="table-cont no-center" style="position:relative">
+            <el-table class="table-center" :data="formData.prognostisInformationDetails">
+              <el-table-column label="基因" width="100" prop="gene">
+              </el-table-column>
+              <el-table-column label="变异" width="120" prop="mutation">
+              </el-table-column>
+              <el-table-column label="药物" width="120" prop="drug">
+              </el-table-column>
+              <el-table-column label="临床注释" prop="clinicalEvidence">
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!-- 肿瘤疫苗治疗方案汇总-->
+        <div class="blockContent" v-if="formData.vaccinesSummary && formData.vaccinesSummary != null">
+          <h3 style="margin-top:10px;">{{ formData.vaccinesSummaryName }}</h3>
+          <br/>
+          <table class="tipList">
+            <tr>
+              <td><i class="icon-circle icon-size1 color-blue"></i> 本癌种</td>
+              <td><i class="icon-circle-blank icon-size1 color-blue"></i> 其他癌种</td>
+              <td><i class="icon-adjust icon-size1 color-blue"></i> 本癌种和其他癌种</td>
+              <td><i class="icon-circle icon-size1 color-red"></i> 本癌种耐药</td>
+              <td><i class="icon-circle-blank icon-size1 color-red"></i> 其他癌种耐药</td>
+              <td><i class="icon-adjust icon-size1 color-red"></i> 本癌种耐药和其他癌种耐药</td>
+              <td><i class="icon-remove icon-size1 color-gray"></i> 无循证医学证据</td>
+              <!-- <td> (IV), (III), (II/III), (II), (I/II), (I)临床试验阶段</td> -->
+            </tr>
+          </table>
+          <div class="table-cont no-center" style="position:relative">
+            <el-table class="table-center" :data="formData.vaccinesSummary">
+              <el-table-column label="基因" prop="gene">
+              </el-table-column>
+              <el-table-column label="变异" prop="mutation">
+              </el-table-column>
+              <el-table-column label="药物" prop="drug">
+              </el-table-column>
+              <el-table-column label="NCCN/CSCO" prop="nccnCsCo">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.nccnCsCo === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.nccnCsCo === 2, 'icon-adjust icon-size1 color-blue':scope.row.nccnCsCo === 3, 'icon-circle icon-size1 color-red':scope.row.nccnCsCo === 41, 'icon-circle-blank icon-size1 color-red':scope.row.nccnCsCo === 42, 'icon-adjust icon-size1 color-red':scope.row.nccnCsCo === 412, 'icon-remove icon-size1 color-gray':scope.row.nccnCsCo === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="FDA/CFDA" prop="fdaCfda">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.fdaCfda === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.fdaCfda === 2, 'icon-adjust icon-size1 color-blue':scope.row.fdaCfda === 3, 'icon-circle icon-size1 color-red':scope.row.fdaCfda === 41, 'icon-circle-blank icon-size1 color-red':scope.row.fdaCfda === 42, 'icon-adjust icon-size1 color-red':scope.row.fdaCfda === 412, 'icon-remove icon-size1 color-gray':scope.row.fdaCfda === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="其他" prop="other">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.other === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.other === 2, 'icon-adjust icon-size1 color-blue':scope.row.other === 3,  'icon-circle icon-size1 color-red':scope.row.other === 41, 'icon-circle-blank icon-size1 color-red':scope.row.other === 42, 'icon-adjust icon-size1 color-red':scope.row.other === 412, 'icon-remove icon-size1 color-gray':scope.row.other === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="临床研究" prop="clinicalTrails">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.clinicalTrails === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.clinicalTrails === 2, 'icon-adjust icon-size1 color-blue':scope.row.clinicalTrails === 3, 'icon-circle icon-size1 color-red':scope.row.clinicalTrails === 41, 'icon-circle-blank icon-size1 color-red':scope.row.clinicalTrails === 42, 'icon-adjust icon-size1 color-red':scope.row.clinicalTrails === 412, 'icon-remove icon-size1 color-gray':scope.row.clinicalTrails === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="临床前研究" prop="preClinicalTrails">
+                <template slot-scope="scope">
+                  <i :class="{'icon-circle icon-size1 color-blue':scope.row.preClinicalTrails === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.preClinicalTrails === 2, 'icon-adjust icon-size1 color-blue':scope.row.preClinicalTrails === 3, 'icon-circle icon-size1 color-red':scope.row.preClinicalTrails === 41, 'icon-circle-blank icon-size1 color-red':scope.row.preClinicalTrails === 42, 'icon-adjust icon-size1 color-red':scope.row.preClinicalTrails === 412, 'icon-remove icon-size1 color-gray':scope.row.preClinicalTrails === 500}"></i>
+                </template>
+              </el-table-column>
+              <el-table-column label="功能预测" prop="functionPrediction">
+                <template slot-scope="scope">
+                   <i :class="{'icon-circle icon-size1 color-blue':scope.row.functionPrediction === 1, 'icon-circle-blank icon-size1 color-blue':scope.row.functionPrediction === 2, 'icon-adjust icon-size1 color-blue':scope.row.functionPrediction === 3, 'icon-circle icon-size1 color-red':scope.row.functionPrediction === 41, 'icon-circle-blank icon-size1 color-red':scope.row.functionPrediction === 42, 'icon-adjust icon-size1 color-red':scope.row.functionPrediction === 412, 'icon-remove icon-size1 color-gray':scope.row.functionPrediction === 500}"></i>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!-- 肿瘤疫苗治疗方案详情-->
+        <div class="blockContent" v-if="formData.vaccinesDetails && formData.vaccinesDetails != null">
+          <h3 style="margin-top:10px;">{{ formData.vaccinesDetailsName }}</h3>
+          <div class="table-cont no-center" style="position:relative">
+            <el-table class="table-center" :data="formData.vaccinesDetails">
+              <el-table-column label="基因" width="100" prop="gene">
+              </el-table-column>
+              <el-table-column label="变异" width="120" prop="mutation">
+              </el-table-column>
+              <el-table-column label="药物" width="120" prop="drug">
+              </el-table-column>
+              <el-table-column label="临床注释" prop="clinicalEvidence">
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!--DNA-->
+        <div class="blockContent" v-if="formData.dnaQualityInspection && formData.dnaQualityInspection != null">
+          <h3 style="margin-top:10px;">{{ formData.dnaQualityInspectionName }}</h3>
+          <div class="tableItems" style="margin:20px auto 10px auto;">
+            <!-- <div class="table-title" style="background-color: #003366;">
+              <h2>{{ formData.blockName }}</h2>
+            </div> -->
+            <div class="table-cont">
+              <table style="color:#555;border-right: solid 1px #eee;">
+                <tr style="border-top:solid 1px #eee;">
+                  <td width="110px" style="font-weight:bold;">测序平台</td>
+                  <td>{{formData.dnaQualityInspection[0].sequencingPlatform}}</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:bold;">DNA上机量</td>
+                  <td>{{formData.dnaQualityInspection[0].dnaRnaExtraction}}</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:bold;">测序数据量</td>
+                  <td>{{formData.dnaQualityInspection[0].rawData}}</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:bold;">Q30</td>
+                  <td style="">{{formData.dnaQualityInspection[0].q30}}</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:bold;">序列回帖比例</td>
+                  <td>{{formData.dnaQualityInspection[0].mappingRate}}</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:bold;">捕获效率</td>
+                  <td>{{formData.dnaQualityInspection[0].targetingRate}}</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:bold;">插入片段长度</td>
+                  <td>{{formData.dnaQualityInspection[0].meanInsertsize}}</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:bold;">平均测序深度</td>
+                  <td>{{formData.dnaQualityInspection[0].meanDepth}}</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!--RNA-->
+        <div class="blockContent" v-if="formData.rnaQualityInspection && formData.rnaQualityInspection != null">
+          <h3 style="margin-top:10px;">{{ formData.rnaQualityInspectionName }}</h3>
+          <div class="tableItems" style="margin:20px auto 10px auto;">
+            <!-- <div class="table-title" style="background-color: #003366;">
+              <h2>{{ formData.blockName }}</h2>
+            </div> -->
+            <div class="table-cont">
+              <table style="color:#555;border-right: solid 1px #eee;">
+                <tr style="border-top:solid 1px #eee;">
+                  <td width="110px" style="font-weight:bold;">测序平台</td>
+                  <td>{{formData.rnaQualityInspection[0].sequencingPlatform}}</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:bold;">DNA上机量</td>
+                  <td>{{formData.rnaQualityInspection[0].dnaRnaExtraction}}</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:bold;">测序数据量</td>
+                  <td>{{formData.rnaQualityInspection[0].rawData}}</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:bold;">Q30</td>
+                  <td style="">{{formData.rnaQualityInspection[0].q30}}</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:bold;">序列回帖比例</td>
+                  <td>{{formData.rnaQualityInspection[0].mappingRate}}</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:bold;">捕获效率</td>
+                  <td>{{formData.rnaQualityInspection[0].targetingRate}}</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:bold;">插入片段长度</td>
+                  <td>{{formData.rnaQualityInspection[0].meanInsertsize}}</td>
+                </tr>
+                <tr>
+                  <td style="font-weight:bold;">平均测序深度</td>
+                  <td>{{formData.rnaQualityInspection[0].meanDepth}}</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!--参考文献-链接列表-->
+        <div class="blockContent" v-if="formData.reference && formData.reference != null">
+          <h3 style="margin-top:10px;">{{ formData.referenceName }}</h3>
+          <div class="tableItems" style="margin-top:0px;">
+            <div class="table-cont no-center" style="position:relative">
+              <el-table class="needRemove" :data="formData.reference">
+                <el-table-column label="序号" style="text-align:left" width="100">
+                  <template slot-scope="scope">
+                    {{ scope.$index + 1 }}
+                  </template>
+                </el-table-column>
+                <el-table-column label="标题" prop="literature_name">
+                </el-table-column>
+                <el-table-column label="链接地址" prop="literature_url">
+                </el-table-column>
+              </el-table>
+            </div>
+          </div>
+        </div>
+
+        <!--推荐治疗方案-->
+        <div class="blockContent" v-if="formData.recommendedTreatment && formData.recommendedTreatment != null">
+          <h3 style="margin-top:10px;">{{ formData.recommendedTreatmentName }}</h3>
+          <el-collapse v-model="activeName">
+            <el-collapse-item title="概述" name="1" class="collapse_item_title">
+              {{formData.variantCheckResult}}
+              <!--<p style="color:#888;margin: 10px 0 -10px 0;">（药物名称按照药物推荐的优先级排列，优先级综合考虑了癌种及临床注释的循证医学证据等级：本癌种>本癌种和其他癌种>仅其他癌种；NCCN/CSCO/FDA/CFDA>其他指南共识>临床研究阶段>临床前研究阶段>功能预测）</p>-->
+            </el-collapse-item>
+            <el-collapse-item title="靶向" name="5" class="collapse_item_title">
+              <p>{{ formData.recommendedTreatment.drugDetails.targeted.recommendDrugSummary}}</p>
+              <div class="activeItems" style="position:relative">
+                <div class="activeItems_sub" v-for="(item, index) in formData.recommendedTreatment.drugDetails.targeted.drugClinicalNotes" :key="index">
+                  <p>
+                    <span style="display:inline-block; width:3em;">{{index+1}}、</span>{{item.drugName}}
+                  </p>
+                  <div class="pp2" style="position:relative">
+                    <div class="pp3" v-for="(item2, index2) in item.clinicalNotes" :key="index2">
+                      <p>
+                        {{item2.clinicalNote}}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <h4>*注： </h4>
+              <p style="font-size: 14px; color: #777; line-height: 1em; padding: 0px 0 10px 0;">1、“+”表示两个或多个药物联合用药。</p>
+              <p style="font-size: 14px; color: #777; line-height: 1em; padding: 0px 0 10px 0;">2、药物名称用颜色标注的表示该药物被纳入《2017版国家医保目录》且适应症为本癌种。</p>
+              <p style="font-size: 14px; color: #777; line-height: 1em; padding: 0px 0 10px 0;">3、药物或治疗方案后面的（）内均显示的是药物/治疗方案的英文名。</p>
+            </el-collapse-item>
+
+            <el-collapse-item title="免疫" name="3" class="collapse_item_title">
+              <p>{{formData.recommendedTreatment.drugDetails.checkpointInhibitor.recommendDrugSummary}}</p>
+              <div class="activeItems" style="position:relative">
+                <div class="activeItems_sub" v-for="(item, index) in formData.recommendedTreatment.drugDetails.checkpointInhibitor.drugClinicalNotes" :key="index">
+                  <p>
+                    <span style="display:inline-block; width:3em;">{{index+1}}、</span>{{item.drugName}}
+                  </p>
+                  <div class="pp2" style="position:relative">
+                    <div class="pp3" v-for="(item2, index2) in item.clinicalNotes" :key="index2">
+                      <p>
+                        {{item2.clinicalNote}}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </el-collapse-item>
+
+            <el-collapse-item title="化疗" name="4" class="collapse_item_title">
+              <div class="activeItems" style="margin:0px;">
+                <div class="pp2" style="position:relative">
+                  <div class="pp3" v-for="(item, index) in formData.recommendedTreatment.drugDetails.chemo" :key="index">
+                    <p>
+                      {{item.drugEffective}}
+                    </p>
+                    <p>{{item.clinicalNote}}</p>
+                  </div>
+                </div>
+              </div>
+            </el-collapse-item>
+
+            <el-collapse-item title="结论" name="2" class="collapse_item_title">
+              <div class="table-cont no-center" style="position:relative">
+                <div class="eee" style="width:100%">
+                  <el-table :data="formData.recommendedTreatment.summarys" border class="forceWidth">
+                    <el-table-column width="50" label="序号">
+                      <template slot-scope="scope">
+                          &nbsp;&nbsp;&nbsp;&nbsp;{{ scope.$index + 1 }}
+                      </template>
+                    </el-table-column>
+                    <el-table-column label="内容">
+                        <template slot-scope="scope">
+                          <span style="display:inline-block; width:calc(100% - 7em)">
+                            <el-select v-model="scope.row.arrays" multiple @remove-tag="(val)=>removeSelectTags(val, scope.$index, scope.row)" disabled placeholder="请选择" style="width:100%">
+                            </el-select>
+                          </span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="用药方式" width="140">
+                      <template slot-scope="scope">
+                        {{ scope.row.drugUsage === 0 ? '单药' : scope.row.drugUsage === 1 ? '联合用药' : '/' }}
+                      </template>
+                    </el-table-column>
+                  </el-table>
+                </div>
+              </div>
+            </el-collapse-item>
+          </el-collapse>
+        </div>
+
+        <!--疾病信号通路图-->
+        <div class="blockContent" v-if="formData.diseasePathway && formData.diseasePathway != null">
+          <h3 style="margin-top:10px;">{{ formData.diseasePathwayName }}</h3>
+          <div class="table-cont" style="border:none">
+            <div class="introduce toggleItem" style="padding:30px 0; margin-left:0;">
+              <el-col :span="20">
+                <ul class="imgList" style="margin-top:55px;">
+                  <li v-for="(imgList, key) in formData.diseasePathway" :key="key">
+                    <p><img :src="imgList.pathway_path"/></p>
+                    <p>{{imgList.pathway_name}}</p>
+                  </li>
+                </ul>
+              </el-col>
+            </div>
+          </div>
+        </div>
+
+        <!--Disclaimer   block_23 免责声明-->
+        <div class="blockContent" v-if="formData.disclaimer && formData.disclaimer != null">
+          <h3 style="margin-top:10px;">{{ formData.disclaimerName }}</h3>
+          <br/>
+          <div class="tableItems" style="margin-top:0px;">
+            <p style="line-height: 2;">
+              {{reportData.disclaimer.disclaimer}}
+            </p>
+
+            <p style="text-align: right; line-height: 4; padding: 20px 40px 0 0">
+              审核人签名:
+              <span class="underline" style="display:inline-block; border-bottom:solid 1px #444;padding-left:10px;width:calc(20% - 5em);line-height:2;">
+                <!-- {{reportData.blocks.block_01.birthday | formatDate}} -->
+              </span>
+              日期：
+              <span class="underline" style="display:inline-block; border-bottom:solid 1px #444;padding-left:10px;width:calc(20% - 5em);line-height:2;">
+                <!-- {{reportData.blocks.block_01.birthday | formatDate}} -->
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <!--染色体异常-->
+        <div class="blockContent" v-if="formData.chromosomeAbnormality && formData.chromosomeAbnormality != null">
+          <h3 style="margin-top:10px;">{{formData.chromosomeAbnormalityName}}</h3>
+          <div class="table-cont" style="position:relative">
+            <el-table :data="formData.chromosomeAbnormality" class="table-center">
+              <el-table-column label="染色体异常检出情况">
+                <el-table-column label="染色体异常" prop="chromosomeAbnormality">
+                </el-table-column>
+                <el-table-column label="检出情况" prop="checkResult">
+                </el-table-column>
+                <el-table-column label="临床意义" prop="clinicalSignificance">
+                </el-table-column>
+              </el-table-column>
+              <el-table-column label="参考药物数量">
+                <el-table-column label="NCCN/CSCO" prop="nccnCscoCount">
+                </el-table-column>
+                <el-table-column label="FDA/CFDA" prop="fdaCfadCount">
+                </el-table-column>
+                <el-table-column label="其他" prop="other_count">
+                </el-table-column>
+                <el-table-column label="临床研究" prop="clinicalTrails_count">
+                </el-table-column>
+                <el-table-column label="临床前研究" prop="preClinicalTrails">
+                </el-table-column>
+                <el-table-column label="功能预测" prop="functionPrediction">
+                </el-table-column>
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!--检测平台与样本质控结果-->
+        <div class="blockContent" v-if="formData.detectionPlatformAndSampleQualityControlResults != null">
+          <h3 style="margin-top:10px;">{{formData.detectionPlatformAndSampleQualityControlResultsName}}</h3>
+          <div class="table-cont" style="position:relative">
+            <table class="inlineItem" style="border-top:solid 1px #eee; border-right:solid 1px #eee;">
+              <tr style="background:#eee;">
+                <td width="150px" style="font-weight:bold;">参数类型</td>
+                <td>质控项目</td>
+                <td>样本指标</td>
+                <td>质控标准</td>
+              </tr>
+              <tr>
+                <td style="font-weight:bold;">病理评估</td>
+                <td>恶性肿瘤细胞占比（%）</td>
+                <td>{{ formData.detectionPlatformAndSampleQualityControlResults[0].PathologicalEvaluation[0].sampleIndex }}
+                </td>
+                <td>{{ formData.detectionPlatformAndSampleQualityControlResults[0].PathologicalEvaluation[0].qualityControl }}</td>
+              </tr>
+              <tr>
+                <td rowspan="3" style="font-weight:bold;">DNA质量评估</td>
+                <td>提取总量（ng）</td>
+                <td>{{ formData.detectionPlatformAndSampleQualityControlResults[0].DNAQualityAssessment[0].sampleIndex }}</td>
+                <td>{{ formData.detectionPlatformAndSampleQualityControlResults[0].DNAQualityAssessment[0].qualityControl }}</td>
+              </tr>
+              <tr>
+                <td>DNA片段降解程度</td>
+                <td>{{ formData.detectionPlatformAndSampleQualityControlResults[0].DNAQualityAssessment[1].sampleIndex }}</td>
+                <td>{{ formData.detectionPlatformAndSampleQualityControlResults[0].DNAQualityAssessment[1].qualityControl }}</td>
+              </tr>
+              <tr>
+                <td>DNA质量总评估</td>
+                <td colspan="2" style="text-align:center; font-weight:bold;">{{ formData.detectionPlatformAndSampleQualityControlResults[0].DNAQualityAssessment[2].qualityControl }}</td>
+              </tr>
+              <tr>
+                <td rowspan="3" style="font-weight:bold;">RNA质量评估</td>
+                <td>提取总量（ng）</td>
+                <td>{{ formData.detectionPlatformAndSampleQualityControlResults[0].RNAQualityAssessment[0].sampleIndex }}</td>
+                <td>{{ formData.detectionPlatformAndSampleQualityControlResults[0].RNAQualityAssessment[0].qualityControl }}</td>
+              </tr>
+              <tr>
+                <td>RIN值</td>
+                <td>{{ formData.detectionPlatformAndSampleQualityControlResults[0].RNAQualityAssessment[1].sampleIndex }}</td>
+                <td>{{ formData.detectionPlatformAndSampleQualityControlResults[0].RNAQualityAssessment[1].qualityControl }}</td>
+              </tr>
+              <tr>
+                <td>RNA质量总评估</td>
+                <td colspan="2" style="text-align:center; font-weight:bold;">{{ formData.detectionPlatformAndSampleQualityControlResults[0].RNAQualityAssessment[2].qualityControl }}</td>
+              </tr>
+              <tr>
+                <td rowspan="4" style="font-weight:bold;">测序质量评估</td>
+                <td>平均测序深度</td>
+                <td>{{ formData.detectionPlatformAndSampleQualityControlResults[0].SequencingQualityAssessment[0].sampleIndex }}</td>
+                <td>{{ formData.detectionPlatformAndSampleQualityControlResults[0].SequencingQualityAssessment[0].qualityControl }}</td>
+              </tr>
+              <tr>
+                <td>中位测序深度</td>
+                <td>{{ formData.detectionPlatformAndSampleQualityControlResults[0].SequencingQualityAssessment[1].sampleIndex }}</td>
+                <td>{{ formData.detectionPlatformAndSampleQualityControlResults[0].SequencingQualityAssessment[1].qualityControl }}</td>
+              </tr>
+              <tr>
+                <td>测序深度组织样本≥300×(血液样本≥10000×)占比</td>
+                <td>{{ formData.detectionPlatformAndSampleQualityControlResults[0].SequencingQualityAssessment[2].sampleIndex }}</td>
+                <td>{{ formData.detectionPlatformAndSampleQualityControlResults[0].SequencingQualityAssessment[2].qualityControl }}</td>
+              </tr>
+              <tr>
+                <td>序列回帖比例</td>
+                <td>{{ formData.detectionPlatformAndSampleQualityControlResults[0].SequencingQualityAssessment[3].sampleIndex }}</td>
+                <td>{{ formData.detectionPlatformAndSampleQualityControlResults[0].SequencingQualityAssessment[3].qualityControl }}</td>
+              </tr>
+              <tr>
+                <td rowspan="2" style="font-weight:bold;">参考样本质量评估</td>
+                <td>阳性内参</td>
+                <td>{{ formData.detectionPlatformAndSampleQualityControlResults[0].ReferenceSampleQualityAssessment[0].sampleIndex }}</td>
+                <td>{{ formData.detectionPlatformAndSampleQualityControlResults[0].ReferenceSampleQualityAssessment[0].qualityControl }}</td>
+              </tr>
+              <tr>
+                <td>阴性内参</td>
+                <td>{{ formData.detectionPlatformAndSampleQualityControlResults[0].ReferenceSampleQualityAssessment[1].sampleIndex }}</td>
+                <td>{{ formData.detectionPlatformAndSampleQualityControlResults[0].ReferenceSampleQualityAssessment[1].qualityControl }}</td>
+              </tr>
+              <tr>
+                <td style="font-weight:bold;">总体质量评估</td>
+                <td colspan="3" style="text-align:center; font-weight:bold;">{{ formData.detectionPlatformAndSampleQualityControlResults[0].OverallQualityAssessment[0].qualityControl }}</td>
+              </tr>
+            </table>
+            <br>
+            <h4>*注：</h4>
+            <p style="font-size: 14px; color: #777; line-height: 1em; padding: 0px 0 10px 0;">1. 恶性肿瘤细胞占比：经百诺基因病理评估，该样本中恶性肿瘤细胞占比。如样本不满足百诺基因病理评估所需条件，则跳过此评估。</p>
+            <p style="font-size: 14px; color: #777; line-height: 1em; padding: 0px 0 10px 0;">2. DNA质量评估：通过DNA总量进行评估，分为合格、警戒（风险预警）和不合格三个等级。</p>
+            <p style="font-size: 14px; color: #777; line-height: 1em; padding: 0px 0 10px 0;">3. RNA质量评估：通过RNA总量进行评估，分为合格、警戒（风险预警）和不合格三个等级。</p>
+            <p style="font-size: 14px; color: #777; line-height: 1em; padding: 0px 0 10px 0;">4. 平均测序深度与中位测序深度：目标基因每个碱基被测到的平均次数和中位次数。</p>
+            <p style="font-size: 14px; color: #777; line-height: 1em; padding: 0px 0 10px 0;">5. 深度>300X占比：测序深度组织样本大于300X，血液样本大于10000X的区域占所有目标区间的比例。</p>
+            <p style="font-size: 14px; color: #777; line-height: 1em; padding: 0px 0 10px 0;">6. 序列回帖比率：成功比对回到参考基因组的序列数目占比。</p>
+            <p style="font-size: 14px; color: #777; line-height: 1em; padding: 0px 0 10px 0;">7. 配对样本相关性：利用SNP分型评估配对样本之间的一致性。</p>
+            <p style="font-size: 14px; color: #777; line-height: 1em; padding: 0px 0 10px 0;">8. 阳性内参：在已知位点发生了突变的标准参照品，在同一实验体系中进行检测，预期这些位点都能检出为阳性结果，符合预期则代表该实验体系质控达标。</p>
+            <p style="font-size: 14px; color: #777; line-height: 1em; padding: 0px 0 10px 0;">9. 阴性内参：在已知位点均未发生突变的标准参照品，在同一实验体系中进行检测，预期这些位点都应该检出为阴性结果，符合预期则代表该实验体系质控达标。</p>
+            <p style="font-size: 14px; color: #777; line-height: 1em; padding: 0px 0 10px 0;">10. 总体质量评估：结合以上参数进行综合评估，采取短板效应，分为合格及不合格两个等级。不合格样本结果可能会影响此次检测的准确性和敏感性。</p>
+            <p style="font-size: 14px; color: #777; line-height: 1em; padding: 0px 0 10px 0;">11. N/A：表示暂无行业标准，只作为质控的参考指标。</p>
+          </div>
+        </div>
+
+        <!--检测基因列表-->
+        <div class="blockContent" v-if="formData.detectingGeneList && formData.detectingGeneList != null">
+          <h3 style="margin-top:10px;">{{formData.detectingGeneListName}}</h3>
+          <div class="table-cont" style="position:relative">
+              <div class="h_title" style="line-height:50px; background:#eee; width:calc(100% - 11px); margin:0px 0 0 -1px; text-indent:20px;">基因突变</div>
+              <span style="display:inline-block; width:86px; line-height:20px; padding:5px 10px; margin:-1px 0 0 -1px; font-size:14px; color:#666; border:solid 1px #eee;"
+              v-for="(i, index) in formData.detectingGeneList.mutation"
+              :key="index">
+                {{ i }}
+              </span>
+          </div>
+
+          <div class="table-cont" style="position:relative">
+              <div class="h_title" style="line-height:50px; background:#eee; width:calc(100% - 11px); margin:0px 0 0 -1px; text-indent:20px;">拷贝数变异</div>
+              <span style="display:inline-block; width:86px; line-height:20px; padding:5px 10px; margin:-1px 0 0 -1px; font-size:14px; color:#666; border:solid 1px #eee;"
+              v-for="(i, index) in formData.detectingGeneList.amplification"
+              :key="index">
+                {{ i }}
+              </span>
+          </div>
+
+          <div class="table-cont" style="position:relative">
+              <div class="h_title" style="line-height:50px; background:#eee; width:calc(100% - 11px); margin:0px 0 0 -1px; text-indent:20px;">基因融合</div>
+              <span style="display:inline-block; width:86px; line-height:20px; padding:5px 10px; margin:-1px 0 0 -1px; font-size:14px; color:#666; border:solid 1px #eee;"
+              v-for="(i, index) in formData.detectingGeneList.fusion"
+              :key="index">
+                {{ i }}
+              </span>
+          </div>
+
+        </div>
+
+        <!--基因注释-->
+        <div class="blockContent" v-if="formData.geneAnnotation && formData.geneAnnotation != null">
+          <h3 style="margin-top:10px;">{{formData.geneAnnotationName}}</h3>
+          <div class="table-cont" style="position:relative">
+            <el-table :data="formData.geneAnnotation" class="table-center">
+              <el-table-column label="基因名称" width="200">
+                <template slot-scope="scope">
+                  <div style="padding:5px 10px;">{{scope.row.gene}}</div>
+                </template>
+              </el-table-column>
+              <el-table-column label="生物学特点与功能">
+                <template slot-scope="scope">
+                  <div style="padding:5px 10px;">{{scope.row.biologicalCharacteristicsFunctions}}</div>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+
+      </div>
+      <!--dom_over-->
+    </div>
+
+
+    <el-dialog title="附件列表" :visible.sync="wordList" width="50%">
+      <el-table :data="wordlistdata">
+        <el-table-column label="word名称" prop="wordDownName">
+        </el-table-column>
+        <!-- <el-table-column label="审核人" prop="name">
+        </el-table-column> -->
+        <el-table-column label="时间" width="180" :formatter="dateFormat" prop="lastModifyTime">
+        </el-table-column>
+        <el-table-column label="操作" width="100">
+          <template slot-scope="scope">
+            <a target="_blank" :href="url + 'report/downloadFile?code=' + scope.row.code + '&token=' + token"><el-button size="small" type="primary">下载</el-button></a>
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-table :data="pdflistdata">
+        <el-table-column label="pdf名称">
+          <template slot-scope="scope">
+            {{ scope.row.fileName + '.' + scope.row.fileSuf }}
+          </template>
+        </el-table-column>
+        <!-- <el-table-column label="审核人" prop="name">
+        </el-table-column> -->
+        <el-table-column label="时间" width="180" :formatter="dateFormat" prop="createTime">
+        </el-table-column>
+        <el-table-column label="操作" width="100">
+          <template slot-scope="scope">
+            <a target="_blank" :href="url + 'report/downloadFile?code=' + scope.row.code + '&token=' + token"><el-button size="small" type="primary">下载</el-button></a>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
+  </div>
+</template>
+<script>
+  import URL from '@/common/js/URL.js'
+  import Pager from '@/components/common/pager'
+  import axios from 'axios'
+  import moment from 'moment'
+  export default {
+    created () {
+      this.getReportInfo()
+      this.getWordList()
+    },
+    data () {
+      return {
+        updata: {
+          projectCode: this.$route.params.id,
+          langType: this.$route.params.language
+        },
+        url: URL.api_name,
+        token: localStorage.getItem('authtoken').slice(1,localStorage.getItem('authtoken').length - 1),
+        wordList: false,
+        wordlistdata: [],
+        pdflistdata: [],
+        upurl: URL.api_name + 'report/uploadReportFile',
+        pager: this.$route.params.pager,
+        comepage: this.$route.params.comepage,
+        htmlUrlF: '',
+        activeName: '1',
+        pdfUrlF: '',
+        fileList: [],
+        wordUrlF: '',
+        tableData: [],
+        code: this.$route.params.id,
+        language: this.$route.params.language,
+        currentPage: 1,
+        pageSize: 9999,
+        pageNum: 0,
+        totalCount: 0,
+        loading: false,
+        pageLoading: false,
+        reportData: {},
+        formData: {},
+        buttonloading: false
+      }
+    },
+    components: {
+      Pager: Pager
+    },
+    methods: {
+      gobackList () {
+        // 返回列表
+        let that = this
+        that.$router.push({
+            path: '/' + that.comepage + '/' + that.pager
+        })
+      },
+      getReportInfo () {
+        // 获取URL
+        let that = this
+        that.pageLoading = true
+        axios.get(URL.api_name + 'report/getReportDeatils', {
+          params: {
+            projectCode: that.code,
+            langType: that.language
+          }
+        }).then(function (res) {
+          if (res.data.code === '100') {
+            // that.reportData = res.data.data
+            // 把返回的辣鸡信息分类格式化成json用
+            for(let n in res.data.data) {
+              if(res.data.data[n] !== null && res.data.data[n] !== 'string') {
+                if(String(res.data.data[n]).slice(0,1) === '[' || String(res.data.data[n]).slice(0,1) === '{' ) {
+                  that.reportData[n] = JSON.parse(res.data.data[n])
+                
+                } else {
+                  that.reportData[n] = res.data.data[n]
+                }
+              }
+            }
+            that.formData = that.reportData
+            that.pageLoading = false
+          }
+        }, function (error) {
+          console.log(error)
+          that.$message({
+            type: 'error',
+            message: '查询失败',
+            duration: 1000
+          })
+        })
+      },
+      handlePDFSuccess(res, file) {
+        let that = this
+        that.$message({
+          type: 'success',
+          message: '上传成功',
+          duration: 2000
+        })
+        that.fileList = []
+        that.fileList.push({
+          name: res.data.fileName + '.' + res.data.fileSuf,
+          url: res.data.fileDownUrl
+        })
+        // this.imageUrl = URL.createObjectURL(file.raw)
+      },
+      beforePDFUpload(file) {
+        // alert(file.type)
+        // return false
+        const isPDF = file.type === 'application/pdf'
+        if (!isPDF) {
+          this.$message.error('上传文件只能是 PDF 格式!')
+        }
+        return isPDF
+      },
+      dateFormat (row, column) {
+        let date = row[column.property]
+        if (date === undefined) {
+          return ''
+        }
+        return moment(date).format('YYYY-MM-DD HH:mm:ss')
+      },
+      getWordList() {
+        // 查询word列表
+        let that = this
+        axios.get(URL.api_name + 'report/getWordList', {
+          params: {
+            projectCode: that.code,
+            langType: that.language
+          }
+        }).then(function (res) {
+          if (res.data.code === '100') {
+            that.wordlistdata = res.data.data
+            // let tokenVal = localStorage.getItem('authtoken')
+            // tokenVal = tokenVal.slice(1,tokenVal.length - 1)
+            // if (res.data.data.wordUrl !== null) {
+            //   that.wordUrlF = URL.api_name + 'report/downloadFile?langType=' + res.data.data.langType + '&projectCode=' + res.data.data.projectCode + '&token=' + tokenVal
+            // }
+          }
+        }, function (error) {
+          console.log(error)
+          that.$message({
+            type: 'error',
+            message: '查询失败',
+            duration: 1000
+          })
+        })
+        // pdf List
+        axios.get(URL.api_name + 'report/file/list', {
+          params: {
+            projectCode: that.code,
+            langType: that.language
+          }
+        }).then(function (res) {
+          if (res.data.code === '100') {
+            that.pdflistdata = res.data.data
+            // console.log(that.pdflistdata)
+          }
+        }, function (error) {
+          console.log(error)
+          that.$message({
+            type: 'error',
+            message: '查询失败',
+            duration: 1000
+          })
+        })
+      }
+    },
+    computed: {
+      uploadHeader () {
+        return {
+          token: JSON.parse(localStorage.getItem('authtoken'))
+        }
+      }
+    }
+  }
+</script>
+<style lang="less" scoped>
+.checkOutPdf{ position: fixed; top:70px; right:36px;}
+.tabCard { margin:0 0 30px 0; background:#eef1f6;}
+.tabCard a{color:#48576a; display:inline-block; vertical-align: top; margin:0 0px 0 0px; padding:15px 30px; cursor: pointer}
+.tabCard a.active{border-color:#ddd; background:#d1dbe5}
+
+ .blockContent{ overflow: auto; padding:20px 0px 0 0px;}
+ .blockContent:first-child{padding:0px;}
+  .table-cont { margin-bottom:20px;}
+  .table-cont table { width: 100%;}
+  .table-cont table tr:hover {background: #e1e1e1; cursor: pointer;}
+  .table-cont table tr td,.table-cont table tr th {text-align:left; padding: 3px 15px; border-left:solid 1px #eee; border-bottom:solid 1px #eee; font-size:14px; }
+  .table-cont table tr th {    line-height: 2; padding: 8px 15px; border-top:solid 1px #eee;}
+  .table-cont table tr td { line-height: 2; position: relative; vertical-align: top }
+  .table-cont table tr td input{ width:100%; }
+  .table-cont .introduce{ padding: 15px 20px; line-height: 1.5; margin-left:30px;}
+  .el-table--border, .el-table--group, .el-table {margin-top: 20px;border: 1px solid #ebebeb; border-radius: 3px;}
+  .text_list{ margin-bottom: 20px; }
+  .table-cont .table_list {border:solid 1px #ddd; border-left:solid 3px #ddd; margin:0px 20px 20px 20px}
+  .table-cont .table_list table {border-top:solid 1px #eee;}
+  .table-cont .table_list table tr th{ font-size:24px; padding-top:20px; padding-bottom:10px;  font-weight: normal;}
+h3{color: rgb(72, 61, 139); font-size: 20px; padding: 10px 0 10px 0; font-weight: bold;}
+.el-table--border, .el-table--group, .el-table {margin-top: 20px;border: 1px solid #ebebeb; border-radius: 3px;}
+  table.tipList { font-size:14px; width: 98%; color:#757575; margin:10px 0;}
+  .color-gray{ color:#ccc; }
+  .color-blue{ color:#003366; }
+  .color-red{ color:red; }
+table{border-collapse: collapse; table-layout: fixed; width: 100%;}
+th,td{padding: 9px 10px; text-align: left;}
+  .inlineItem{ margin:20px auto 10px auto; color:#555; }
+  .inlineItem li{ display: inline-block; line-height: 3; }
+  .tableListItem{border-bottom:solid 1px #eee; margin:0 0 0 -15px;font-size: 14px;width: 90%;line-height: 1.5;}
+  .inlineItem .el-row { margin-bottom: 20px;}
+  .inlineItem .el-ro:last-child { margin-bottom: 0;}
+    /*检测结果总览*/
+  .table-cont table.overview_table{ border-right:solid 1px #ddd;}
+  .table-cont table.overview_table tr th{border-color:#ddd; border-left:none;}
+  .table-cont table.overview_table tr td{ vertical-align: middle; padding:3px 0px; border-color:#ddd;}
+  .table-cont table.overview_table tr:hover {background:none; cursor: auto;}
+  .cells {  color:#444; padding:5px 5px; box-sizing:border-box; vertical-align: middle;}
+  .overview_table tr td .cells{font-size:0px;}/*解决兼容问题*/
+  .overview_table tr td .cells.nopd {padding:0;}
+  .overview_table tr td .cells.cells_2{ border-bottom:solid 1px #ddd; vertical-align: middle;}
+  .overview_table tr td .cells.cells_3{ border-bottom:solid 1px #ddd; vertical-align: middle;}
+  .overview_table tr td .cells:last-child{border-bottom:none;}
+  .overview_table tr td .cells.genes:before, .overview_table tr td .cells.vertais:before, .overview_table tr td .cells.drugs:before,.overview_table tr td .cells.fengdu:before{
+    content: ''; color: #444;height: calc(100% + 20px); border-right: solid 1px #ddd; position: absolute;  top: -4px;z-index: 99;}
+  .overview_table tr td .cells.genes:before{ left:calc(10%); }
+  .overview_table tr td .cells.vertais:before{ left:calc(22.5%); }
+  .overview_table tr td .cells.drugs:before{ left:calc(62.6%); }
+  .overview_table tr td .cells.fengdu:before{ left:calc(90%); }
+  .cells_2:hover{ background:rgb(221, 238, 255);}
+  .cells_2 .cell2_btn{position:absolute; z-index:3; top:0px; left:5px; border-radius: 50%; padding:3px; font-size:12px; display:none;}
+  .cells_2:hover>.cell2_btn{display:block;}
+  .drugs:hover{background: #e3ffd4;}
+  .drugs:hover .cell2_btn{display:block;}
+</style>
+<style>
+.reportsStyle .el-upload-list{ display:none!important;}
+</style>

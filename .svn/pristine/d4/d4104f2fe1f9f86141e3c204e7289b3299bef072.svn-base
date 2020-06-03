@@ -1,0 +1,1423 @@
+<template>
+	<div class="lists">
+		<div class="contentTitle pdlr20">编辑知识库详情</div>
+			<div class="examinedatainfo" style="margin-top: 30px;">
+				<table>
+					<tr>
+						<th class="texts">名称</th>
+						<th>审核</th>
+						<th>当前值</th>
+					</tr>
+					<tr>
+						<td class="texts">RS号</td>
+						<td>
+							<el-input v-model.trim="data2.rsId"></el-input>
+						</td>
+						<td class="textdata">{{ data1.rsId }}&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="texts">基因组定位</td>
+						<td>
+							<el-input v-model.trim="data2.genePosiiioning"></el-input>
+						</td>
+						<td class="textdata">{{ data1.genePosiiioning }}&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="texts"><span style="color:red;">*</span>基因</td>
+						<td>
+							<el-input v-model.trim="data2.gene"></el-input>
+						</td>
+						<td class="textdata">{{ data1.gene }}&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="texts">基因型</td>
+						<td>
+							<el-input v-model.trim="data2.genotype"></el-input>
+						</td>
+						<td class="textdata">{{ data1.genoType }}&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="texts"><span style="color:red;">*</span>变异</td>
+						<td>
+							<el-input v-model.trim="data2.variant"></el-input>
+						</td>
+						<td class="textdata">{{ data1.variant }}&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="texts"><span style="color:red;">*</span>变异类型</td>
+						<td>
+							<el-select multiple v-model="data2.variantTypes" @visible-change="(val) => pushVariantType(val)" placeholder="请选择">
+								<!-- <el-option v-for="item in mutationList" :key="item.value" :label="item.label" :value="item.value"></el-option> -->
+							</el-select>
+						</td>
+						<td class="textdata">{{ data1.variantType }}&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="texts">优先</td>
+						<td>
+							<el-input v-model.trim="data2.priority"></el-input>
+						</td>
+						<td class="textdata">{{ data1.priority }}&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="texts"><span style="color:red;">*</span>药物</td>
+						<td>
+							<el-select filterable remote multiple clearable :loading="loading" :remote-method="remoteMethod" @change="(val)=>handleSelectDrug('en', val)"
+							 v-model="data2.drugEnNames" placeholder="请选择">
+								<el-option v-for="(item, index) in drugTypeList" :key="index" :label="item.label" :value="item.value">
+								</el-option>
+							</el-select>
+						</td>
+						<td class="textdata">{{ data1.drugEnName }}&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="texts">药物类型</td>
+						<td>
+							<el-select v-model="data2.drugType" disabled placeholder="请选择">
+								<el-option v-for="(item, index) in drugTypeList" :key="index" :label="item.label" :value="item.value">
+								</el-option>
+							</el-select>
+						</td>
+						<td class="textdata">{{ data1.drugType }}&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="texts"><span style="color:red;">*</span>疾病名(英文)</td>
+						<td>
+							<el-select filterable clearable @change="(val)=>handleSelect('en', val)" v-model="data2.diseaseEnName"
+							 placeholder="请选择">
+								<el-option v-for="(item, index) in diseaseList" :key="index" :label="item.diseaseEnName" :value="item.diseaseEnName">
+								</el-option>
+							</el-select>
+						</td>
+						<td class="textdata">{{ data1.diseaseEnName }}&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="texts">疾病名(中文)</td>
+						<td>
+							<el-select filterable clearable @change="(val)=>handleSelect('cn', val)" v-model="data2.diseaseName" placeholder="请选择">
+								<el-option v-for="(item, index) in diseaseList" :key="index" :label="item.name" :value="item.name">
+								</el-option>
+							</el-select>
+						</td>
+						<td class="textdata">{{ data1.diseaseName }}&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="texts">疾病分期</td>
+						<td>
+							<el-input v-model.trim="data2.stage"></el-input>
+						</td>
+						<td>{{ data1.stage }}&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="texts">疾病分型：</td>
+						<td>
+							<el-input v-model.trim="data2.diseaseSubType"></el-input>
+						</td>
+						<td>{{ data1.diseaseSubType }}&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="texts">亚型</td>
+						<td>
+							<el-input v-model.trim="data2.subType"></el-input>
+						</td>
+						<td class="textdata">{{ data1.subType }}&nbsp;</td>
+					</tr>
+					<!--  -->
+					<tr>
+						<td class="texts">致病基因</td>
+						<td>
+							<el-radio-group v-model.number="data2.hasVirulenceGene">
+								<el-radio :label="1">是</el-radio>
+								<el-radio :label="0">否</el-radio>
+								<el-radio :label="2">未知</el-radio>
+							</el-radio-group>
+						</td>
+						<td class="textdata">{{ data1.hasVirulenceGene === 1 ? '是' : data1.hasVirulenceGene === 0 ? '否' : '未知' }}&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="texts">毒性</td>
+						<td>
+							<el-select clearable v-model="data2.toxicity" placeholder="请选择">
+								<el-option v-for="item in duxing" :key="item.value" :label="item.label" :value="item.value">
+								</el-option>
+							</el-select>
+						</td>
+						<td class="textdata">{{ data1.toxicity }}&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="texts">毒性风险</td>
+						<td>
+							<el-select clearable v-model="data2.toxicityRisk" placeholder="请选择">
+								<el-option v-for="item in duxing" :key="item.value" :label="item.label" :value="item.value">
+								</el-option>
+							</el-select>
+						</td>
+						<td class="textdata">{{ data1.toxicityRisk }}&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="texts">药物反应</td>
+						<td>
+							<el-select clearable v-model="data2.drugReaction" placeholder="请选择">
+								<el-option v-for="item in yaowufanying" :key="item.value" :label="item.label" :value="item.value">
+								</el-option>
+							</el-select>
+						</td>
+						<td class="textdata">{{ data1.drugReaction }}&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="texts">代谢</td>
+						<td>
+							<el-select clearable v-model="data2.metabolism" placeholder="请选择">
+								<el-option v-for="item in daixie" :key="item.value" :label="item.label" :value="item.value">
+								</el-option>
+							</el-select>
+						</td>
+						<td class="textdata">{{ data1.metabolism }}&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="texts">吸收</td>
+						<td>
+							<el-select clearable v-model="data2.absorption" placeholder="请选择">
+								<el-option v-for="item in xishou" :key="item.value" :label="item.label" :value="item.value">
+								</el-option>
+							</el-select>
+						</td>
+						<td class="textdata">{{ data1.absorption }}&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="texts">疗效</td>
+						<td>
+							<el-select clearable v-model="data2.efficacy" placeholder="请选择">
+								<el-option v-for="item in xishou" :key="item.value" :label="item.label" :value="item.value">
+								</el-option>
+							</el-select>
+						</td>
+						<td class="textdata">{{ data1.efficacy }}&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="texts">预后</td>
+						<td>
+							<el-select clearable v-model="data2.prognosis" placeholder="请选择">
+								<el-option v-for="item in yuhou" :key="item.value" :label="item.label" :value="item.value">
+								</el-option>
+							</el-select>
+						</td>
+						<td class="textdata">{{ data1.prognosis }}&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="texts">副作用</td>
+						<td>
+							<el-select clearable v-model="data2.sideEffect" placeholder="请选择">
+								<el-option v-for="item in fuzuoyong" :key="item.value" :label="item.label" :value="item.value">
+								</el-option>
+							</el-select>
+						</td>
+						<td class="textdata">{{ data1.sideEffect }}&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="texts">副作用风险</td>
+						<td>
+							<el-select clearable v-model="data2.sideEffectRisk" placeholder="请选择">
+								<el-option v-for="item in fuzuoyongRisk" :key="item.value" :label="item.label" :value="item.value">
+								</el-option>
+							</el-select>
+						</td>
+						<td class="textdata">{{ data1.sideEffectRisk }}&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="texts">剂量</td>
+						<td>
+							<el-select clearable v-model="data2.dosage" placeholder="请选择">
+								<el-option v-for="item in duxing" :key="item.value" :label="item.label" :value="item.value">
+								</el-option>
+							</el-select>
+						</td>
+						<td class="textdata">{{ data1.dosage }}&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="texts">治疗阶段</td>
+						<td>
+							<el-select multiple v-model="data2.treatmentStages" placeholder="请选择">
+								<el-option v-for="item in zhiliaojieduan" :key="item.value" :label="item.label" :value="item.value">
+								</el-option>
+							</el-select>
+						</td>
+						<td class="textdata">{{ data1.treatmentStage }}&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="texts">疗法</td>
+						<td>
+							<el-select multiple v-model="data2.therapys" placeholder="请选择">
+								<el-option v-for="item in therapysDownList" :key="item.value" :label="item.label" :value="item.value">
+								</el-option>
+							</el-select>
+						</td>
+						<td class="textdata">{{ data1.therapy }}&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="texts">患病风险</td>
+						<td>
+							<el-select clearable v-model="data2.riskOfDisease" placeholder="请选择">
+								<el-option v-for="item in riskOfDiseaseDownList" :key="item.value" :label="item.label" :value="item.value">
+								</el-option>
+							</el-select>
+						</td>
+						<td class="textdata">{{ data1.riskOfDisease }}&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="texts">证据等级</td>
+						<td>
+							<el-select clearable v-model="data2.evdLevel" placeholder="请选择">
+								<el-option v-for="item in zhengjudengji" :key="item.value" :label="item.label" :value="item.value">
+								</el-option>
+							</el-select>
+						</td>
+						<td class="textdata">{{ data1.evdLevel }}&nbsp;</td>
+					</tr>
+					<tr>
+						<td class="texts">结论</td>
+						<td>
+							<div class="addj">
+								<el-button type="text" size="mini" @click="addsummarys">添加</el-button>
+								<el-button type="text" size="mini" @click="removesumarys(index)">删除</el-button>
+							</div>
+							<div style="margin:10px;" v-for="(obj, index) in data2.conclusions" :key="index">
+								<div class="source">
+									<span style="display:inline-table;margin:0 10px 0 0;">
+										<el-checkbox v-model="checked"></el-checkbox>
+									</span>
+									<span style="display:inline-block;width:10em;">
+										<el-select v-model="obj.key" placeholder="证据来源">
+											<el-option v-for="(item, keys) in summaryList" :key="keys" :label="item.label" :value="item.value">
+											</el-option>
+										</el-select>
+									</span>
+								</div>
+								<p>结论内容：</p>
+								<el-input type="textarea" :rows="2" placeholder="请输入结论内容" v-model="obj.value"></el-input>
+								<p>参考文献：</p>
+								<el-input type="textarea" :rows="2" placeholder="请输入参考文献" v-model="obj.ref"></el-input>
+								<!-- <p>依据：</p>
+							  <el-input type="textarea" :rows="2" placeholder="请输入依据内容" v-model="obj.basis"></el-input> -->
+							</div>
+						</td>
+
+						<td>
+							<div class="areasource" v-for="(obj, index) in data1.conclusions" :key="index">
+								<div class="source">
+									<span style="display:inline-block;width:10em;margin-left: -15px;">
+										<el-select v-model="obj.key" placeholder="证据来源" disabled>
+											<el-option v-for="(item, keys) in summaryList" :key="keys" :label="item.label" :value="item.value">
+											</el-option>
+										</el-select>
+									</span>
+								</div>
+								<p>结论内容：</p>
+								<el-input type="textarea" :rows="2" placeholder="结论内容" v-model="obj.value" disabled></el-input>
+								<p>参考文献：</p>
+								<el-input type="textarea" :rows="2" placeholder="参考文献" v-model="obj.ref" disabled></el-input>
+								<!-- <p>依据：</p>
+							<el-input type="textarea" :rows="2" placeholder="依据内容" v-model="obj.basis" disabled></el-input> -->
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="texts">备注</td>
+						<td class="area">
+							<el-input type="textarea" autosize v-model.trim="data2.summary" clearable></el-input>
+						</td>
+						<td class="textdata">{{ data1.remark }}</td>
+					</tr>
+				</table>
+				<div class="footer_btn">
+					<el-select clearable v-model="value" placeholder="请选择下一审核人">
+						<el-option v-for="(items, index) in userlist" :value="items.code" :label="items.nickName" :key="index"></el-option>
+					</el-select>
+					<el-button type="primary" size="medium" :disabled="data1.auditFlag === 2" @click="showDialogFun('sub')">提交</el-button>
+					<el-button type="primary" size="medium" @click="subNext('')">保存</el-button>
+					<el-button type="success" size="medium" v-if="data1.auditFlag === 1" @click="subEnd()">同步</el-button>
+					<el-button type="info" size="medium" v-if="data1.state === 1" @click="showDialogFun('cancel')">作废</el-button>
+					<el-button type="info" size="medium" @click="cancel">取消</el-button>
+					<el-button type="danger" size="medium" v-if="data1.state === 99" @click="showDialogFun('active')">激活</el-button>
+					
+				</div>
+		</div>
+
+		<el-dialog title="备注" :visible.sync="dialogTableVisible">
+			<el-input v-model="description" type="textarea" :autosize="{ minRows: 3, maxRows: 8}"></el-input>
+			<div slot="footer" class="dialog-footer">
+				<el-button @click="dialogTableVisible = false, description= ''">取 消</el-button>
+				<el-button type="primary" @click="submit(dialogType)">确 定</el-button>
+			</div>
+		</el-dialog>
+
+		<el-dialog title="变异类型列表" :visible.sync="vertypesList" width="50%">
+			<!-- <el-input v-model="description" type="textarea" :autosize="{ minRows: 3, maxRows: 8}"></el-input> -->
+			<el-table :data="mutationList" v-loading="loading" border>
+				<el-table-column label="变异类型">
+					<template slot-scope="scope">
+						{{ scope.row.value }}
+					</template>
+				</el-table-column>
+				<el-table-column label="操作" width="80">
+					<template slot-scope="scope">
+						<el-button type="primary" size="mini" @click="pushVariant(scope.row.value)">添加</el-button>
+					</template>
+				</el-table-column>
+			</el-table>
+			<div slot="footer" class="dialog-footer">
+				<el-button @click="vertypesList = false">关闭</el-button>
+				<!-- <el-button type="primary" @click="vertypesList = false">确 定</el-button> -->
+			</div>
+		</el-dialog>
+	</div>
+</template>
+<script>
+	import URL from '@/common/js/URL.js'
+	import Pager from '@/components/common/pager'
+	import axios from 'axios'
+	import moment from 'moment'
+	export default {
+		created() {
+			this.getListData(1)
+			this.getUserList()
+			this.getcancerList()// 获取疾病列表
+			this.getDrugList()// 获取药物列表
+		},
+		data() {
+			return {
+				pstatus: this.$route.params.status,
+				dialogVisible: false,
+				drugSelect: false,
+				checked:true,
+				drugFrom: {
+					drugEnName: '',
+					pageNumber: 1,
+					pageSize: 10,
+					total: 1,
+					currentPage: 1,
+					index: 0
+				},
+				vertypesList: false,
+				addLoading: false,
+				listLoading: false,
+				drugFromLists: [],
+				tableData: [],
+				auditFlag: 0,
+				businessStatus: 1,
+				dialogType: '',
+				id: this.$route.params.id,
+				pager: this.$route.params.pager,
+				data1: {},
+				data2: {
+					summaryId: '',
+					id: this.$route.params.id,
+					code: this.$route.params.id,
+					userCode: '',
+					diseaseEnName: '',
+					diseaseName: "",
+					diseaseSubType: "",
+					stage: "",
+					drugType: "",
+					evdLevel: '',
+					drugName: "",
+					drugNames: [],
+					drugEnName: "",
+					drugEnNames: [],
+					drugTradeEnName: "",
+					drugTradeName: "",
+					gene: "",
+					genotype: '',
+					stage: '',
+					hasVirulenceGene: 0,
+					subtype: '',
+					phase: '',
+					drugReaction: '',
+					variant: '',
+					variantType: '',
+					variantTypes: [],
+					rsId: "",
+					priority: "",
+					therapys: [],
+					conclusions: [{
+						key: '',
+						value: ''
+					}],
+					remark: '',
+					treatmentStages: [],
+					"toxicity": "",
+					response: "",
+					metabolism: "",
+					absorption: "",
+					efficacy: "",
+					prognosis: "",
+					sideEffect: "",
+					"dosage": "",
+					"riskOfDisease": "",
+					"updateTime": null,
+					"refId": "",
+					"auditor": "",
+					"auditLevel": 2,
+					"summary": "",
+					"status": 0,
+					"updatedStatus": 0,
+					"kbPaperId": 0,
+					"auditFlag": null
+				},
+				data3: {},
+				dataN: {},
+				xx: [],
+				currentPage: 1,
+				pageSize: 1,
+				pageNum: 0,
+				subtypeList: [],
+				summaryList: [{
+					value: 'NCCN',
+					label: 'NCCN'
+				}, {
+					value: 'CSCO',
+					label: 'CSCO'
+				}, {
+					value: 'ASCO',
+					label: 'ASCO'
+				}, {
+					value: 'ESMO',
+					label: 'ESMO'
+				}, {
+					value: 'ACMG',
+					label: 'ACMG'
+				}, {
+					value: 'FDA',
+					label: 'FDA'
+				}, {
+					value: 'CFDA',
+					label: 'CFDA'
+				}, {
+					value: 'EMA',
+					label: 'EMA'
+				}, {
+					value: 'PMDA',
+					label: 'PMDA'
+				}, {
+					value: 'HCSC',
+					label: 'HCSC'
+				}, {
+					value: 'PMID',
+					label: '临床研究'
+				}, {
+					value: 'preclinical',
+					label: '临床前研究'
+				}, {
+					value: 'functionalPrediction',
+					label: '功能预测'
+				}],
+				currentListPage: 1,
+				totalListCount: 1,
+				totalCount: 50,
+				value1: '',
+				value: '',
+				showTab: 1,
+				isconflict: false,
+				checkList: ['复选框 A'],
+				downList: [{
+					value: '选项1',
+					label: '选项A'
+				}, {
+					value: '选项2',
+					label: '选项B'
+				}, {
+					value: '选项3',
+					label: '选项C'
+				}],
+				riskOfDiseaseDownList: [{
+					value: '增强',
+					label: '增强'
+				}, {
+					value: '降低',
+					label: '降低'
+				}],
+				therapysDownList: [{
+					value: '单药靶向治疗',
+					label: '单药靶向治疗'
+				}, {
+					value: '双靶向治疗',
+					label: '双靶向治疗'
+				}, {
+					value: '靶向治疗或联合化疗',
+					label: '靶向治疗或联合化疗'
+				}, {
+					value: '靶向治疗或联合治疗',
+					label: '靶向治疗或联合治疗'
+				}, {
+					value: '靶向治疗联合化疗',
+					label: '靶向治疗联合化疗'
+				}, {
+					value: '靶向治疗联合放疗',
+					label: '靶向治疗联合放疗'
+				}, {
+					value: '靶向治疗或双靶向治疗',
+					label: '靶向治疗或双靶向治疗'
+				}, {
+					value: '化疗',
+					label: '化疗'
+				}, {
+					value: '联合化疗',
+					label: '联合化疗'
+				}, {
+					value: '化疗或联合化疗',
+					label: '化疗或联合化疗'
+				}, {
+					value: '化疗或放化疗',
+					label: '化疗或放化疗'
+				}, {
+					value: '化疗或联合放疗',
+					label: '化疗或联合放疗'
+				}, {
+					value: '化疗或联合靶向治疗',
+					label: '化疗或联合靶向治疗'
+				}, {
+					value: '化疗或联合治疗',
+					label: '化疗或联合治疗'
+				}, {
+					value: '放化疗',
+					label: '放化疗'
+				}, {
+					value: '免疫靶向治疗',
+					label: '免疫靶向治疗'
+				}, {
+					value: '生化疗法',
+					label: '生化疗法'
+				}, {
+					value: '生物疗法',
+					label: '生物疗法'
+				}, {
+					value: '免疫治疗',
+					label: '免疫治疗'
+				}, {
+					value: '激素疗法',
+					label: '激素疗法'
+				}],
+				duxingrisk: [{
+					value: '增加',
+					label: '增加'
+				}, {
+					value: '降低',
+					label: '降低'
+				}, {
+					value: '相当',
+					label: '相当'
+				}, {
+					value: '相关',
+					label: '相关'
+				}, {
+					value: '无关',
+					label: '无关'
+				}],
+				fuzuoyongRisk: [{
+					value: '增高',
+					label: '增高'
+				}, {
+					value: '降低',
+					label: '降低'
+				}, {
+					value: '相当',
+					label: '相当'
+				}, {
+					value: '相关',
+					label: '相关'
+				}, {
+					value: '无关',
+					label: '无关'
+				}],
+				duxing: [{
+					value: '增加',
+					label: '增加'
+				}, {
+					value: '降低',
+					label: '降低'
+				}, {
+					value: '相当',
+					label: '相当'
+				}],
+				yaowufanying: [{
+					value: '耐药',
+					label: '耐药'
+				}, {
+					value: '耐药增强',
+					label: '耐药增强'
+				}, {
+					value: '耐药减弱',
+					label: '耐药减弱'
+				}, {
+					value: '敏感',
+					label: '敏感'
+				}, {
+					value: '敏感减弱',
+					label: '敏感减弱'
+				}, {
+					value: '敏感增强',
+					label: '敏感增强'
+				}, {
+					value: '减弱',
+					label: '减弱'
+				}, {
+					value: '增强',
+					label: '增强'
+				}, {
+					value: '相当',
+					label: '相当'
+				}],
+				daixie: [{
+					value: '增强',
+					label: '增强'
+				}, {
+					value: '减弱',
+					label: '减弱'
+				}, {
+					value: '相当',
+					label: '相当'
+				}],
+				xishou: [{
+					value: '增加',
+					label: '增加'
+				}, {
+					value: '降低',
+					label: '降低'
+				}, {
+					value: '相当',
+					label: '相当'
+				}],
+				yuhou: [{
+					value: '好',
+					label: '好'
+				}, {
+					value: '差',
+					label: '差'
+				}, {
+					value: '相当',
+					label: '相当'
+				}],
+				fuzuoyong: [{
+					value: '增高',
+					label: '增高'
+				}, {
+					value: '降低',
+					label: '降低'
+				}, {
+					value: '相当',
+					label: '相当'
+				}],
+				drugTypeList: [],
+				mutationList: [{
+					value: 'mRNA或蛋白表达',
+					label: 'mRNA或蛋白表达'
+				}, {
+					value: '基因扩增',
+					label: '基因扩增'
+				}, {
+					value: '染色体异常',
+					label: '染色体异常'
+				}, {
+					value: '拷贝数变异',
+					label: '拷贝数变异'
+				}, {
+					value: '外显子变异',
+					label: '外显子变异'
+				}, {
+					value: '基因融合',
+					label: '基因融合'
+				}, {
+					value: '基因错配修复',
+					label: '基因错配修复'
+				}, {
+					value: 'mRNA表达',
+					label: 'mRNA表达'
+				}, {
+					value: '微卫星不稳定性',
+					label: '微卫星不稳定性'
+				}, {
+					value: '基因突变',
+					label: '基因突变'
+				}, {
+					value: '蛋白表达',
+					label: '蛋白表达'
+				}, {
+					value: '基因重排',
+					label: '基因重排'
+				}, {
+					value: '肿瘤新抗原负荷',
+					label: '肿瘤新抗原负荷'
+				}, {
+					value: '肿瘤突变负荷',
+					label: '肿瘤突变负荷'
+				}, {
+					value: '无变异',
+					label: '无变异'
+				}, {
+					value: 'TARGET',
+					label: 'TARGET'
+				}],
+				zhiliaojieduan: [{
+					value: '手术治疗',
+					label: '手术治疗'
+				}, {
+					value: '非手术治疗',
+					label: '非手术治疗'
+				}, {
+					value: '术后治疗',
+					label: '术后治疗'
+				}, {
+					value: '放疗',
+					label: '放疗'
+				}, {
+					value: '靶向治疗',
+					label: '靶向治疗'
+				}, {
+					value: '化疗',
+					label: '化疗'
+				}, {
+					value: '最佳支持治疗',
+					label: '最佳支持治疗'
+				}, {
+					value: '姑息治疗',
+					label: '姑息治疗'
+				}, {
+					value: '一线治疗',
+					label: '一线治疗'
+				}, {
+					value: '二线治疗',
+					label: '二线治疗'
+				}, {
+					value: '三线治疗',
+					label: '三线治疗'
+				}, {
+					value: '一线辅助治疗',
+					label: '一线辅助治疗'
+				}, {
+					value: '新辅助化疗=术前辅助化疗=诱导化疗',
+					label: '新辅助化疗=术前辅助化疗=诱导化疗'
+				}, {
+					value: '术后辅助化疗',
+					label: '术后辅助化疗'
+				}, {
+					value: '一线辅助治疗',
+					label: '一线辅助治疗'
+				}, {
+					value: '二线辅助治疗',
+					label: '二线辅助治疗'
+				}, {
+					value: '复发性/进展后治疗',
+					label: '复发性/进展后治疗'
+				}, {
+					value: '维持治疗',
+					label: '维持治疗'
+				}, {
+					value: '一线后维持治疗',
+					label: '一线后维持治疗'
+				}, {
+					value: '二线后维持治疗',
+					label: '二线后维持治疗'
+				}, {
+					value: '后续治疗',
+					label: '后续治疗'
+				}],
+				zhengjudengji: [{
+					value: '1A',
+					label: '1A'
+				}, {
+					value: '1B',
+					label: '1B'
+				}, {
+					value: '2A',
+					label: '2A'
+				}, {
+					value: '2B',
+					label: '2B'
+				}, {
+					value: '3',
+					label: '3'
+				}, {
+					value: '4',
+					label: '4'
+				}],
+				dialogTableVisible: false,
+				description: '',
+				diseaseList: [],
+				diseaseListEn: [],
+				druglist: [],
+				druglistEn: [],
+				userlist: [],
+				drstate: [],
+				drlist: [],
+				isSub: false,
+				iserrors: false,
+				loading: false
+			}
+		},
+		components: {
+			Pager: Pager
+		},
+		methods: {
+			showDialogFun(type) {
+				let that = this
+				that.dialogTableVisible = true
+				that.dialogType = type
+			},
+			submit(type) {
+				let that = this
+				that.data2.description = that.description
+				if (type === 'sub') {
+					that.isSub = true
+					that.subNext(that.value)
+				} else if (type === 'end') {
+					that.endsub()
+				} else if (type === 'cancel') {
+					that.nulltify()
+				} else if (type === 'active') {
+					that.businessStatus = 1
+					that.save()
+				}
+			},
+			getUserList() {
+				// 获取用户列表  ————  用在提交下一个审核员
+				let that = this
+				axios.get(URL.api_name + 'cloud/get_auditlist').then(function(respose) {
+					that.userlist = respose.data.data
+				}, function(error) {
+					// console.log(error)
+					that.loading = false
+					that.$message({
+						type: 'error',
+						message: '查询失败',
+						duration: 1000
+					})
+				})
+			},
+			getListData(num) {
+				// 获取初始数据 data1的内容
+				let that = this
+				if (num !== undefined) {
+					that.currentListPage = parseInt(num)
+				}
+				that.loading = true
+				axios.get(URL.api_name + 'cloud/project/getSummaryById', {
+					params: {
+						flag: that.pstatus,
+						id: that.id,
+						pageNumber: that.currentListPage,
+						pageSize: 1
+					}
+				}).then(function(respose) {
+					let data = respose.data
+					that.data1 = data.data.list[0]
+					// 拷贝 把data1的值赋给data2
+					if (that.currentListPage === 1) {
+						that.data2 = JSON.parse(JSON.stringify(that.data1))
+					}
+					that.totalListCount = data.data.pageCount
+					that.auditFlag = data.data.list[0].auditFlag
+					that.businessStatus = data.data.list[0].businessStatus
+					that.loading = false
+				}, function(error) {
+					// console.log(error)
+					that.loading = false
+					that.$message({
+						type: 'error',
+						message: '查询失败',
+						duration: 1000
+					})
+				})
+			},
+			nulltify() {
+				// 作废这条信息
+				let that = this
+				axios.get(URL.api_name + 'cloud/project/cancelSummary', {
+					params: {
+						id: that.id,
+						description: that.description
+					}
+				}).then(res => {
+					if (res.data.code === '100') {
+						that.$message({
+							type: 'success',
+							message: res.data.message,
+							duration: 2000,
+							onClose: function() {
+								// that.$router.push({
+								//  path: '/ExamineKnowledgeList/' + that.pager
+								// })
+							}
+						})
+						that.dialogTableVisible = false
+					}
+				}).catch(err => {
+					that.$message({
+						type: 'error',
+						message: '操作失败',
+						duration: 1000
+					})
+					console.log(err)
+				})
+			},
+			getcancerList() {
+				// 获取疾病列表 data2内的"疾病"选项 备选项
+				let that = this
+				axios.get(URL.api_name + 'cloud/cancerList').then(res => {
+					if (res.data.code === '100') {
+						that.diseaseList = res.data.data
+						for (let i = 0; i < that.diseaseList.length; i++) {
+							that.diseaseListEn.push({
+								value: that.diseaseList[i].diseaseEnName
+							})
+						}
+					}
+				}).catch(err => {
+					that.$message({
+						type: 'error',
+						message: '获取失败',
+						duration: 1000
+					})
+					console.log(err)
+				})
+			},
+			getDrugListee() {
+				// 获取药物列表
+				let that = this
+				axios.get(URL.api_name + 'report/getDrugControlList', {
+					params: {
+						drugEnName: '',
+						drugType: '',
+						pageNumber: 1,
+						pageSize: 99999
+					}
+				}).then(res => {
+					if (res.data.code === '100') {
+						that.druglistEn = []
+						let nn = res.data.data.list
+						for (let i = 0; i < nn.length; i++) {
+							that.druglist.push({
+								value: nn[i].drugEnName
+							})
+							that.druglistEn.push({
+								value: nn[i].drugEnName,
+								nameCn: nn[i].drugName
+							})
+						}
+					}
+					console.log(that.druglist)
+				}).catch(err => {
+					that.$message({
+						type: 'error',
+						message: '获取失败',
+						duration: 1000
+					})
+					console.log(err)
+				})
+			},
+			subNext(val) {
+				let that = this
+				// console.log(val)
+				let name = ''
+				for (let i = 0; i < that.userlist.length; i++) {
+					if (val === that.userlist[i].code) {
+						name = that.userlist[i].nickName
+						// return false
+					}
+				}
+				// 判断是否是提交，是提交的话，再判断是否有下一审核人
+				if (that.isSub === true) {
+					if (name === '') {
+						that.$message({
+							type: 'error',
+							message: '未选择下一审核人',
+							duration: 2500
+						})
+						return false
+					}
+				}
+				// 判断 疾病和基因是否为空
+				if (that.data2.diseaseEn === '' || that.data2.gene === '') {
+					that.$message({
+						type: 'error',
+						message: '基因和疾病不能为空',
+						duration: 2500
+					})
+					return false
+				}
+				if (val === '') {
+					// 狗蛋程序员偷懒，保存和提交用一个接口，保存不跳转，提交要跳转页面
+					that.subNextsh('save')
+				} else {
+					that.subNextsh('sub')
+				}
+			},
+			subNextsh(type) {
+				let that = this
+				that.data2.userCode = that.value
+				let n = type === 'save' ? 1 : 2
+				that.data2['flag'] = n
+				axios.post(URL.api_name + 'cloud/project/auditSummary', that.data2).then(res => {
+					if (res.data.code === '100') {
+						that.dialogTableVisible = false
+						that.$message({
+							type: 'success',
+							message: '提交成功',
+							duration: 2500,
+							onClose: function() {
+								// 如果是提交，才跳转，不然是保存，不给跳转
+								if (type === 'sub') {
+									that.$router.push({
+										path: '/ExamineKnowledgeList/' + that.$route.params.pager
+									})
+								} else {
+									// 保存把页面信息刷新一遍
+									that.getListData(that.currentPage)
+								}
+							}
+						})
+						// that.getListData(that.currentPage)
+					} else {
+						that.$message({
+							type: 'error',
+							message: '提交失败' + res.data.message,
+							duration: 2500
+						})
+					}
+				}).catch(err => {
+					that.$message({
+						type: 'error',
+						message: '提交失败',
+						duration: 1000
+					})
+					console.log(err)
+				})
+			},
+			addsummarys() {
+				let that = this
+				that.data2.conclusions.push({
+					key: '',
+					value: '',
+					ref: ''
+				})
+			},
+			removesumarys(index) {
+				let that = this
+				that.data2.conclusions.splice(index, 1)
+			},
+			save() {
+				let that = this
+				that.$confirm('确定保存吗？', '提示', {
+					confirmButtonText: '确定',
+					cancelButtonText: '取消',
+					type: 'warning'
+				}).then(() => {
+					// return false
+					axios.post(URL.api_name + 'cloud/project/saveAudit', that.data2).then(res => {
+						if (res.data.code === '100') {
+							that.$message({
+								type: 'success',
+								message: '保存成功',
+								duration: 2500,
+								onClose: function() {}
+							})
+						} else {
+							that.$message({
+								type: 'error',
+								message: '保存失败' + res.data.message,
+								duration: 1500
+							})
+						}
+					}).catch(err => {
+						that.$message({
+							type: 'error',
+							message: '保存失败',
+							duration: 1000
+						})
+						console.log(err)
+					})
+				})
+			},
+			subEnd() {
+				let that = this
+				that.$confirm('确认完结提交吗？', '提示', {
+					confirmButtonText: '确认',
+					cancelButtonText: '取消',
+					type: 'warning'
+				}).then(() => {
+					that.endsub()
+				}).catch(err => {
+					console.log(err)
+				})
+			},
+			endsub() {
+				// 完结
+				let that = this
+				if (that.data2.diseaseEn === '' || that.data2.gene === '') {
+					that.$message({
+						type: 'error',
+						message: '基因和疾病不能为空',
+						duration: 2500
+					})
+					return false
+				}
+				axios.post(URL.api_name + 'cloud/project/syncSummary', that.data2).then(res => {
+					if (res.data.code === '100') {
+						that.$message({
+							type: 'success',
+							message: '提交成功',
+							duration: 1000,
+							onClose: function() {
+								that.$router.push({
+									path: '/ExamineknowledgeList/' + that.pager
+								})
+							}
+						})
+						// that.getListData(that.currentPage)
+					} else {
+						that.$message({
+							type: 'error',
+							message: '提交失败：' + res.data.message,
+							duration: 1000
+						})
+					}
+				}).catch(err => {
+					that.$message({
+						type: 'error',
+						message: '提交失败',
+						duration: 1000
+					})
+					console.log(err)
+				})
+			},
+			cancel() {
+				// 取消
+				let that = this
+				that.$router.push({
+					path: '/ExamineknowledgeList/' + that.$route.params.pager
+				})
+			},
+			merge() {
+				// 合并内容
+				let that = this
+
+				for (let key in that.data3) {
+					if (that.data3[key] !== '' && !Array.isArray(that.data3[key])) {
+						that.data2[key] = that.data3[key]
+					} else if (Array.isArray(that.data3[key])) {
+						that.data2[key] = []
+						for (let i = 0; i < that.data3[key].length; i++) {
+							that.data2[key].push(that.data3[key][i])
+						}
+					}
+				}
+
+				that.$message({
+					type: 'success',
+					message: '合并成功',
+					duration: 2000,
+					onClose: function() {}
+				})
+				that.isconflict = false
+			},
+			querySearch(queryString, cb) {
+				var diseaseListEn = this.diseaseListEn
+				var results = queryString ? diseaseListEn.filter(this.createFilter(queryString)) : diseaseListEn
+				// 调用 callback 返回建议列表的数据
+				cb(results)
+			},
+			createFilter(queryString) {
+				return (restaurant) => {
+					return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
+				}
+			},
+			querySearchDrug(queryString, cb) {
+				var druglist = this.druglist
+				var results = queryString ? druglist.filter(this.createFilter(queryString)) : druglist
+				// 调用 callback 返回建议列表的数据
+				cb(results)
+			},
+			cancerReferList(val, index) {
+				let that = this
+				axios.get(URL.api_name + 'cloud/cancerReferList', {
+					params: {
+						kbPaperId: that.data2.kbPaperId,
+						diseaseEn: that.data2.diseaseEn,
+						drugEnName: that.data2.drug,
+						key: val
+					}
+				}).then(function(res) {
+					if (res.data.code === '100') {
+						that.data2.conclusions[index].ref = res.data.data
+					}
+				})
+			},
+			handleSelect(language, val) {
+				// 选择完疾病英文名，自动把中文也选上
+				let that = this
+				if (language === 'en') {
+					for (let i = 0; i < that.diseaseList.length; i++) {
+						if (that.data2.diseaseEnName === that.diseaseList[i].diseaseEnName) {
+							that.data2.diseaseName = that.diseaseList[i].name
+							// return false
+						}
+					}
+				} else if (language === 'cn') {
+					for (let i = 0; i < that.diseaseList.length; i++) {
+						if (that.data2.diseaseName === that.diseaseList[i].name) {
+							that.data2.diseaseEnName = that.diseaseList[i].diseaseEnName
+							// return false
+						}
+					}
+				}
+
+			},
+			pushVariantType(val) {
+				let that = this
+				if (val === true) {
+					that.vertypesList = val
+				}
+			},
+			pushVariant(scope) {
+				let that = this
+				that.data2.variantTypes.push(scope)
+			},
+			changeTabId(id) {
+				this.showTab = id
+			},
+			contrast() {
+				// 对比数据
+				let that = this
+				that.dataN = {}
+				for (let i in that.data1) {
+					if (that.data2[i] !== that.data1[i]) {
+						that.dataN['iserrors_' + i] = true
+					}
+				}
+				console.log('xeee')
+				console.log(that.dataN)
+			},
+			pushDrugList(scope) {
+				let that = this
+				that.data2.drugEnNames.push(scope.drugEnName)
+				that.data2.drugNames.push(scope.drugName)
+			},
+			getDrugList() {
+				let that = this
+				axios.get(URL.api_name + 'report/getDrugControlList', {
+						params: {
+							pageSize: 9999,
+							pageNumber: 1
+						}
+					}).then(function(respose) {
+						if (respose.data.code === '100') {
+							// that.drugTypeList = respose.data.data.list
+							// for(let i = 0 ; i < that.drugTypeList.length; i++) {
+							//   let n = that.drugTypeList[i].drugName === "" ? '' : '-[' + that.drugTypeList[i].drugName + ']'
+							//   that.drugTypeList[i]['drugNameZ'] = that.drugTypeList[i].drugEnName + n
+							// }
+							that.drstate = respose.data.data.list
+						} else {
+							that.$message({
+								type: 'error',
+								message: '药物查询失败' + respose.data.message,
+								duration: '1000'
+							})
+						}
+					}),
+					function(error) {
+						that.$message({
+							type: 'error',
+							message: '查询失败',
+							duration: '1000'
+						})
+					}
+			},
+			remoteMethod(query) {
+				let that = this
+				if (query !== '') {
+					that.loading = true
+					setTimeout(() => {
+						that.loading = false
+						that.drugTypeList = []
+						that.drugTypeList = that.drlist.filter(item => {
+							return item.label.toLowerCase().indexOf(query.toLowerCase()) > -1
+						})
+					}, 200)
+				} else {
+					that.drugTypeList = []
+				}
+			},
+			handleSelectDrug(language, val) {
+				let that = this
+				// 截图药物英文名
+				if (val != '') {
+					val = val[0].split('-[')[0]
+				}
+				// 对比药物英文名，然后赋值药物类型
+				for (let i = 0; i < that.drugTypeList.length; i++) {
+					if (val === that.drugTypeList[i].drugEnName) {
+						that.data2.drugType = that.drugTypeList[i].drugType
+					}
+				}
+			},
+			removeSelectTags(val, language) {
+				let that = this
+				let index = 0
+				console.log(val.value)
+				if (language === 'cn') {
+					for (let i = 0; i < that.drugFromLists.length; i++) {
+						if (val.value === that.drugFromLists[i].drugName) {
+							// 拿到对应的英文名
+							let name = that.drugFromLists[i].drugEnName
+							for (let n = 0; n < that.data2.drugEnNames.length; n++) {
+								if (name === that.data2.drugEnNames[n]) {
+									index = n
+									console.log(n)
+								}
+							}
+						}
+					}
+					that.data2.drugEnNames.splice(index, 1)
+				} else if (language === 'en') {
+					for (let i = 0; i < that.drugFromLists.length; i++) {
+						if (val.value === that.drugFromLists[i].drugEnName) {
+							// 拿到对应的中文名
+							let name = that.drugFromLists[i].drugName
+							for (let n = 0; n < that.data2.drugName.length; n++) {
+								if (name === that.data2.drugName[n]) {
+									index = n
+									console.log(n)
+								}
+							}
+						}
+					}
+					that.data2.drugNames.splice(index, 1)
+				} else {
+					// 报错了
+					console.log('移除多选的药物名错误')
+				}
+			}
+		},
+		mounted() {
+			setTimeout(() => {
+				this.drlist = this.drstate.map(item => {
+					let n = item.drugName === "" ? '' : '-[' + item.drugName + ']'
+					return {
+						value: item.drugEnName + n,
+						label: item.drugEnName + n
+					}
+				})
+			}, 2000)
+		}
+	}
+</script>
+<style scoped>
+	.lists{
+		background: #fff;
+	}
+	.el-button--info{
+		background:#CECFD0!important;
+		border: 1px solid #CECFD0!important;
+		color:#Fff;
+	}
+</style>

@@ -1,0 +1,700 @@
+{
+    "code": "100",
+    "message": "操作成功",
+    "data": {
+        "projectCode": "650450c304774cf8aaffce50fbe47f55",
+        "name": "非小细胞肺癌基因检测报告",
+        "createTime": 1513309286748,
+        "blocks": {
+            "block_01": {
+                "blockName": "受检者基本信息",
+                "infos": {
+                    "id": 0,
+                    "user_name": "fasdf",
+                    "gender": 1,
+                    "birthday": "2017-12-14T16:00:00.000Z",
+                    "race": 5,
+                    "address": "fasd",
+                    "upload_file": null,
+                    "phone": "fasd",
+                    "nation": "fasd"
+                }
+            },
+            "block_02": {
+                "blockName": "疾病信息",
+                "infos": {
+                    "clinical_diagnosis": "fadsf",
+                    "pathology_diagnosis": "fadsf",
+                    "recent_medical_history": "fadsf",
+                    "before_medical_history": "fadsf",
+                    "family_medical_history": "fadsf",
+                    "disease_risk_factory": "fadsf",
+                    "previous_history": "fadsf"
+                }
+            },
+            "block_03": {
+                "blockName": "样本信息",
+                "infos": {
+                    "sample_id": "1",
+                    "sample_type": "fadsf",
+                    "sample_attribute": "1",
+                    "sampling_location": "fadsf",
+                    "sample_collection_time": "2017-12-14T16:00:00.000Z",
+                    "sample_testing_time": "2017-12-14T16:00:00.000Z"
+                }
+            },
+            "block_04": {
+                "blockName": "检测平台信息及分析参考类目",
+                "infos": {
+                    "sequencing_information": "fadsf",
+                    "sequencing_platform": "1",
+                    "test_gene_num": 137,
+                    "ref": "fadsf",
+                    "genes": {
+                        "AKT1": false,
+                        "AKT2": false,
+                        "AKT3": false,
+                        "ALK": false,
+                        "APC": false,
+                        "AR": false,
+                        "ARAF": false,
+                        "ARID1A": false,
+                        "ARID2": false,
+                        "ASXL1": false,
+                        "ATM": false,
+                        "ATR": false,
+                        "ATRX": false,
+                        "AXL": false,
+                        "BCL2L11(BIM)": false,
+                        "BRAF": false,
+                        "BRCA1": false,
+                        "BRIP1": false,
+                        "BTK": false,
+                        "CD274(PD-L1)": false,
+                        "CD74": false,
+                        "CDA": true,
+                        "CDH1": false,
+                        "CDK4": false,
+                        "CDK6": false,
+                        "CDK8": false,
+                        "CDKN2A": false,
+                        "CDKN2B": false,
+                        "CHEK2": false,
+                        "CREBBP": false,
+                        "CTNNB1": false,
+                        "CYLD": false,
+                        "CYP2B6": false,
+                        "CYP2C19": false,
+                        "CYP2D6": false,
+                        "CYP3A4": true,
+                        "CYP3A5": false,
+                        "DDR2": false,
+                        "DHFR": false,
+                        "DNMT3A": false,
+                        "DPYD": false,
+                        "EGFR": true,
+                        "ERBB2(HER2)": false,
+                        "ERBB3": false,
+                        "ERBB4": false,
+                        "ERCC1": true,
+                        "ERCC2": true,
+                        "ERCC4": true,
+                        "FAT1": false,
+                        "FBXW7": false,
+                        "FGFR1": false,
+                        "FGFR3": false,
+                        "FLT4(VEGFR3)": false,
+                        "FRG1": false,
+                        "GATA4": false,
+                        "GNAS": false,
+                        "GRIN2A": false,
+                        "GSTM1": false,
+                        "GSTP1": true,
+                        "GSTT1": false,
+                        "HDAC9": false,
+                        "HGF": false,
+                        "HRAS": false,
+                        "IDH1": false,
+                        "IDH2": false,
+                        "JAK1": false,
+                        "JAK2": false,
+                        "KDR(VEGFR2)": false,
+                        "KEAP1": false,
+                        "KIT": false,
+                        "KMT2A": false,
+                        "KMT2C": false,
+                        "KMT2D": false,
+                        "KRAS": false,
+                        "LRP1B": false,
+                        "LZTR1": false,
+                        "MAP2K1(MEK1)": false,
+                        "MAP2K2(MEK2)": false,
+                        "MED12": false,
+                        "MET": false,
+                        "MLH1": false,
+                        "MTHFR": true,
+                        "MTOR": false,
+                        "MYC": false,
+                        "NBN": false,
+                        "NF1": false,
+                        "NF2": false,
+                        "NFE2L2": false,
+                        "NOTCH1": false,
+                        "NQO1": true,
+                        "NRAS": false,
+                        "NTRK1": false,
+                        "NTRK3": false,
+                        "PBRM1": false,
+                        "PDCD1(PD-1)": false,
+                        "PDCD1LG2(PD-L2)": false,
+                        "PDGFRA": false,
+                        "PDGFRB": false,
+                        "PIK3CA": false,
+                        "PIK3CD": false,
+                        "PIK3R1": false,
+                        "PTEN": true,
+                        "PTPN11": false,
+                        "QKI": false,
+                        "RAF1": false,
+                        "RB1": false,
+                        "RECQL4": false,
+                        "RELN": false,
+                        "RET": false,
+                        "RHOA": false,
+                        "RICTOR": false,
+                        "ROS1": false,
+                        "SBDS": false,
+                        "SDC4": false,
+                        "SETD2": false,
+                        "SF3B1": false,
+                        "SLC34A2": false,
+                        "SMAD2": false,
+                        "SMAD3": false,
+                        "SMAD4": false,
+                        "SMARCA4": false,
+                        "SMARCB1": false,
+                        "SOX2": false,
+                        "STAG2": false,
+                        "STAT3": false,
+                        "STK11": false,
+                        "TET2": false,
+                        "TGFBR2": false,
+                        "TP53": false,
+                        "TPMT": false,
+                        "TSC1": false,
+                        "TSC2": false,
+                        "TYMS": false,
+                        "UGT1A1": false,
+                        "VEGFA": false,
+                        "WRN": false,
+                        "XRCC1": true
+                    },
+                    "type": "fadsf",
+                    "knowledge_ver": "1",
+                    "analysis_version": "1"
+                }
+            },
+            "block_06": {
+                "blockName": "基因突变",
+                "infos": [
+                    {
+                        "code": "231dee9957d44bf98709afc3c5e4a0c2",
+                        "gene": "MTHFR",
+                        "mutation": "c.665G>A,p.A222V",
+                        "refSeq": "NM_005957",
+                        "clinicalSignificance": "致病",
+                        "nccnCsco": 0,
+                        "nccnCscoCount": 0,
+                        "fdaCfda": 0,
+                        "fdaCfadCount": 0,
+                        "other": 0,
+                        "other_count": 17,
+                        "clinicalTrails": 0,
+                        "clinicalTrails_count": 0,
+                        "preClinicalTrails": 0,
+                        "functionPrediction": 0
+                    },
+                    {
+                        "code": "6dc4cf9a55024a5793dbdeddca6955d6",
+                        "gene": "CDA",
+                        "mutation": "c.79A>C,p.K27Q",
+                        "refSeq": "NM_001785,NP_001776.1",
+                        "clinicalSignificance": "致病",
+                        "nccnCsco": 0,
+                        "nccnCscoCount": 0,
+                        "fdaCfda": 0,
+                        "fdaCfadCount": 0,
+                        "other": 0,
+                        "other_count": 3,
+                        "clinicalTrails": 0,
+                        "clinicalTrails_count": 0,
+                        "preClinicalTrails": 0,
+                        "functionPrediction": 0
+                    },
+                    {
+                        "code": "4c1c314a8e8c4584ac6719ef9b84b645",
+                        "gene": "PTEN",
+                        "mutation": ",p.0?",
+                        "refSeq": "NM_000314,NP_000305.3",
+                        "clinicalSignificance": "致病",
+                        "nccnCsco": 0,
+                        "nccnCscoCount": 0,
+                        "fdaCfda": 0,
+                        "fdaCfadCount": 0,
+                        "other": 0,
+                        "other_count": 2,
+                        "clinicalTrails": 0,
+                        "clinicalTrails_count": 0,
+                        "preClinicalTrails": 0,
+                        "functionPrediction": 0
+                    },
+                    {
+                        "code": "cfc4f16929b146eba5d52301d6f051b3",
+                        "gene": "GSTP1",
+                        "mutation": "c.313A>G,p.I105V",
+                        "refSeq": "NM_000852,NP_000843.1",
+                        "clinicalSignificance": "致病",
+                        "nccnCsco": 0,
+                        "nccnCscoCount": 0,
+                        "fdaCfda": 0,
+                        "fdaCfadCount": 0,
+                        "other": 0,
+                        "other_count": 12,
+                        "clinicalTrails": 0,
+                        "clinicalTrails_count": 0,
+                        "preClinicalTrails": 0,
+                        "functionPrediction": 0
+                    }
+                ]
+            },
+            "block_07": {
+                "blockName": "基因融合",
+                "infos": [
+                    {
+                        "code": "041fc57d462a4834b760c0cd7fb3709e",
+                        "gene": "fadsf",
+                        "fusion": "fadsf",
+                        "fusionType": "fadsf",
+                        "clinicalSignificance": "致病",
+                        "nccnCscoCount": 0,
+                        "fdaCfadCount": 0,
+                        "other_count": 0,
+                        "clinicalTrails_count": 0,
+                        "preClinicalTrails": 0,
+                        "functionPrediction": 0
+                    }
+                ]
+            },
+            "block_08": {
+                "blockName": "基因（mRNA/蛋白）表达",
+                "infos": [
+                    {
+                        "code": "eab096310f84459cb82a7658e0a34b97",
+                        "gene": "fadsf",
+                        "expression": "fadsf",
+                        "expressionLevel": "fadsf",
+                        "clinicalSignificance": "致病",
+                        "nccnCscoCount": 0,
+                        "fdaCfadCount": 0,
+                        "other_count": 0,
+                        "clinicalTrails_count": 0,
+                        "preClinicalTrails": 0,
+                        "functionPrediction": 0
+                    }
+                ]
+            },
+            "block_09": {
+                "blockName": "基因扩增",
+                "infos": [
+                    {
+                        "code": "a18d18426b5b4b0ca907fe8806750731",
+                        "gene": "fadsf",
+                        "amplification": "fadsf",
+                        "clinicalSignificance": "致病",
+                        "nccnCscoCount": 0,
+                        "fdaCfadCount": 0,
+                        "other_count": 0,
+                        "clinicalTrails": 0,
+                        "clinicalTrails_count": 0,
+                        "preClinicalTrails": 0,
+                        "functionPrediction": 0
+                    }
+                ]
+            },
+            "block_10": {
+                "blockName": "基因拷贝数变异",
+                "infos": [
+                    {
+                        "code": "bb45dcf09c72404999b4ee94ccca513d",
+                        "gene": "fadsf",
+                        "copy": "fadsf",
+                        "copyLevel": "fadsf",
+                        "clinicalSignificance": "致病",
+                        "nccnCsco": 0,
+                        "nccnCscoCount": 0,
+                        "fdaCfda": 0,
+                        "fdaCfadCount": 0,
+                        "other": 0,
+                        "other_count": 0,
+                        "clinicalTrails": 0,
+                        "clinicalTrails_count": 0,
+                        "preClinicalTrails": 0,
+                        "functionPrediction": 0
+                    }
+                ]
+            },
+            "block_11": {
+                "blockName": "基因微卫星不稳定性和错配修复",
+                "infos": [
+                    {
+                        "code": "6b2669c37a16445aa98e302c208fa908",
+                        "msi": "MSI-H（阳性)",
+                        "mmr": "dMMR（阳性)",
+                        "clinicalSignificance": "致病",
+                        "nccnCsco": 0,
+                        "nccnCscoCount": 0,
+                        "fdaCfda": 0,
+                        "fdaCfadCount": 0,
+                        "other": 0,
+                        "other_count": 0,
+                        "clinicalTrails": 0,
+                        "clinicalTrails_count": 0,
+                        "preClinicalTrails": 0,
+                        "functionPrediction": 0
+                    }
+                ]
+            },
+            "block_12": {
+                "blockName": "推荐治疗方案",
+                "infos": {
+                    "summary_msg": ""
+                }
+            },
+            "block_13": {
+                "blockName": "药物治疗方案汇总",
+                "infos": [
+                    {
+                        "code": "5e2b1bce14ac4bfebe5f729f61b2419d",
+                        "gene": "MTHFR",
+                        "mutation": "c.665G>A,p.A222V",
+                        "drugTherapy": "pemetrexed",
+                        "clinicalSignificance": null,
+                        "nccnCsCo": 5,
+                        "fdaCfda": 5,
+                        "other": 3,
+                        "clinicalTrails": 5,
+                        "preClinicalTrails": 5,
+                        "functionPrediction": 5,
+                        "isHealthInsurance": "是"
+                    },
+                    {
+                        "code": "3ff402f0190c45c4a0854161451cb699",
+                        "gene": "EGFR",
+                        "mutation": "c.2572_2573delCTinsAG,p.L858R",
+                        "drugTherapy": "吉非替尼  Gefitinib  易瑞沙  Iressa",
+                        "clinicalSignificance": null,
+                        "nccnCsCo": 1,
+                        "fdaCfda": 1,
+                        "other": 1,
+                        "clinicalTrails": 5,
+                        "preClinicalTrails": 5,
+                        "functionPrediction": 5,
+                        "isHealthInsurance": "是"
+                    },
+                    {
+                        "code": "1ecc103d931e4c018aa720df3bd60d8a",
+                        "gene": "EGFR",
+                        "mutation": "c.2572_2573delCTinsAG,p.L858R",
+                        "drugTherapy": "西妥昔单抗+阿法替尼  Cetuximab+Afatinib  爱必妥+吉泰瑞  Erbitux+Giotrif",
+                        "clinicalSignificance": null,
+                        "nccnCsCo": 1,
+                        "fdaCfda": 5,
+                        "other": 5,
+                        "clinicalTrails": 1,
+                        "preClinicalTrails": 5,
+                        "functionPrediction": 5,
+                        "isHealthInsurance": "是"
+                    },
+                    {
+                        "code": "32c4b48926ad47cc8b17b56a072b4673",
+                        "gene": "CYP3A4",
+                        "mutation": "c.554G>C,p.S185T",
+                        "drugTherapy": "midazolam",
+                        "clinicalSignificance": null,
+                        "nccnCsCo": 5,
+                        "fdaCfda": 5,
+                        "other": 5,
+                        "clinicalTrails": 5,
+                        "preClinicalTrails": 5,
+                        "functionPrediction": 5,
+                        "isHealthInsurance": ""
+                    }
+                ]
+            },
+            "block_14": {
+                "blockName": "药物治疗方案详情",
+                "infos": [
+                    {
+                        "code": "e04fa8edea734e589e731d95178a3b71",
+                        "gene": "EGFR",
+                        "mutation": "c.2438G>T,p.L858R",
+                        "drugTherapy": "erlotinib",
+                        "clinicalEvidence": "1:GG:Patients with an activating somatic EGFR mutation who have advanced non-small-cell lung cancer and who are treated with erlotinib may be more likely have increased response rate (RR) and increased progression-free survival (PFS) time compared to patients who have no somatic mutation. The manuscripts where this annotation derived from, presented the results according to activating somatic EGFR mutation status, regardless of the mutation type, therefore, the rs121434568 (L858R), exon 19 deletion(s), and other activating somatic mutations were included in mutation positive group and combined under rs121434568, mutation bearing patients are presented here as GG genotype. Very few of the patients have more than one type of somatic mutation. None of the studies mentioned status for heterozygosity or homozygocity. Other genetic, demographic and environmental parameters may affect the treatment outcome. <br/>2:GT:Patients with an activating somatic EGFR mutation who have advanced non-small-cell lung cancer and who are treated with erlotinib may be more likely have increased response rate (RR) and increased progression-free survival (PFS) time compared to patients who have no somatic mutation. The manuscripts where this annotation derived from, presented the results according to activating somatic EGFR mutation status, regardless of the mutation type, therefore, the rs121434568 (L858R), exon 19 deletion(s), and other activating somatic mutations were included in mutation positive group and combined under rs121434568, mutation bearing patients are presented here as GT genotype. Very few of the patients have more than one type of somatic mutation. None of the studies mentioned status for heterozygosity or homozygocity. Other genetic, demographic and environmental parameters may affect the treatment outcome.<br/>3:TT:Patients without an activating somatic EGFR mutation who have advanced non-small-cell lung cancer and who are treated with erlotinib may be more likely have decreased response rate (RR) and decreased progression-free survival (PFS) time compared to patients who have activating somatic mutation. The manuscripts where this annotation derived from, presented the results according to activating somatic EGFR mutation status, regardless of the mutation type, therefore, the rs121434568 (L858R), exon 19 deletion(s), and other activating somatic mutations were included in mutation positive group and combined under rs121434568. Patients who have no mutation are presented here as TT genotype. Very few of the patients have more than one type of somatic mutation. None of the studies mentioned status for heterozygosity or homozygocity. Other genetic, demographic and environmental parameters may affect the treatment outcome.",
+                        "type": 1
+                    },
+                    {
+                        "code": "53ba5d49dc2a48979e920251a96be8c7",
+                        "gene": "MTHFR",
+                        "mutation": "c.665G>A,p.A222V",
+                        "drugTherapy": "fluorouracil",
+                        "clinicalEvidence": "1:AA:Cancer patients with the AA genotype may have increased risk of drug toxicities when treated with fluorouracil- or capecitabine-based therapy as compared to patients with the AG or GG genotype, however this has been contradicted in some studies. Other genetic and clinical factors may also influence a patient's risk of toxicities when taking these drugs.<br/>2:AG:Cancer patients with the AG genotype may have increased risk of drug toxicities when treated with fluorouracil- or capecitabine-based therapy as compared to patients with the GG genotype, or a decreased risk of drug toxicities as compared to patients with the AA genotype. This has been contradicted in some studies. Other genetic and clinical factors may also influence a patient's risk of toxicities when taking these drugs.<br/>3:GG:Cancer patients with the GG genotype may have a decreased risk of drug toxicities when treated with fluorouracil- or capecitabine-based therapy as compared to patients with the AA or AG genotype, however this has been contradicted in some studies. Other genetic and clinical factors may also influence a patient's risk of toxicities when taking these drugs.",
+                        "type": 2
+                    },
+                    {
+                        "code": "0ceeafb202de454cb7a9e31605e42ef9",
+                        "gene": "ERCC1",
+                        "mutation": "c.354G>A,p.K118K",
+                        "drugTherapy": "capecitabine",
+                        "clinicalEvidence": "1:AA:Patients with the AA genotype and rectal cancer may have a better response to capecitabine-based chemoradiotherapy as compared to patients with the AG or GG genotype. Other genetic and clinical factors may also influence response to capecitabine-based chemoradiotherapy.<br/>2:AG:Patients with the AG genotype and rectal cancer may have a poorer response to capecitabine-based chemoradiotherapy as compared to patients with the AA genotype. Other genetic and clinical factors may also influence response to capecitabine-based chemoradiotherapy.<br/>3:GG:Patients with the GG genotype and rectal cancer may have a poorer response to capecitabine-based chemoradiotherapy as compared to patients with the AA genotype. Other genetic and clinical factors may also influence response to capecitabine-based chemoradiotherapy.",
+                        "type": 2
+                    },
+                    {
+                        "code": "db9d241eb1cf4049bc2d65c323ca756b",
+                        "gene": "EGFR",
+                        "mutation": "c.1427A>C,p.K476T",
+                        "drugTherapy": "cetuximab",
+                        "clinicalEvidence": "1:AA:Patients with the AA genotype may have decreased progression-free survival when treated with cetuximab in people with Head and Neck Neoplasms as compared to patients with genotype GG. Other genetic and clinical factors may also influence the response to cetuximab.<br/>2:AG:Patients with the AG genotype may have decreased progression-free survival when treated with cetuximab in people with Head and Neck Neoplasms as compared to patients with genotype GG. Other genetic and clinical factors may also influence the response to cetuximab.<br/>3:GG:Patients with the GG genotype may have increased progression-free survival when treated with cetuximab in people with Head and Neck Neoplasms as compared to patients with genotype AA or AG. Other genetic and clinical factors may also influence the response to cetuximab.",
+                        "type": 1
+                    },
+                    {
+                        "code": "43b9e827c6574d4b92f1e49e4eb7ed65",
+                        "gene": "GSTP1",
+                        "mutation": "c.313A>G,p.I105V",
+                        "drugTherapy": "oxaliplatin",
+                        "clinicalEvidence": "1:AA:Patients with the AA genotype and cancer who are treated with oxaliplatin or platinum compounds may have an increased risk for hematological toxicity, neurotoxicity, neutropenia, and discontinuation of treatment as compared to patients with the AG or GG genotype. Conflicting data exist for the neurotoxicity risk showing that patients with the AA might have a decreased, but not absent, risk. Other genetic and clinical factors may also influence a patient's risk for adverse events with oxaliplatin or platinum compounds treatment.<br/>2:AG:Patients with the AG genotype and cancer who are treated with oxaliplatin or platinum compounds may have a decreased, but not absent, risk for hematological toxicity, neurotoxicity, neutropenia, and discontinuation of treatment as compared to patients with the AA genotype. Conflicting data exist for the neurotoxicity risk showing that patients with the AG might have an increased risk. Other genetic and clinical factors may also influence a patient's risk for adverse events with oxaliplatin or platinum compounds treatment.<br/>3:GG:Patients with the GG genotype and cancer who are treated with oxaliplatin or platinum compounds may have a decreased, but not absent, risk for hematological toxicity, neurotoxicity, neutropenia, and discontinuation of treatment as compared to patients with the AA genotype. Conflicting data exist for the neurotoxicity risk showing that patients with the GG might have an increased risk. Other genetic and clinical factors may also influence a patient's risk for adverse events with oxaliplatin or platinum compounds treatment.",
+                        "type": 2
+                    },
+                    {
+                        "code": "c577063efdc542a48ca5bc8cb1d3c0f7",
+                        "gene": "GSTP1",
+                        "mutation": "c.313A>G,p.I105V",
+                        "drugTherapy": "methotrexate",
+                        "clinicalEvidence": "1:AA:Patients with the AA genotype and with Precursor Cell Lymphoblastic Leukemia-Lymphoma who are treated with methotrexate may have a decreased likelihood of Drug Toxicity as compared to patients with the GG genotype. This finding is contradicted in other studies. Other genetic and clinical factors may also influence a patient's level of methotrexate induced toxicity.<br/>2:AG:Patients with the AG genotype and with Precursor Cell Lymphoblastic Leukemia-Lymphoma who are treated with methotrexate may have a decreased likelihood of Drug Toxicity as compared to patients with the GG genotype. This finding is contradicted in other studies. Other genetic and clinical factors may also influence a patient's level of methotrexate induced toxicity.<br/>3:GG:Patients with the GG genotype and with Precursor Cell Lymphoblastic Leukemia-Lymphoma who are treated with methotrexate may have an increased likelihood of Drug Toxicity as compared to patients with the AG and AA genotype. This finding is contradicted in other studies. Other genetic and clinical factors may also influence a patient's level of methotrexate induced toxicity.",
+                        "type": 6
+                    }
+                ]
+            },
+            "block_15": {
+                "blockName": "预后相关解读信息",
+                "infos": [
+                    {
+                        "code": "877c60b68dbe412384480282153be685",
+                        "gene": "ERCC2",
+                        "mutation": "c.2133C>T,p.D711D(负链)",
+                        "influenceOnPrognosis": "预后差",
+                        "nccnCsco": "0",
+                        "fdaCfad": "0",
+                        "other": "0",
+                        "clinicalTrails": "0",
+                        "preClinicalTrails": "0",
+                        "functionPrediction": "0"
+                    },
+                    {
+                        "code": "199e810181ad4301a3ab10532b05c371",
+                        "gene": "XRCC1",
+                        "mutation": "c.1196A>G,p.Q399R(负链)",
+                        "influenceOnPrognosis": "预后好:XRCC1 rs25487 CC基因型增加NSCLC患者铂类为基础的化疗药物治疗的生存期。",
+                        "nccnCsco": "0",
+                        "fdaCfad": "0",
+                        "other": "0",
+                        "clinicalTrails": "0",
+                        "preClinicalTrails": "0",
+                        "functionPrediction": "0"
+                    }
+                ]
+            },
+            "block_16": {
+                "blockName": "临床试验入组推荐",
+                "infos": [
+                    {
+                        "code": "6a61d2a690be460095828567b9c1bc6f",
+                        "clinical_id": "NCT02140333",
+                        "clinical_name": "Erlotinib 100mg or 150mg in Treating EGFR Mutated NSCLC",
+                        "phase": "Phase 3",
+                        "intervention_type": null,
+                        "intervention_name": "    Erlotinib",
+                        "indications": "NSCLC",
+                        "contact_information": "86-20-83062821",
+                        "recruit_place": "Guangzhou medical university  /  China  Guanzhou "
+                    },
+                    {
+                        "code": "5f28ab87bf5f4720ab24ad414b60e0f5",
+                        "clinical_id": "NCT02354274",
+                        "clinical_name": "Novel Approach to Radiotherapy in Locally Advanced Lung Cancer - Heterogeneous FDG-guided Dose Escalation With Concomitant Navelbine®",
+                        "phase": "Phase 3",
+                        "intervention_type": null,
+                        "intervention_name": "",
+                        "indications": "NSCLC",
+                        "contact_information": null,
+                        "recruit_place": "Herlev University Hospital  /  Denmark  Herlev "
+                    }
+                ]
+            },
+            "block_17": {
+                "blockName": "建议增加的检测项目",
+                "infos": {
+                    "suggestGenes": ""
+                }
+            },
+            "block_18": {
+                "blockName": "疾病信号通路图",
+                "infos": [
+                    {
+                        "code": "cb4eed7c63c4478eb5311a089235e590",
+                        "pathway_path": "http://yanfa.test.bainuo.cn:8888/flowImages/20171016/5a9e93cd87a1470cad0d3e712c1208ab.png",
+                        "pathway_name": "xxxx"
+                    }
+                ]
+            },
+            "block_21": {
+                "blockName": "肿瘤细胞免疫治疗临床试验入组推荐",
+                "infos": [
+                    {
+                        "code": "bca35be8ed7a495085b64350ec266f76",
+                        "clinical_id": "NCT02553642",
+                        "clinical_name": "Relationship Between Tumor Mutation Burden and Predicted Neo-antigen Burden in Patients With Advanced Melanoma or Bladder Cancer Treated With Nivolumab or Nivolumab Plus Ipilimumab (CA209-260)",
+                        "phase": "Phase 2",
+                        "intervention_type": null,
+                        "intervention_name": "Nivolumab,Nivolumab plus Ipilimumab",
+                        "indications": "Bladder Cancer,Melanoma",
+                        "contact_information": "646-888-3579   null",
+                        "recruit_place": "Memorial Sloan Kettering Cancer Center  /  United States  New York "
+                    },
+                    {
+                        "code": "1e81d28fff1746099b25acd5293e0481",
+                        "clinical_id": "NCT02553642",
+                        "clinical_name": "Relationship Between Tumor Mutation Burden and Predicted Neo-antigen Burden in Patients With Advanced Melanoma or Bladder Cancer Treated With Nivolumab or Nivolumab Plus Ipilimumab (CA209-260)",
+                        "phase": "Phase 2",
+                        "intervention_type": null,
+                        "intervention_name": "Nivolumab,Nivolumab plus Ipilimumab",
+                        "indications": "Bladder Cancer,Melanoma",
+                        "contact_information": "646-888-2395   null",
+                        "recruit_place": "Memorial Sloan Kettering Cancer Center  /  United States  New York "
+                    }
+                ]
+            },
+            "block_22": {
+                "blockName": "参考文献",
+                "infos": [
+                    {
+                        "code": "06a8538958244232935e7f376df64541",
+                        "literature_name": "Ercan D, Choi H G, Yun C H, et al. EGFR mutations and resistance to Irreversible pyrimidine based EGFR inhibitors.[J]. Clinical Cancer Research An Official Journal of the American Association for Cancer Research, 2015, 21)17):3913.",
+                        "literature_url": "http://www.ncbi.nlm.nih.gov/pubmed/25948633"
+                    },
+                    {
+                        "code": "11de9355f0e34c4b83ee30a10d7896af",
+                        "literature_name": "Booton R, Ward T, Heighway J, et al. Glutathione-S-transferase P1 isoenzyme polymorphisms, platinum-based chemotherapy, and non-small cell lung cancer[J]. Journal of Thoracic Oncology Official Publication of the International Association for the Study of Lung Cancer, 2006, 1)7):679-683.",
+                        "literature_url": "http://www.ncbi.nlm.nih.gov/pubmed/17409936"
+                    },
+                    {
+                        "code": "a2641cada24c48faad376decbb24b719",
+                        "literature_name": "Soo R A, Wang L Z, Ng S S, et al. Distribution of gemcitabine pathway genotypes in ethnic Asians and their association with outcome in non-small cell lung cancer patients.[J]. Lung Cancer, 2009, 63)1):121-127.",
+                        "literature_url": "http://www.ncbi.nlm.nih.gov/pubmed/18538445"
+                    }
+                ]
+            },
+            "block_23": {
+                "blockName": "免责声明",
+                "infos": {
+                    "disclaimer": "本报告仅对本次所检测样本或上传的测序数据负责，有临床意义的基因变异仍需一代测序等检测方法进行验证。此样本或测序数据应收集于正确的受检者，具有有效的样本ID；如发现样本或数据标签有误，我方保留拒绝后续分析的权利；本报告的结构设计参考《 Standards and Guidelines for the Interpretation and Reporting of Sequence Variants in Cancer》、《临床分子病理实验室二代基因测序检测专家共识》等指南共识。本报告提供的临床治疗建议（潜在有效或无效的判断）是基于患者的生物标志物变异情况，以循证医学为基础，参照既往的医学研究文献或公共数据库信息得出的。报告内容仅供临床医师参考，是否选择及如何选择报告中推荐的药物或治疗方案由主治医师自主决定。本报告中的结果并不意味着所列举的药物或方案适用于相同的适应症，或对相似受检者有相同的安全性或有效性。对受检者的治疗和护理的决定，必须根据医生独立的综合医学判断，所需信息包括但不限于：受检者及其家庭病史、体检信息、从其他诊断测试获得的信息、检测前诊疗和标准治疗护理方案、受检者个人偏好等。处方和治疗的决定不应仅基于单一检测或数据结果，如二代测序（NGS）方法或本报告所包含的信息。随着医学研究的深入、研究证据的积累，对生物标志物变异的分类或解释以及相应的临床应用提示均可能发生变化，本报告中所包含的信息截至本报告日期以前的研究内容和Bainuo_1.0 版本。"
+                }
+            },
+            "block_24": {
+                "blockName": "肿瘤负荷",
+                "infos": [
+                    {
+                        "code": "4d59d1fc80954059ab9f40b2acf9cd4b",
+                        "checkItem": "肿瘤突变负荷TMB",
+                        "mutationalLoad": "fadsf",
+                        "judgeStand": "fadsf"
+                    },
+                    {
+                        "code": "c613979e17bb42df8dfa7545aeed30c8",
+                        "checkItem": "肿瘤新抗原负荷TNB",
+                        "mutationalLoad": "fadsf",
+                        "judgeStand": "fadsf"
+                    }
+                ]
+            },
+            "block_25": {
+                "blockName": "HLA基因",
+                "infos": [
+                    {
+                        "code": "5600d6850e7249ce9fd26df3b9998bdb",
+                        "hla": "fadsf",
+                        "hla1": "fadsf",
+                        "alleleOne": "fadsf",
+                        "alleleTwo": "fadsf"
+                    }
+                ]
+            },
+            "block_26": {
+                "blockName": "免疫检查点抑制剂治疗方案汇总",
+                "infos": [
+                    {
+                        "code": null,
+                        "mutation": null,
+                        "drug": null,
+                        "nccnCsco": null,
+                        "fdaCfad": null,
+                        "other": null,
+                        "clinicalTrails": null,
+                        "preClinicalTrails": null,
+                        "functionPrediction": null
+                    }
+                ]
+            },
+            "block_27": {
+                "blockName": "CAR-T细胞免疫治疗方案汇总",
+                "infos": [
+                    {
+                        "code": null,
+                        "drugTherapy": null,
+                        "nccnCsco": null,
+                        "fdaCfad": null,
+                        "other": null,
+                        "clinicalTrails": null,
+                        "preClinicalTrails": null,
+                        "functionPrediction": null
+                    }
+                ]
+            },
+            "block_28": {
+                "blockName": "肿瘤疫苗治疗方案汇总",
+                "infos": [
+                    {
+                        "code": null,
+                        "drugTherapy": null,
+                        "nccnCsco": null,
+                        "fdaCfad": null,
+                        "other": null,
+                        "clinicalTrails": null,
+                        "preClinicalTrails": null,
+                        "functionPrediction": null
+                    }
+                ]
+            },
+            "block_29": {
+                "blockName": "免疫治疗方案详情",
+                "infos": [
+                    {
+                        "code": null,
+                        "drugTherapy": null,
+                        "clinicalEvidence": null
+                    }
+                ]
+            }
+        },
+        "blockInfos": []
+    }
+}

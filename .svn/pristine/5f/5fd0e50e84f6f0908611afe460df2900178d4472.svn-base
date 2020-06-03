@@ -1,0 +1,661 @@
+<template>
+  <!-- <el-popover
+    placement="bottom"
+    width="400"
+    offset="-400"
+    @show="()=>sWindow(windowType, text)"
+    :popper-class="isCollapse ? 'setpop noshown': 'setpop shown'"
+    trigger="click"> -->
+    <div class="popTable">
+
+      <div class="phead" :style="'height:'+ (llen > 9 ? '52' : '47') +'px'">
+        <div class="divover">
+          <ul>
+            <li :class="item.checkNum ? 'checked' : ''" v-for="(item, i) in popData1.headList" :key="i" @click="changeTab(item.mark, i)">
+              <span @click="closePanel(i)" v-if="item.canClose" class="fr">×</span>
+              {{ item.label }}
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="pcont" data="基本信息" v-if="checkMark == 'base'">
+        <div class="rowsline">
+          <label style="display:block;">描述</label>
+          <div class="rowscon" style="width:calc(100%)">{{ popData1.datas.desc }}</div>
+        </div>
+        <div class="rowsline">
+          <label style="line-height: 40px;">关联疾病：</label>
+          <div class="rowscon" style="width:calc(100% - 6em)">
+            <el-button type="success" v-for="(item,i) in popData1.datas.cancers" @click="pushHead('disease',item)" :key="i">{{ item.name == '' ? item.diseaseEnName : item.name }}</el-button>
+          </div>
+        </div>
+        <div class="rowsline">
+          <label style="line-height: 40px;">关联药物：</label>
+          <div class="rowscon" style="width:calc(100% - 6em)">
+            <el-button type="success" v-for="(item,i) in popData1.datas.drugControls" @click="pushHead('drug',item)" :key="i">{{ item.drugName != '' ? item.drugName : item.drugEnName }}</el-button>
+          </div>
+        </div>
+        <div class="rowsline">
+          <div class="rowsline" style="width:49.5%; display:inline-block;">
+            <label>分子作用网络</label>
+            <div class="rowscon" style="width:calc(100% - 7em)">
+              <div id="cy"></div>
+            </div>
+          </div>
+          <div class="rowsline" style="width:49.5%; display:inline-block;">
+            <label>GO Terms</label> <!--字符图-->
+            <div class="rowscon" style="width:calc(100% - 6em); height:400px;">
+              <div id="wordCloud" :style="{width: '100%', height: '100%'}"></div>
+            </div>
+          </div>
+        </div>
+        <br>
+      </div>
+
+      <div class="pcont" data="检出变异" v-if="checkMark == 'mutation'" windowType='variant'  style="padding:10px 20px 20px 20px;">
+        <el-table class="tableList" :data="popData1.datas.listReportVariant">
+          <el-table-column prop="variant" label="变异" width="200">
+          </el-table-column>
+          <el-table-column prop="gdnaChange" label="基因组定位">
+          </el-table-column>
+          <el-table-column prop="geneType" label="基因型">
+          </el-table-column>
+          <el-table-column prop="allelicDepth" label="突变频率">
+          </el-table-column>
+          <el-table-column prop="transcriptExon" label="外显子">
+          </el-table-column>
+          <el-table-column prop="clinsig" label="临床意义">
+          </el-table-column>
+        </el-table>
+      </div>
+
+      <div class="pcont" data="Pathway" v-if="checkMark == 'pathway'" style="padding:10px 20px 20px 20px;">
+        <el-table class="tableList" :data="popData1.datas.pathwayInfos">
+          <el-table-column prop="number" label="编号" width="200">
+          </el-table-column>
+          <el-table-column prop="desc" label="说明">
+          </el-table-column>
+        </el-table>
+      </div>
+
+      <div class="pcont" data="检测Panel" v-if="checkMark == 'panel'" style="padding:10px 20px 20px 20px;">
+        <el-table class="tableList" :data="popData1.datas.panels">
+          <el-table-column prop="companyName" label="检测机构" width="200">
+          </el-table-column>
+          <el-table-column prop="name" label="检测Panel">
+          </el-table-column>
+          <el-table-column prop="desc" label="说明">
+          </el-table-column>
+        </el-table>
+      </div>
+
+      <div class="pcont" data="疾病" v-if="checkMark == 'disease'">
+        <div class="drugTabs">
+          <a href="javascript:;" :class="minMark == '1' ? 'checked' : ''" @click="cmmk('1')">基本信息</a>
+          <a href="javascript:;" :class="minMark == '2' ? 'checked' : ''" @click="cmmk('2')">Pathway</a>
+          <a href="javascript:;" :class="minMark == '3' ? 'checked' : ''" @click="cmmk('3')">检测pannel</a>
+          <a href="javascript:;" :class="minMark == '4' ? 'checked' : ''" @click="cmmk('4')">诊疗医院</a>
+        </div>
+        <div class="baseInfo" v-if="minMark == '1'">
+          <div class="rowsline">
+            <label>中文名：</label>
+            <div class="rowscon">
+              {{ cacheData.drugName }}
+            </div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <label>英文名：</label>
+            <div class="rowscon">
+              {{ cacheData.drugEnName }}
+            </div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+          </div>
+          <div class="rowsline">
+            <label>描述：</label>
+            <div class="rowscon" style="width:calc(100% - 6em)">
+              {{ cacheData.drugDescription }}
+            </div>
+          </div>
+          <div class="rowsline">
+            <label style="line-height: 40px;">驱动基因：</label>
+            <div class="rowscon" style="width:calc(100% - 8em)">
+              <el-button type="success" v-for="(item,i) in popData1.datas.cancers" @click="pushHead('disease',item)" :key="i">{{ item.name }}</el-button>
+            </div>
+          </div>
+          <div class="rowsline">
+            <label style="line-height: 40px;">关联药物：</label>
+            <div class="rowscon" style="width:calc(100% - 8em)">
+              <el-button type="success" v-for="(item,i) in popData1.datas.drugControls" @click="pushHead('drug',item)" :key="i">{{ item.drugName != '' ? item.drugName : item.drugEnName }}</el-button>
+            </div>
+          </div>
+          <div class="rowsline">
+            <label style="line-height: 40px;">亚　　型：</label>
+            <div class="rowscon" style="width:calc(100% - 8em)">
+              <el-button type="success" v-for="(item,i) in popData1.datas.cancers" @click="pushHead('disease',item)" :key="i">{{ item.name }}</el-button>
+            </div>
+          </div>
+          <br>
+          <p style="text-align:center;">
+            <el-button type="primary">PubMed</el-button>
+          </p>
+        </div>
+        <div class="baseInfo" data="Pathway" v-if="minMark == '2'" style="padding:10px 20px 20px 20px;">
+          <el-table class="tableList" :data="popData1.datas.pathwayInfos">
+            <el-table-column prop="number" label="编号" width="200">
+            </el-table-column>
+            <el-table-column prop="desc" label="说明">
+            </el-table-column>
+          </el-table>
+        </div>
+
+        <div class="pcont" data="检测Panel" v-if="minMark == '3'" style="padding:10px 20px 20px 20px;">
+          <el-table class="tableList" :data="popData1.datas.panels">
+            <el-table-column prop="companyName" label="检测机构" width="200">
+            </el-table-column>
+            <el-table-column prop="name" label="检测Panel">
+            </el-table-column>
+            <el-table-column prop="desc" label="说明">
+            </el-table-column>
+          </el-table>
+        </div>
+
+        <div class="pcont" data="诊疗医院" v-if="minMark == '4'" style="padding:10px 20px 20px 20px;">
+          <table class="el-table">
+            <tr>
+              <th width="110px" style="text-align:center;">序号</th>
+              <th>医院名称</th>
+              <th>科室</th>
+              <th>医生</th>
+            </tr>
+            <tr>
+              <td style="text-align:center;">1</td>
+              <td>深圳南山人民医院</td>
+              <td>肿瘤科</td>
+              <td>张三</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;">1</td>
+              <td>深圳南山人民医院</td>
+              <td>肿瘤科</td>
+              <td>张三</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;">1</td>
+              <td>深圳南山人民医院</td>
+              <td>肿瘤科</td>
+              <td>张三</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="pcont" data="药物" v-if="checkMark == 'drug'">
+        <div class="drugTabs">
+          <a href="javascript:;" :class="minMark == '1' ? 'checked' : ''" @click="cmmk('1')">基本信息</a>
+          <a href="javascript:;" :class="minMark == '2' ? 'checked' : ''" @click="cmmk('2')">Pathway</a>
+          <a href="javascript:;" :class="minMark == '3' ? 'checked' : ''" @click="cmmk('3')">临床入组</a>
+        </div>
+        <div class="baseInfo" v-if="minMark == '1'">
+          <div class="rowsline">
+            <label>药物中文名：</label>
+            <div class="rowscon">
+              {{ cacheData.drugName }}
+            </div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <label>药物英文名：</label>
+            <div class="rowscon">
+              {{ cacheData.drugEnName }}
+            </div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <label>药物类型：</label>
+            <div class="rowscon">
+              {{ cacheData.drugType }}
+            </div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <label>是否医保：</label>
+            <div class="rowscon">
+              {{ cacheData.healthInsurance }}
+            </div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <label>癌肿：</label>
+            <div class="rowscon">{{cacheData.cancerName}}</div>
+          </div>
+          <div class="rowsline">
+            <label>药物描述：</label>
+            <div class="rowscon" style="width:calc(100% - 6em)">
+              {{ cacheData.drugDescription }}
+            </div>
+          </div>
+          <div class="rowsline">
+            <label>国内上市情况：</label>
+            <div class="rowscon" style="width:calc(100% - 8em)">
+              {{ cacheData.inlandPublicSituation }}
+            </div>
+          </div>
+          <div class="rowsline">
+            <label>商品名：</label>
+            <div class="rowscon" style="width:calc(100% - 5em)">
+              {{ cacheData.drugTradeName }}
+            </div>
+          </div>
+        </div>
+        <div class="baseInfo" data="Pathway" v-if="minMark == '2'" style="padding:10px 20px 20px 20px;">
+          <el-table class="tableList" :data="popData1.datas.pathwayInfos">
+            <el-table-column prop="number" label="编号" width="200">
+            </el-table-column>
+            <el-table-column prop="desc" label="说明">
+            </el-table-column>
+          </el-table>
+        </div>
+        <div class="baseInfo" v-if="minMark == '3'">
+          <div class="rowsline">
+            <div class="rowscon" style="width:calc(100%)">
+              1、NCT01351103
+            </div>
+            <div class="rowsline">
+              <label>描述：</label>
+              <div class="rowscon" style="width:calc(100% - 4em)">
+                Impairment of gastrointestinal function or gastrointestinal disease that may significantly alter the absorption of oral LGK974 (e.g., ulcerative diseases,uncontrolled nausea, vomiting, diarrhea, malabsorption syndrome, small bowel resection)
+              </div>
+            </div>
+            <div class="rowsline">
+              <label>入组条件：</label>
+              <div class="rowscon" style="width:calc(100% - 6em)">
+                Impairment of gastrointestinal function or gastrointestinal disease that may significantly alter the absorption of oral LGK974 (e.g., ulcerative diseases,uncontrolled nausea, vomiting, diarrhea, malabsorption syndrome, small bowel resection)
+              </div>
+            </div>
+          </div>
+          <br>
+          <p style="text-align:center;">
+            <el-button type="primary">DrugBank</el-button>
+            <el-button type="primary">FDA</el-button>
+            <el-button type="primary">CFDA</el-button>
+            <el-button type="primary">PubMed</el-button>
+          </p>
+        </div>
+      </div>
+
+      <div class="pcont" data="基本信息2" v-if="checkMark == 'base2'" style="padding:10px 20px 20px 20px;">
+        <el-table class="tableList" :data="popData1.datas.exportList">
+          <el-table-column prop="mutationId" label="Cosmic" width="200">
+          </el-table-column>
+          <el-table-column prop="cancerName" label="癌种">
+          </el-table-column>
+          <el-table-column prop="fathmmPrediction" label="功能预测">
+          </el-table-column>
+          <el-table-column prop="pubmedPmid" label="文献id">
+          </el-table-column>
+          <el-table-column prop="mutationCds" label="c点">
+          </el-table-column>
+          <el-table-column prop="mutationAa" label="p点">
+          </el-table-column>
+          <el-table-column prop="transcriptName" label="转录本">
+          </el-table-column>
+        </el-table>
+      </div>
+
+      <div class="pcont" data="治疗方案" v-if="checkMark == 'zlfn'">
+        <div class="rowsline">
+          <div class="rowscon">
+            <el-button type="success" v-for="(item,i) in popData1.datas.drugControlList" class="dunhao" :key="i">{{ item.drugName != '' ? item.drugName : item.drugEnName }}</el-button><!-- @click="pushHead('drug',item)"-->
+          </div>
+        </div>
+        <div class="rowsline">
+          <label style="display:block;">药物介绍：</label>
+          <div class="rowscon" style="width:calc(100%)" v-for="(item,i) in popData1.datas.drugControlList" :key="i">{{ item.drugDescription }}</div>
+        </div>
+        <div class="rowsline">
+          <label style="display:block;">国内上市情况：</label>
+          <div class="rowscon" style="width:calc(100%)" v-for="(item,i) in popData1.datas.drugControlList" :key="i">{{ item.inlandPublicSituation }}</div>
+        </div>
+        <div class="rowsline">
+          <label style="display:block;">临床注释：</label>
+          <div class="rowscon" style="width:calc(100%)" v-for="(item,i) in popData1.datas.reportClinicalNotes" :key="i">
+            <label>检测项：</label><span>{{ item.reportVariant.gene }}</span>&nbsp;&nbsp;&nbsp;&nbsp;
+            <label>检测结果：</label><span>{{ item.reportVariant.variant }}</span>&nbsp;&nbsp;&nbsp;&nbsp;
+            <label>响应：</label><span>{{ item.drugReactionType | formatDrugReactionType }}</span>
+            <p v-for="(xx, ee) in item.reportClinicalNoteDetailList" :key="ee">{{ xx.clinicalNote }}</p>
+          </div>
+        </div>
+      </div>
+
+      <p style="text-align:center; margin-top:20px;" v-if="windowType == 'gene'">
+        <!-- <el-button type="primary">PubMed</el-button> -->
+        <a target="_blank" class="el-button el-button--primary el-button--medium" :href="'http://www.oncokb.org/gene/' + text">OncoKB</a>
+        <a target="_blank" class="el-button el-button--primary el-button--medium" :href="'https://www.pharmgkb.org/gene/' + popData1.datas.paId">PharmGKB</a>
+        <a target="_blank" class="el-button el-button--primary el-button--medium" :href="'https://cancer.sanger.ac.uk/cosmic/gene/analysis?ln=' + text+'#gene-view'">Cosmic</a>
+        <a target="_blank" class="el-button el-button--primary el-button--medium" :href="'https://www.ncbi.nlm.nih.gov/clinvar/?term=' + text">ClinVar</a>
+        <a target="_blank" class="el-button el-button--primary el-button--medium" :href="'https://www.ncbi.nlm.nih.gov/pubmed/?term=' + text">PubMed</a>
+      </p>
+      <p style="text-align:center; margin-top:20px;" v-else-if="windowType == 'variant'">
+        <a target="_blank" @click="changeValidata(scope1.hasValidata)" class="el-button el-button--danger el-button--medium">{{ scope1.hasValidata == 0 ? '待验证位点' : '取消标记' }}</a>
+        <a target="_blank" class="el-button el-button--primary el-button--medium" :href="'http://www.oncokb.org/gene/' + text+'/' +scope1.variant">OncoKB</a>
+        <a target="_blank" class="el-button el-button--primary el-button--medium" :href="'https://cancer.sanger.ac.uk/cosmic/mutation/overview?id=' + text">Cosmic</a>
+        <a target="_blank" class="el-button el-button--primary el-button--medium" :href="'https://www.ncbi.nlm.nih.gov/clinvar/?term=' +text+':'+ scope1.variant">ClinVar</a>
+        <a target="_blank" class="el-button el-button--primary el-button--medium" :href="'https://www.snpedia.com/index.php/' + windowType">SNPedia</a>
+        <a target="_blank" class="el-button el-button--primary el-button--medium" :href="'https://www.ncbi.nlm.nih.gov/pubmed/?term=' + text + '+' + scope1.var">PubMed</a>
+      </p>
+
+    </div>
+
+    <!-- <span slot="reference">{{ text }}<span :class="scope.hasValidata == '1' && windowType == 'variant' ? 'yellosj' :'bluesj'"></span></span> -->
+
+    <!--el-button slot="reference">click 激活</el-button-->
+  <!-- </el-popover> -->
+</template>
+<script>
+  let vm = {}
+  // import cytoscape from '@/common/cosjs/cytoscape.min.js'
+  import '@/common/cosjs/code.js'
+  import cystyle from '@/common/cosjs/cy-style.json'
+  import cydata from '@/common/cosjs/data.json'
+  import '@/common/cosjs/style.css'
+  import URL from '@/common/js/URL.js'
+  import axios from 'axios'
+  import Pager from '@/components/common/pager'
+
+  export default {
+    props: {
+        scope: {
+          type: Object
+        },
+        windowType: {
+          type: String
+        },
+        text: {
+          type: String
+        },
+        formDatas:{
+            type:Object
+        },
+        formInline: {
+          type: Object
+        },
+        popData: {
+          type: Object
+        },
+        checkMark: {
+          type: String
+        },
+        minMark: {
+          type: String
+        },
+        cacheData: {
+          type: Object
+        }
+    },
+    created() {
+      // 触发神经网络图(基因关系图)数据生成
+      // this.gosetDefault()
+      let that = this
+      that.$emit('sWindow')
+      that.$nextTick(function () {
+        that.gosetDefault()
+        that.drawCloud()
+      })
+    },
+    data () {
+      vm = this
+      return {
+        // pageSize: 10
+        popData1: {
+          headList: [],
+          datas: {
+            cancers: {},
+            desc: '',
+            drugControls: [],
+            gene: '',
+            listReportVariant: [],
+            molecularNetworkImg: '',
+            panels: [],
+            pathwayInfos: [],
+            termsImg: '',
+            paId:''
+          }
+        },
+        scope1: {},
+        formData: {},
+        formData1: {},
+        drugReactionType: [{ //响应
+            value: 0,
+            label: '敏感 '
+          },
+          {
+            value: 1,
+            label: '耐药 '
+          },
+          {
+            value: 2,
+            label: '继发性耐药 '
+          },
+          {
+            value: 3,
+            label: '可能耐药 '
+          },
+          {
+            value: 4,
+            label: '可能敏感'
+          },
+          {
+            value: 5,
+            label: '敏感减弱'
+          },
+          {
+            value: 6,
+            label: '敏感增强'
+          },
+          {
+            value: 7,
+            label: '耐药减弱'
+          }
+        ]
+      }
+    },
+    mounted() {
+      // this.gosetDefault()
+    },
+    methods: {
+      gosetDefault() {
+        let n = cystyle
+        let s = cydata
+        let that = this
+        let cy =  that.$cytoscape({
+          container: document.getElementById('cy'),
+          layout: {
+            name: 'cose',
+            idealEdgeLength: 100,  // 莫名其妙的变大框
+            nodeOverlap: 20,
+            refresh: 20,
+            fit: true, // 水平垂直居中
+            padding: 30,
+            randomize: false, // 暂时没发现用处
+            componentSpacing: 100,
+            nodeRepulsion: 400000, // 大小间距比例啥的
+            edgeElasticity: 100, // 暂时没发现用处
+            nestingFactor: 5, // 暂时没发现用处
+            gravity: 80,
+            numIter: 1000, // 这个一定要，随便设置，不给的话，各个圆会叠一块儿
+            initialTemp: 200, // 暂时没发现用处
+            coolingFactor: 0.9, // 散列点位置，值越低越贴近圆边
+            minTemp: 1.0 // 没啥用
+          },
+          zoom: 1,
+          minZoom: 1e-50,
+          maxZoom: 1e50,
+          zoomingEnabled: false,//定义是否可缩放
+          style: n,
+          elements: s
+        })
+        return false
+      },
+      drawCloud(){
+        let that = this
+        // alert('eeeeee')
+        let charObj = document.getElementById('wordCloud')
+        charObj.style.width = '600px';
+        let wordCloud = this.$echarts.init(charObj);
+        // wordCloud.resize()
+        // wordCloud.style.width = 500 + 'px';
+        function createRandomItemStyle() {
+            return {
+                normal: {
+                    color: 'rgb(' + [
+                        Math.round(Math.random() * 160),
+                        Math.round(Math.random() * 160),
+                        Math.round(Math.random() * 160)
+                    ].join(',') + ')'
+                }
+            };
+        }
+        let text = ['Sam S Club','Macys','Amy Schumer','Jurassic World','Charter Communications','Chick Fil A','Planet Fitness','Pitch Perfect','Express','Home','Johnny Depp','Lena Dunham','Lewis Hamilton','KXAN','Mary Ellen Mark','Farrah Abraham','Rita Ora','Serena Williams','NCAA baseball tournament','Point Break']
+        let data = [];
+        for(var i = 0; i < text.length; i++){
+            let obj = {};
+            obj.name = text[i];
+            obj.value = Math.random()*10000;
+            data.push(obj)
+        }
+        let option = {
+            title: {
+                text: null,
+                link: ''
+            },
+            tooltip: {
+                show: false, // 悬停提示
+            },
+            series: [{
+                name: 'Google Trends',
+                type: 'wordCloud',
+                size: ['80%', '80%'],
+                textRotation : [0, 45, 90, -45],
+                textPadding: 0,
+                autoSize: {
+                    enable: true,
+                    minSize: 14,
+                    maxSize: 20
+                },
+                 textStyle: {//文字样式设置
+                    normal: {
+                        color: function() {//颜色
+                            return 'rgb(' + [//返回随机生成的颜色
+                                Math.round(Math.random() * 160),
+                                Math.round(Math.random() * 160),
+                                Math.round(Math.random() * 160)
+                            ].join(',') + ')';
+                        }
+                    },
+                    emphasis: {//鼠标划入样式
+                        shadowBlur: 10,//文字阴影模糊度
+                        shadowColor: '#333'//文字阴影颜色
+                    }
+                },
+                data:data
+            }]
+        }
+        wordCloud.setOption(option)
+      },
+      handleCurrentChange (val) {
+        this.$emit('handleCurrentChange', val)
+      },
+      handleSizeChange (val) {
+        this.$emit('handleSizeChange', val)
+      },
+      sWindow(type, keyVal) {
+        // 查询的类型   基因、疾病、药物    keyVal 是查询参数
+        let that = this
+        that.$emit('sWindow')
+      },
+      changeTab(item, i) {
+        // 改变选中的选项
+        let that = this
+        that.$emit('changeTab', item, i)
+      },
+      pushHead(type, scope) {
+        let that = this
+        that.$emit('pushHead', type, scope)
+      },
+      cmmk(i) {
+        let that = this
+        that.$emit('cmmk', i)
+      },
+      closePanel(i) {
+        let that = this
+        that.$emit('closePanel', i)
+      },
+      blockSearch(formInlines) { // 查询
+        let that = this
+        that.$emit('blockSearch', formInlines)
+       },
+      changeValidata(value) {
+        // 更改标记的提示
+        let that = this
+        that.scope1.hasValidata = value == '0' ? '1' : '0'
+        let url = 'report/variant/modifyReportVariantValidate'
+        axios.post(URL.api_name + url, {
+          code: that.scope1.code,
+          hasValidata: that.scope1.hasValidata
+        }).then(function(res) {
+          if(res.data.code == '100') {
+            that.$message({
+              type: 'success',
+              message: res.data.message,
+              duration: 1000
+            })
+            that.blockSearch(that.formInline)
+          } else {
+            // 失败,重新查询
+            that.$message({
+              type: 'error',
+              message: res.data.message,
+              duration: 1000
+            })
+          }
+        }).catch(function(res){
+          // 接口报错了
+        })
+      }
+    },
+    components: {
+      Pager: Pager
+    },
+    watch: {
+      formDatas: function(newVal,oldVal){
+        let that = this
+        this.formData = newVal
+        this.formData1 = JSON.parse(JSON.stringify(this.formData))
+        for (let i in that.formData1.list) {
+          // that.formData1.list[i]['isEdit'] = false
+          that.$set(that.formData1.list[i], 'isEdit', false)
+        }
+      },
+      popData: function(newVal, oldVal){
+        let that = this
+        // 重设基本选择位置
+        console.log('weqweklscljwee')
+        that.popData1 = newVal
+        console.log(that.popData1)
+        that.checkMark = that.popData1.headList[0].mark
+        // 触发一下改变的验证位点
+        that.scope1 = JSON.parse(JSON.stringify(that.scope))
+      }
+    },
+    computed: {
+      isCollapse() {
+        return this.$store.getters.isOpened;
+      },
+      llen() {
+        return this.popData1.headList.length
+      }
+    },
+    filters: {
+      formatDrugReactionType (value) {
+        let n = ''
+        for(let i in vm.drugReactionType) {
+          if (value == vm.drugReactionType[i].value) {
+            n = vm.drugReactionType[i].label
+            break
+          }
+        }
+        return n
+      }
+    }
+  }
+</script>
+<style scoped>
+@import '../../../../common/cosjs/style.css'
+</style>

@@ -1,0 +1,219 @@
+<template>
+  <div class="list">
+		<div class="contentTitle pdlr20">{{ type == 'add' ? '添加' : '编辑' }}{{ status == 1 ? '基因' : '变异' }}注释</div>
+    <div class="table-data" v-loading="loading" element-loading-text="拼命加载中">
+      <el-form :model="formData"  ref="formData" label-width="115px">
+        <el-form-item label="基因：">
+          <el-col :span="4">
+            <el-input v-model="formData.gene" placeholder="请输入基因名"></el-input>
+          </el-col>
+        </el-form-item>
+
+
+        <el-form-item label="变异：" v-if="status == '2'">
+          <el-col :span="6">
+            <el-input v-model="formData.variant" placeholder=""></el-input>
+          </el-col>
+        </el-form-item>
+
+        <el-form-item label="肿瘤类型：" v-if="status == '1'">
+          <el-col :span="9">
+            <el-select v-model="formData.shapeType">
+      				<el-option label="血液肿瘤" :value="0"></el-option>
+      				<el-option label="实体瘤" :value="1"></el-option>
+            </el-select>
+          </el-col>
+        </el-form-item>
+
+        <el-form-item label="疾病名称：" v-if="status == '2'">
+          <el-col :span="6">
+            <el-input v-model="formData.diseaseName" placeholder=""></el-input>
+          </el-col>
+        </el-form-item>
+
+        <el-form-item label="疾病相关：" v-if="status == '2'">
+          <el-col :span="6">
+            <el-select v-model="formData.pathogenesis">
+                <el-option label="疾病相关" value="疾病相关"></el-option>
+                <el-option label="可能与疾病相关" value="可能与疾病相关"></el-option>
+            </el-select>
+          </el-col>
+        </el-form-item>
+
+        <el-form-item label="临床意义：" v-if="status == '2'">
+          <el-col :span="18">
+            <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" v-model="formData.clinsig" placeholder=""></el-input>
+          </el-col>
+        </el-form-item>
+
+        <el-form-item label="位点注释：" v-if="status == '2'">
+          <el-col :span="18">
+            <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" v-model="formData.siteNote" placeholder=""></el-input>
+          </el-col>
+        </el-form-item>
+
+        <el-form-item label="基因注释：" v-if="status == '1'">
+          <el-col :span="18">
+            <el-input type="textarea" :autosize="{ minRows: 4, maxRows: 8}" v-model="formData.note"></el-input>
+          </el-col>
+        </el-form-item>
+
+        <el-form-item label="参考文献：">
+          <el-col :span="18">
+            <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" v-model="formData.literatureNote" placeholder=""></el-input>
+          </el-col>
+        </el-form-item>
+
+        <el-form-item label="报告编号：" v-if="status == '2' && type == 'add'">
+          <el-col :span="6">
+            <el-input v-model="formData.projectCode" placeholder=""></el-input>
+          </el-col>
+        </el-form-item>
+
+        <el-form-item>
+          <el-button type="primary" size="medium" :loading="isLoading" @click="sub('formData')" style="margin:30px 10px 0px 0px;">
+              {{ isLoading ? '正在提交' : '提交' }}
+          </el-button>
+          <el-button size="medium" @click="back()">返回</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
+  </div>
+</template>
+<script>
+  import URL from '@/common/js/URL.js'
+  import axios from 'axios'
+  export default {
+    created () {
+        // 获取数据
+        if(this.type == 'edit') {
+            this.getData()
+        }
+    },
+    data () {
+      return {
+        formData: {
+        	gene: '',
+        	literatureNote: '',
+        	shapeType: '',
+        	note: '',
+          //
+          pathogenesis: '',
+          variant: '',
+          clinsig: '',
+          diseaseName: '',
+          siteNote: '',
+          projectCode: ''
+        },
+        getDataurl: this.$route.params.status == '1' ? 'cloud/knowledge/getGeneNote' : 'cloud/knowledge/getVariantNote',
+        pager: this.$route.params.pager, // 页码
+        type: this.$route.params.type, // 添加还是编辑
+        status: this.$route.params.status, // 1基因 2变异
+        code: this.$route.params.code, // 0 就是添加，无     其他是修改
+        isLoading: false,
+        loading: false
+      }
+    },
+    methods: {
+      getData() {
+        let that = this
+        axios.get(URL.api_name + that.getDataurl, {
+          params: {
+            code: that.code
+          }
+        }).then(function (respose) {
+          if(respose.data.code === '100') {
+            that.formData = respose.data.data
+          }
+        }, function (error) {
+          that.loading = false
+          that.$message({
+            type: 'error',
+            message: '查询失败',
+            duration: 1000
+          })
+        })
+      },
+      sub (formName) {
+        let that = this
+        let suburl = ''
+        let paramData = {}
+        if (that.status == '1') {
+            paramData = {
+                gene: that.formData.gene,
+                literatureNote: that.formData.literatureNote,
+                note: that.formData.note,
+                shapeType: that.formData.shapeType
+            }
+            if (that.type == 'add') {
+                suburl = 'cloud/knowledge/addGeneNote'
+            } else {
+                suburl = 'cloud/knowledge/editGeneNote'
+                paramData['code'] = that.code
+            }
+        } else {
+            paramData = {
+                pathogenesis: that.formData.pathogenesis,
+                clinsig: that.formData.clinsig,
+                diseaseName: that.formData.diseaseName,
+                gene: that.formData.gene,
+                literatureNote: that.formData.literatureNote,
+                siteNote: that.formData.siteNote,
+                variant: that.formData.variant,
+                projectCode:that.formData.projectCode
+            }
+            if (that.type == 'add') {
+                suburl = 'cloud/knowledge/addVariantNote'
+            } else {
+                suburl = 'cloud/knowledge/editVariantNote'
+                paramData['code'] = that.code
+            }
+        }
+        axios.post(URL.api_name + suburl, paramData).then((res) => {
+          that.isLoading = false
+          if (res.data.code === '100') {
+            that.$message({
+              message: res.data.message,
+              type: 'success',
+              duration: 1000,
+              onClose: function () {
+                // that.back()
+              }
+            })
+          } else {
+            that.$message({
+              message: '提交错误：' + res.data.message,
+              type: 'error',
+              duration: 2000
+            })
+          }
+        })
+      },
+      back() {
+        this.$router.push({
+          path: '/ExamineNotes/' + this.pager
+        })
+      },
+      goBack() {//返回按钮
+        this.$router.go(-1);
+      },
+
+    },
+    computed: {
+      uploadHeader () {
+        return {
+          token: JSON.parse(localStorage.getItem('authtoken'))
+        }
+      }
+    }
+  }
+</script>
+<style lang="less" scoped>
+  .tree--list{ line-height:40px; text-indent: 20px; border:1px solid rgb(209, 219, 229); max-height: 300px; background:#fafafa}
+  .tree--list li{font-size: 14px; cursor: pointer; padding: 0 10px; line-height:40px;}
+  .tree--list li:hover,.tree--list li.active{ background:#ccc;}
+  .backBtn{float: right;margin-top: -21px;}
+  /deep/.el-form{margin-left: 20px;}
+  /deep/.el-input__inner{height: 36px;width: 400px;}
+	/deep/.el-radio__label {margin-right: 30px;}
+</style>

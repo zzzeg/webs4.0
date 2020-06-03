@@ -1,0 +1,496 @@
+import Vue from 'vue'
+import Router from 'vue-router'
+// 登录
+import Login from '@/components/login/login'
+import Home from '@/components/home'
+import HomeDetail from '@/components/home_detail'
+import Processlist from '@/components/users/process_use_list'
+import userInfoNew from '@/components/users/userInfoNew'
+// 解读报告服务
+import Service from '@/components/service/service_list'
+import ServiceAdd from '@/components/service/service_add'
+import ServiceAddCode from '@/components/service/service_add_code'
+import ServiceEdit from '@/components/service/service_edit'
+import ServiceToReportItem from '@/components/service/service_toreport_item'
+import ReportInfo from '@/components/service/report_Info'
+import MaintainBlockAdd from '@/components/service/server_maintain_blockAdd'
+import MaintainBlockList from '@/components/service/server_maintain_blockList'
+import MaintainBlockEdi from '@/components/service/server_maintain_blockEdi'
+import MaintainList from '@/components/service/server_maintain_list'
+import MaintainStep from '@/components/service/server_maintain_step'
+import MaintainStepEdi from '@/components/service/server_maintain_stepEdi'
+import MaintainItemsList from '@/components/service/server_maintain_itemsList'
+import MaintainItemsEdi from '@/components/service/server_maintain_itemsEdi'
+import MaintainItems from '@/components/service/server_maintain_items'
+import MaintainBind from '@/components/service/server_maintain_bind'
+import DrugList from '@/components/service/drug_list'
+import DrugEdit from '@/components/service/drug_edit'
+import DrugAdd from '@/components/service/drug_add'
+// 系统管理
+import Process from '@/components/system/process_list'
+import ProcessEdit from '@/components/system/process_edit'
+import ProcessAdd from '@/components/system/process_add'
+import ProcessScript from '@/components/system/process_script'
+import ProcessScriptUpdate from '@/components/system/process_script_update'
+import ProcessDetial from '@/components/system/process_detial'
+import UserManage from '@/components/system/users_list'
+import UserAdd from '@/components/system/users_add'
+import UserEdit from '@/components/system/users_edit'
+import Report from '@/components/system/report_list'
+import UseInfo from '@/components/users/use_info'
+import UsePwd from '@/components/users/use_update_pwd'
+import Organize from '@/components/system/organize'
+import OrganizeAdd from '@/components/system/organize_add'
+import OrganizeEdi from '@/components/system/organize_edi'
+import ResourceList from '@/components/system/resources_list'
+import ResourceAdd from '@/components/system/resources_add'
+import ResourceUpdate from '@/components/system/resources_update'
+import RoleList from '@/components/system/role_list'
+import RoleAdd from '@/components/system/role_add'
+import RoleEdi from '@/components/system/role_edi'
+import BatchNumberList from '@/components/system/batch_number_list'
+import BatchNumberAdd from '@/components/system/batch_number_add'
+import BatchNumberEdit from '@/components/system/batch_number_edit'
+// 审核列表
+import ExamineAlready from '@/components/examine/examine_already'
+import ExamineNone from '@/components/examine/examine_normal'
+// import ExamineAdd from '@/components/examine/examine_add'
+import ExamineAddEn from '@/components/examine/examine_EN_4.0'
+import ExamineAddCn from '@/components/examine/examine_CN_4.0'
+import ExamineDetial from '@/components/examine/examine_detail'
+import ExamineDataList from '@/components/examine/examine_data_list'
+import ExamineDataInfo from '@/components/examine/examine_data_info'
+import ExamineDataDetial from '@/components/examine/examine_data_detial'
+import ExamineKnowledgeList from '@/components/examine/examine_knowledge_list'
+import ExamineKnowledgeInfo from '@/components/examine/examine_knowledge_info'
+import ExamineKnowledgeNew from '@/components/examine/examine_knowledge_new'
+import ExaminephramGKB from '@/components/examine/examine_phramGKB'
+import ExaminephramGkbAdd from '@/components/examine/examine_phramGKB_add'
+import ExaminephramGKBInfo from '@/components/examine/examine_phramGKB_info'
+import ExaminephramGKBDetial from '@/components/examine/examine_phramGKB_detial'
+// 基因注释、变异注释
+import ExamineNotes from '@/components/examine/examine_notes'
+import ExamineNotesInfo from '@/components/examine/examine_note_info'
+
+// 常见问题
+import Question from '@/components/question/question'
+// 操作说明书
+import Instruction from '@/components/instruction/instruction_book'
+
+// 基因检测
+import SampleList from '@/components/geneOrder/sample_list'
+import SampleInfo from '@/components/geneOrder/sample_info'
+
+// 健康体检报告
+///// h5
+import ReportSignIn from '@/components/healthReport/h5/signin'
+import textpage from '@/components/service/textPage'
+
+// 邮件
+import Email from '@/components/examine/Email_list'
+import Emailnew from '@/components/examine/Email_new'
+import Emailinfo from '@/components/examine/Email_info'
+
+//外送列表
+import examineOutgoingList from '@/components/examine/examine_outgoing_list'
+
+// 订单列表
+import orderList from '@/components/order/order_list'
+import order_details from '@/components/order/order_details'
+
+Vue.use(Router)
+
+export default new Router({
+    routes: [{
+            path: '/',
+            name: 'Login',
+            title: 'adasd',
+            component: Login
+        },
+        {
+            path: '/home',
+            name: 'Home',
+            title: 'asdasd',
+            component: Home
+        },
+        {
+            path: '/homeDetail/:id',
+            name: 'HomeDetail',
+            component: HomeDetail
+        },
+        {
+            path: '/processlist/:id',
+            name: 'Processlist',
+            component: Processlist
+        },
+        {
+            path: '/service/:pager',
+            name: 'Service',
+            component: Service
+        },
+        {
+            path: '/serviceAdd',
+            name: 'ServiceAdd',
+            component: ServiceAdd
+        },
+        {
+            path: '/serviceAddCode/:id/:productCode/:pager/:productType',
+            name: 'ServiceAddCode',
+            component: ServiceAddCode
+        },
+        {
+            path: '/serviceEdit/:id/:pcode/:pager/:productCode/:productType',
+            name: 'ServiceEdit',
+            component: ServiceEdit
+        },
+        {
+            path: '/serviceToReportItem/:id',
+            name: 'ServiceToReportItem',
+            component: ServiceToReportItem
+        },
+        {
+            path: '/reportInfo/:language/:id',
+            name: 'reportInfo',
+            component: ReportInfo
+        },
+        {
+            path: '/process',
+            name: 'Process',
+            component: Process
+        },
+        {
+            path: '/processEdit/:id',
+            name: 'ProcessEdit',
+            component: ProcessEdit
+        },
+        {
+            path: '/processAdd',
+            name: 'ProcessAdd',
+            component: ProcessAdd
+        },
+        {
+            path: '/processScript',
+            name: 'ProcessScript',
+            component: ProcessScript
+        },
+        {
+            path: '/processScriptUpdate/:id',
+            name: 'ProcessScriptUpdate',
+            component: ProcessScriptUpdate
+        },
+        {
+            path: '/userManage',
+            name: 'UserManage',
+            component: UserManage
+        },
+        {
+            path: '/userAdd',
+            name: 'UserAdd',
+            component: UserAdd
+        },
+        {
+            path: '/userEdit/:user',
+            name: 'UserEdit',
+            component: UserEdit
+        },
+        {
+            path: '/report/:pager',
+            name: 'Report',
+            component: Report
+        },
+        {
+            path: '/userinfo',
+            name: 'UseInfo',
+            component: UseInfo
+        },
+		 {
+		    path: '/userInfoNew',
+		    name: 'userInfoNew',
+		    component: userInfoNew
+		},
+        {
+            path: '/userpwd',
+            name: 'UsePwd',
+            component: UsePwd
+        },
+        {
+            path: '/examineAlready/:pager',
+            name: 'ExamineAlready',
+            component: ExamineAlready
+        },
+        {
+            path: '/examineNone/:pager',
+            name: 'ExamineNone',
+            component: ExamineNone
+        },
+        {
+            path: '/examineAdd/cn/:id/:pager/:pcode/:sourceOrderNo/:productType/:shapeType',
+            name: 'ExamineAddCn',
+            component: ExamineAddCn
+        },
+        {
+            path: '/examineAdd/en/:id/:pager/:pcode/:sourceOrderNo/:productType/:shapeType',
+            name: 'ExamineAddEn',
+            component: ExamineAddEn
+        },
+        {
+            path: '/examineDetial/:language/:id/:pager/:comepage',
+            name: 'ExamineDetial',
+            component: ExamineDetial
+        },
+        {
+            path: '/ExamineDataList/:pager',
+            name: 'ExamineDataList',
+            component: ExamineDataList
+        },
+        {
+            path: '/ExamineDataInfo/:id/:pager',
+            name: 'ExamineDataInfo',
+            component: ExamineDataInfo
+        },
+        {
+            path: '/ExamineDataDetial/:id/:pager',
+            name: 'ExamineDataDetial',
+            component: ExamineDataDetial
+        },
+        {
+            path: '/ExamineKnowledgeList/:pager',
+            name: 'ExamineKnowledgeList',
+            component: ExamineKnowledgeList
+        },
+        {
+            path: '/ExamineKnowledgeInfo/:id/:pager/:status',
+            name: 'ExamineKnowledgeInfo',
+            component: ExamineKnowledgeInfo
+        },
+        {
+            path: '/ExamineKnowledgeNew/:pager/:reportVariantCode',
+            name: 'ExamineKnowledgeNew',
+            component: ExamineKnowledgeNew
+        },
+        {
+            path: '/ExaminephramGkbList/:pager',
+            name: 'ExaminephramGKB',
+            component: ExaminephramGKB
+        },
+        {
+            path: '/ExaminephramGkbAdd/:pager',
+            name: 'ExaminephramGkbAdd',
+            component: ExaminephramGkbAdd
+        },
+        {
+            path: '/ExaminephramGKBEdit/:id/:pager/:status',
+            name: 'ExaminephramGKBInfo',
+            component: ExaminephramGKBInfo
+        },
+        {
+            path: '/ExaminephramGKBDetial/:id/:pager/:status',
+            name: 'ExaminephramGKBDetial',
+            component: ExaminephramGKBDetial
+        },
+        {
+            path: '/ExamineNotes/:pager',
+            name: 'ExamineNotes',
+            component: ExamineNotes
+        },
+        {
+            path: '/ExamineNotesInfo/:type/:status/:code/:pager',
+            name: 'ExamineNotesInfo',
+            component: ExamineNotesInfo
+        },
+        {
+            path: '/processDetial/:id',
+            name: 'ProcessDetial',
+            component: ProcessDetial
+        },
+        {
+            path: '/question',
+            name: 'Question',
+            component: Question
+        },
+        {
+            path: '/instruction',
+            name: 'Instruction',
+            component: Instruction
+        },
+        {
+            path: '/samplelist/:pager',
+            name: 'samplelist',
+            component: SampleList
+        },
+        {
+            path: '/sampleinfo/:id/:pager',
+            name: 'SampleInfo',
+            component: SampleInfo
+        },
+        {
+            path: '/organize',
+            name: 'Organize',
+            component: Organize
+        },
+        {
+            path: '/organizeAdd',
+            name: 'OrganizeAdd',
+            component: OrganizeAdd
+        },
+        {
+            path: '/organizeEdi/:id',
+            name: 'organizeEdi',
+            component: OrganizeEdi
+        },
+        {
+            path: '/resourceList',
+            name: 'ResourceList',
+            component: ResourceList
+        },
+        {
+            path: '/resourceAdd',
+            name: 'ResourceAdd',
+            component: ResourceAdd
+        },
+        {
+            path: '/resourceupdate/:code',
+            name: 'ResourceUpdate',
+            component: ResourceUpdate
+        },
+        {
+            path: '/roleList',
+            name: 'roleList',
+            component: RoleList
+        },
+        {
+            path: '/roleAdd',
+            name: 'roleAdd',
+            component: RoleAdd
+        },
+        {
+            path: '/roleEdi/:id',
+            name: 'roleEdi',
+            component: RoleEdi
+        },
+        {
+            path: '/maintainBlockAdd',
+            name: 'maintainBlockAdd',
+            component: MaintainBlockAdd
+        },
+        {
+            path: '/maintainBlockList/:pager',
+            name: 'maintainBlockList',
+            component: MaintainBlockList
+        },
+        {
+            path: '/maintainBlockEdi/:id/:pager',
+            name: 'maintainBlockEdi',
+            component: MaintainBlockEdi
+        },
+        {
+            path: '/maintainList/:pager',
+            name: 'maintainList',
+            component: MaintainList
+        },
+        {
+            path: '/maintainStep',
+            name: 'maintainStep',
+            component: MaintainStep
+        },
+        {
+            path: '/maintainStepEdi/:id/:pager',
+            name: 'maintainStepEdi',
+            component: MaintainStepEdi
+        },
+        {
+            path: '/maintainItems',
+            name: 'maintainItems',
+            component: MaintainItems
+        },
+        {
+            path: '/maintainItemsEdi/:id/:pager',
+            name: 'maintainItemsEdi',
+            component: MaintainItemsEdi
+        },
+        {
+            path: '/maintainItemsList/:pager',
+            name: 'maintainItemsList',
+            component: MaintainItemsList
+        },
+        {
+            path: '/maintainBind/:id/:pager',
+            name: 'maintainBind',
+            component: MaintainBind
+        },
+        {
+            path: '/druglist/:pager',
+            name: 'drugList',
+            component: DrugList
+        },
+        {
+            path: '/drugadd/:pager',
+            name: 'drugadd',
+            component: DrugAdd
+        },
+        {
+            path: '/drugedit/:id/:pager',
+            name: 'drugedit',
+            component: DrugEdit
+        },
+        {
+            path: '/heal/reportsignin',
+            name: 'ReportSignIn',
+            component: ReportSignIn,
+            meta: {
+                title: "报告获取码验证",
+                name: 'viewport',
+                content: 'width=device-width, initial-scale=1, maximum-scale=1'
+            }
+        },
+        {
+            path: '/textpage',
+            name: 'textpage',
+            component: textpage
+        }, {
+            path: '/batchNumberList',
+            name: 'batchNumberList',
+            component: BatchNumberList
+        },
+        {
+            path: '/batchNumberAdd',
+            name: 'batchNumberAdd',
+            component: BatchNumberAdd
+        },
+        {
+            path: '/batchNumberEdit/:id',
+            name: 'batchNumberEdit',
+            component: BatchNumberEdit
+        },
+        {
+            path: '/email',
+            name: 'email',
+            component: Email
+        },
+        {
+            path: '/email/new',
+            name: 'emailnew',
+            component: Emailnew
+        },
+        {
+            path: '/email/info',
+            name: 'emailinfo',
+            component: Emailinfo
+        },
+        {
+            path: '/examineOutgoingList/:pager',
+            name: 'examineOutgoingList',
+            component: examineOutgoingList
+        },
+        {
+            path: '/orderlist/:pager',
+            name: 'orderList',
+            component: orderList
+        },
+        {
+            path: '/order_details/:id',
+            name: 'order_details',
+            component: order_details
+        }
+    ]
+})

@@ -1,0 +1,99 @@
+<template>
+	<div class="base_msg blockContent">
+		<div class="subItems">
+			<div class="subname">
+				<span>结果解析</span>
+			</div>
+			<div class="xxxxx">
+				{{ formData1.result }}
+			</div>
+		</div>
+	</div>
+</template>
+<script>
+	import {formatDate} from '@/common/js/Utils.js'
+	import moment from 'moment'
+	export default {
+		props: {
+			formDatas: {
+				type: Object
+			}
+		},
+		created() {},
+		data() {
+			return {
+				block1: false,
+				canEdit: true,
+				formData: {},
+				formData1: {},
+        sampleTypeList : [{
+          label: '新鲜组织',
+          value: '新鲜组织'
+        }, {
+          label: '穿刺组织',
+          value: '穿刺组织'
+        }, {
+          label: '石蜡块',        //
+          value: '石蜡块'
+        }, {
+          label: '石蜡卷',
+          value: '石蜡卷'
+        }, {
+          label: '石蜡白片',
+          value: '石蜡白片'
+        }, {
+          label: '石蜡组织',
+          value: '石蜡组织'
+        }, {
+          label: '血液',
+          value: '血液'
+        }, {
+          label: '骨髓',
+          value: '骨髓'
+        }, {
+          label: '淋巴',
+          value: '淋巴'
+        }, {
+          label: '胸腔积液',
+          value: '胸腔积液'
+        }, {
+          label: '腹腔积液',
+          value: '腹腔积液'
+        }],
+			}
+		},
+
+		methods: {
+			changeEdit(val, editorName) {
+				let that = this
+				that[editorName] = val == 'true' ? true : false
+			},
+			cancerChange(editorName) {
+				let that = this
+				that[editorName] = false
+				// 重新给formData赋值    取消的时候，重置内容
+				let n = Object.assign({}, that.formDatas)
+				that.formData1 = n
+			},
+			saveChange(vale, editorName) {
+				let that = this
+				this[editorName] = false
+				// let n = Object.assign({}, that.formData1)
+				// this.formData = n
+				this.$emit('saveChange', vale)
+			}
+		},
+		watch: {
+			formDatas: function(newVal, oldVal) {
+				this.formData = newVal
+				this.formData1 = JSON.parse(JSON.stringify(this.formData))
+			}
+		},
+		 filters: {
+		  formatDate (time) {
+		    let date = new Date(time)
+		    return formatDate(date, 'yyyy-MM-dd')
+		  },
+		}
+	}
+</script>

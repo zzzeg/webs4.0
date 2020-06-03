@@ -1,0 +1,225 @@
+<template>
+  <div class="headers">
+    <div class="logo">
+      <!-- <img src="../common/icons/logo.png" > -->
+    </div>
+    <div class="login-user">
+      <el-dropdown @command="handle">
+        <div class="user-gavatar">
+          <img :src="userInfo.iconUrl">
+          <!-- <span class="user-name">{{ userInfo.userName }}</span> -->
+					<el-select v-model="userInfo.roleName" @change="(val)=>getRole(val)">
+						<el-option v-for="item in userInfo.userRoleVos" :key="item.value" :label="item.roleName" :value="item.roleCode"></el-option>
+					</el-select>
+					
+          <i class="ele-icon-caret-bottom el-icon--right"></i>
+					<span style="border-left: 1px solid #D5D8D9;height: 25px;">&nbsp;</span>
+        </div>
+					<div class="user-out"  @click="cancer()">
+					<img src="../common/images/icon_cgal@2x.png">
+					<div class="outname">退出</div>
+				</div>
+        <el-dropdown-menu slot="dropdown">
+				 <el-dropdown-item command="self">个人信息</el-dropdown-item>
+				  <el-dropdown-item command="changePwd">修改密码</el-dropdown-item>
+				  <el-dropdown-item command="loginOut">退出登录</el-dropdown-item>
+				</el-dropdown-menu>
+      </el-dropdown>
+    </div>
+  </div>
+</template>
+<script>
+import Navgate from '@/components/navgate'
+import URL from '@/common/js/URL.js'
+import axios from 'axios'
+  export default {
+    components: {
+      Navgates: Navgate
+    },
+    created () {
+			// localStorage.clear()
+      document.title = '百诺基因云'
+      // this.getUserInfo ()
+      // console.log(JSON.parse(localStorage.getItem('userInfo')).roleType)
+    },
+    data () {
+      return {
+        // userInfo: []
+        // dialogFormVisible: false,
+        // currUser: ''
+      }
+    },
+    methods: {
+      handle (command) {
+        if (command === 'loginOut') {
+          // window.location.reload()
+          localStorage.clear()
+          this.$router.push({
+            path: '/'
+          })
+        } else if (command === 'self') {
+          this.$router.push({
+            path: '/userinfo'
+          })
+        } else if (command === 'changePwd') {
+          this.$router.push({
+            path: '/userpwd'
+          })
+        }
+      },
+			cancer() { // 退出登录
+				let that = this
+        localStorage.clear()
+				// window.location.reload()
+				this.$router.push({
+					path: '/'
+				})
+			},
+			getRole(val) { //获取区域负责人信息
+			let that = this
+			let n = ''
+			switch(val) {
+				case '6':
+				n = '审核管理员'
+				break
+				case '3': 
+				n = '审核员'
+				break
+			}
+			let xxx = JSON.parse(localStorage.getItem('userInfo'))
+			xxx.roleName = n
+			xxx.roleCode = val
+			localStorage.setItem('userInfo', JSON.stringify(xxx))
+			window.location.reload() //刷新跳转
+			that.$router.push({ //路由跳转指定页面
+					path: '/home'
+			})
+			return false
+				// let url = 'cloud/changeRole'
+				// let project = {
+				// 	address: JSON.parse(localStorage.getItem('userInfo')).address,
+				// 	code: JSON.parse(localStorage.getItem('userInfo')).code,
+				// 	email: JSON.parse(localStorage.getItem('userInfo')).email,
+				// 	iconUrl: JSON.parse(localStorage.getItem('userInfo')).iconUrl,
+				// 	nickName: JSON.parse(localStorage.getItem('userInfo')).nickName,
+				// 	orgId: JSON.parse(localStorage.getItem('userInfo')).orgId,
+				// 	roleCode: JSON.parse(localStorage.getItem('userInfo')).roleCode,
+				// 	roleId: JSON.parse(localStorage.getItem('userInfo')).roleId,
+				// 	roleName: JSON.parse(localStorage.getItem('userInfo')).roleName,
+				// 	sex: JSON.parse(localStorage.getItem('userInfo')).sex,
+				// 	status: JSON.parse(localStorage.getItem('userInfo')).status,
+				// 	userName: JSON.parse(localStorage.getItem('userInfo')).userName
+				// }
+				// axios.post(URL.api_name + url, project).then(function(res) {
+				// 	if (res.data.code === '100') {
+				// 		that.loading = false
+				// 		that.$message({
+				// 			type: 'success',
+				// 			message: '角色切换成功',
+				// 			duration: 1000,
+				// 			onClose: function() {}
+				// 		})
+				// 		window.location.reload() //页面实现跳转和刷新
+				// 		that.$router.push({ //路由跳转指定页面
+				// 			path: '/home'
+				// 		})
+				// 	} else {
+				// 		that.$message({
+				// 			type: 'error',
+				// 			message: '角色切换失败',
+				// 			duration: 2000
+				// 		})
+				// 	}
+				// 	that.loading = false
+				// }, function(error) {
+				// 	console.log(error)
+				// 	that.$message({
+				// 		type: 'error',
+				// 		message: '发送失败',
+				// 		duration: 1000
+				// 	})
+				// })
+			}
+    },
+    computed: {
+      userInfo () {
+        return JSON.parse(localStorage.getItem('userInfo'))
+      },
+      currUser () {
+        if (JSON.parse(localStorage.getItem('user'))) {
+          return JSON.parse(localStorage.getItem('user'))
+        } else {
+          return ''
+        }
+      }
+    }
+  }
+</script>
+<style lang="less" scoped>
+	.el-dropdown-menu{
+		display:none;
+	}
+	.logo {
+		width: 300px;
+		float: left;
+		font-size: 20px;
+		img {
+			margin: 15px auto 0 50px;
+			display: block;
+		}
+	}
+	.login-user {
+		float: right;
+		height: 49px;
+		line-height: 49px;
+    padding-right:20px;
+	}
+	.user-gavatar {
+		display: flex;
+		align-items: center;
+		height: 49px;
+		line-height: 49px;
+		float: left;
+		img {
+			display: block;
+			border-radius: 50%;
+			width: 40px;
+			height: 40px;
+			margin-top: -2px;
+		}
+		.user-name {
+			padding: 0 10px;
+			height: 50px;
+			line-height: 50px;
+		}
+	}
+	 .user-out{
+	 	display: block;
+	 	float: left;
+	 	height: 49px;
+	 	align-items: center;
+	 	margin-left: 7px;
+	 	img{
+	 		width:25px;
+	 		height:24px;
+	 		margin-top: 13px;
+	 	}
+	 	.outname{
+	 		width: 35px;
+	 		height: 46px;
+	 		float: right;
+	 		line-height: 50px;
+	 		margin-right: 7px;
+	 	}
+	 }
+	 .user-gavatar .el-select{
+		 width:120px;
+		 max-width: 180px;
+	 }
+	 .user-gavatar /deep/.el-input--suffix .el-input__inner{
+		 border: none;
+	 }
+	 .user-gavatar /deep/ .el-select .el-input .el-select__caret{
+		 color:#fff;
+	 }
+</style>

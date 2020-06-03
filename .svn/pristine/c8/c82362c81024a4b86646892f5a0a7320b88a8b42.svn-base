@@ -1,0 +1,147 @@
+<template>
+  <div class="base_msg blockContent">
+
+
+    <div class="subItems">
+      <h3 style="margin-top:10px;">
+        <!-- <a href="javascript:;" @click="changeEdit('true', 'isEdit1')" class="editBtn"><i class="el-icon-edit-outline"></i></a> -->
+        乳腺癌相关基因及靶向药物
+      </h3>
+      <br>
+      
+      <el-table class="tableList" :data="formDataN.list" style="width: 100%">
+	      	<el-table-column prop="gene" label="基因" width="180">
+	      	</el-table-column>
+          <el-table-column prop="mutation" label="变异">
+          </el-table-column>
+          <el-table-column prop="clinicalSignificance" label="临床意义">
+          </el-table-column>
+          <el-table-column prop="parpInfluence" label="对RARP抑制剂的影响">
+            <template slot-scope="scope">
+              <span v-if="!scope.row.isEdit">{{ scope.row.parpInfluence == '' ? '敏感度高' : scope.row.parpInfluence }}</span>
+              <el-input v-else v-model="scope.row.parpInfluence" @blur="inputSub(scope.row.code, 'parpInfluence', scope.row.parpInfluence)" placeholder=""></el-input>
+            </template>
+          </el-table-column>
+	      	<el-table-column label="操作" width="80">
+	      		<template slot-scope="scope">
+	            	<a href="javascript:;" v-if="scope.row.isEdit" @click="cancerChange(scope.$index)" class="editBtn"><i class="el-icon-circle-close-outline"></i></a>
+                <a href="javascript:;" v-if="!scope.row.isEdit" @click="changeEdit('true', scope.$index)" class="editBtn"><i class="el-icon-edit-outline"></i></a>
+                <!-- <a href="javascript:;" @click="pushListItem('del', scope.row.code)" class="editBtn"><i class="el-icon-delete"></i></a> -->
+	        	</template>
+	      </el-table-column>
+	    </el-table>
+
+
+    </div>
+
+
+  </div>
+</template>
+<script>
+  export default {
+    props: {
+        formDatas:{
+            type:Object
+        },
+        formInline: {
+          type: Object
+        }
+    },
+    created() {
+    },
+    data () {
+      return {
+        isEdit1: false,
+        isEdit2: false,
+        formData: {},
+        formData1: {},
+        restaurants: [],
+        restaurantsList: [],
+        formDataN: {
+          list: []
+        }
+        // formInline: {
+        //   code: '',
+        //   drug: '',
+        //   gene: '',
+        //   mutation: '',
+        //   sourceEvidence: '',
+        //   langType: '',
+        //   projectCode: '',
+        //   clinicalSignificance: '',
+        //   variantClassification: '',
+        //   hgmdDmDp: '',
+        //   checkItem: ''
+        // }
+        // pageSize: 10
+      }
+    },
+    methods: {
+      changeEdit(val, index) {
+        let that = this
+        // that.formData1.list[index].isEdit = val == 'true' ?  true : false
+        that.$set(that.formDataN.list[index], 'isEdit', true)
+      },
+      cancerChange(index) {
+        let that = this
+        // that.formData1.list[index].isEdit = false
+        that.$set(that.formDataN.list[index], 'isEdit', false)
+        // 重新给formData赋值    取消的时候，重置内容
+        let n = Object.assign({}, that.formDatas)
+        that.formData1 = n
+      },
+      saveChange (vale, index) {
+      	let that = this
+      	// that.formData1.list[index].isEdit = false
+      	that.$set(that.formData1.list[index], 'isEdit', false)
+      	let n = Object.assign({}, that.formData1)
+      	that.formData = n
+        that.$emit('saveChange', vale)
+      },
+      blockSearch(formInline) {
+        // 查询
+        let that = this
+        that.$emit('search', formInline)
+      },
+      inputSub(itemCode, keyName, keyValue) {
+        // 修改
+        let that = this
+        that.$emit('saveChange', that.formDatas.code, itemCode, keyName, keyValue)
+      },
+      pushListItem(type, code) {
+        // 添加，删除 的操作
+        let that = this
+        that.$emit('pushListItem', type, code)
+      },
+      querySearch(queryString, cb) {
+        let restaurants = this.restaurants
+        let results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants
+        // 调用 callback 返回建议列表的数据
+        cb(results)
+      },
+      createFilter(queryString) {
+        return (restaurant) => {
+          return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
+        }
+      }
+    },
+    watch: {
+      formDatas: function(newVal,oldVal){
+      	let that = this
+        this.formData = newVal
+        this.formData1 = JSON.parse(JSON.stringify(this.formData))
+        that.formDataN.list = []
+        for (let i in that.formData1.list) {
+        	// that.formData1.list[i]['isEdit'] = false
+        	that.$set(that.formData1.list[i], 'isEdit', false)
+          if(that.formData1.list[i].clinicalSignificance == '致病' || that.formData1.list[i].clinicalSignificance == '可能致病'|| that.formData1.list[i].clinicalSignificance == '风险因素') {
+            that.formDataN.list.push(that.formData1.list[i])
+          }
+        }
+      }
+    },
+    computed: {
+
+    }
+  }
+</script>

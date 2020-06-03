@@ -1,0 +1,332 @@
+<template>
+	<div class="list">
+		<div class="contentTitle pdlr20">创建项目</div>
+		<div class="search-wrapper">
+			<el-form :inline="true" :model="formInline" class="demo-form-inline">
+				<el-form-item label="检测项目">
+					<el-input v-model="formInline.name" placeholder="请输入检测项目" clearable></el-input>
+				</el-form-item>
+				<el-form-item label="产品名称">
+					<el-input v-model="formInline.productName" placeholder="请输入产品名称" clearable></el-input>
+				</el-form-item>
+				<el-form-item label="检测panel">
+					<el-input v-model="formInline.panelName" placeholder="请输入检测panel" clearable></el-input>
+				</el-form-item>
+				<el-form-item label="基因数">
+					<el-input v-model="formInline.geneNum" placeholder="请输入基因数" clearable></el-input>
+				</el-form-item>
+				<el-form-item>
+					<el-button type="primary" size="medium" @click="search">查询</el-button>
+				</el-form-item>
+			</el-form>
+		</div>
+		<div class="table-data" v-loading="loading" element-loading-text="拼命加载中">
+			<el-table :data="tableData" style="width: 100%" stripe>
+				<el-table-column label="序号" width="100" align="center">
+					<template slot-scope="scope">
+						{{ (currentPage - 1) * pageSize + scope.$index + 1 }}
+					</template>
+				</el-table-column>
+				<el-table-column prop="businessName" label="检测项目">
+				</el-table-column>
+				<el-table-column prop="productName" label="产品名称" ></el-table-column>
+				<el-table-column prop="panelName" label="检测panel" width="400">
+				</el-table-column>
+				<el-table-column prop="geneNum" label="基因数" width="200">
+				</el-table-column>
+				<el-table-column prop="createTime" :formatter="dateFormat" label="更新时间">
+				</el-table-column>
+				<el-table-column label="操作" width="150">
+					<template slot-scope="scope">
+						<el-button type="text" size="mini" @click="goNext(scope.row.code, scope.row.productCode,scope.row.productType)">创建</el-button>
+					</template>
+				</el-table-column>
+			</el-table>
+		</div>
+		<!-- 分页 -->
+		<pager :current-page="currentPage" v-on:handleSizeChange="handelCurrent" :pageSize="pageSize" :total-count="totalCount"
+		 v-on:handleCurrentChange="getListData"></pager>
+	</div>
+</template>
+<script>
+	import URL from '@/common/js/URL.js'
+	import Pager from '@/components/common/pager'
+	import axios from 'axios'
+	import moment from 'moment'
+	export default {
+		created() {
+			this.getData()
+			this.formInline.id = this.id
+			this.getListData(this.currentPage)
+			this.getProcessList()
+			this.pcode = JSON.parse(localStorage.getItem('projectcode'))
+		},
+		data() {
+			return {
+				isfirst: true,
+				pcode: '',
+				id: this.$route.params.id == 999 ? '' : this.$route.params.id,
+				produceList: [],
+				formInline: {
+					productName: '',
+					name: '',
+					geneNum: '',
+					panelName: ''
+				},
+				businessTypes: [{
+					value: 1,
+					label: '全景'
+				}, {
+					value: 2,
+					label: '全外'
+				}, {
+					value: 3,
+					label: 'panel'
+				}],
+				diseaseTypes: [{
+					value: 1,
+					label: '液体瘤'
+				}, {
+					value: 2,
+					label: '实体瘤'
+				}],
+				tableData: [],
+				currentPage: 1,
+				pageSize: 10,
+				pageNum: 0,
+				totalCount: 0,
+				loading: false,
+				searchNameList: [],
+				categoryList: []
+			}
+		},
+		components: {
+			Pager: Pager
+		},
+		methods: {
+			search() {
+				if (this.currentPage > 1) {
+					this.currentPage = 1
+				} else {
+					this.getListData(this.currentPage)
+				}
+				this.isfirst = false
+			},
+			getProcessList() {
+				// 1、进图先获取可用流程列表
+				var that = this
+				axios.get(URL.api_name + 'cloud/project/business_list').then(function(res) {
+					if (res.data.code === '100') {
+						let checkItems = res.data.data
+						if (checkItems.length > 0) {
+							for (let i = 0; i < checkItems.length; i++) {
+								that.searchNameList.push({
+									value: checkItems[i].businessName
+								})
+							}
+						}
+					}
+				}, function(error) {
+					that.$message({
+						type: 'error',
+						message: '查询失败',
+						duration: 1000
+					})
+				})
+			},
+			addProcess() {
+				this.$router.push({
+					path: '/processAdd'
+				})
+			},
+			changeType(scope, status) {
+				// axios.xx
+				var that = this
+				let msg = ''
+				let stat = 0
+				if (status === 1) {
+					msg = '确定启用该流程吗？'
+					stat = 2
+				} else {
+					msg = '确定禁用该流程吗？'
+					stat = 3
+				}
+				this.$confirm(msg, '提示', {
+					confirmButtonText: '确定',
+					cancelButtonText: '取消',
+					type: 'warning'
+				}).then(() => {
+					axios.post(URL.api_name + 'cloud/change_flow_state', {
+						code: scope.code,
+						status: stat
+					}).then((res) => {
+						if (res.data.code === '100') {
+							this.$message({
+								type: 'success',
+								message: res.data.message,
+								duration: 1000
+							})
+							that.getListData(that.currentPage)
+						} else {
+							that.$message({
+								type: 'error',
+								message: '操作失败，请重新操作',
+								duration: 1000
+							})
+						}
+					})
+				}).catch(() => {
+					that.$message({
+						type: 'info',
+						message: '已取消'
+					})
+				})
+			},
+			goNext(code, productCode,productType) {
+				let that = this
+				this.$router.push({
+					path: '/ServiceAddCode/' + code + '/' + productCode + '/' + that.currentPage
+				})
+			},
+			// goNext (code, productCode,productType) {
+		 //        let that = this
+		 //        if(that.pcode !== '' && that.pcode !== null) {
+		 //          let url = productType == '21' || productType == '20' ? 'ServiceEdit1' : 'ServiceEdit'
+		 //          localStorage.setItem('projectcode', '')
+		 //          this.$router.push({
+		 //            path: '/'+ url + '/' + code + '/' + that.pcode + '/' + that.currentPage + '/' + productCode
+		 //          })
+		 //        } else {
+		 //          let url = productType == '21' || productType == '20' ? 'ServiceAddCode1' : 'ServiceAddCode'
+		 //          this.$router.push({
+		 //            path: '/'+ url + '/' + code + '/' + productCode + '/' + that.currentPage
+		 //          })
+		 //        }
+		 //      },
+			goEdit(id) {
+				this.$router.push({
+					path: '/processEdit/' + id
+				})
+			},
+			deletede(id) {
+				// console.log('x1')
+				var that = this
+				that.$confirm('确定删除吗？', '提示', {
+					confirmButtonText: '确定',
+					cancelButtonText: '取消',
+					type: 'warning'
+				}).then(() => {
+					axios.post(URL.api_name + 'cloud/delete_flow', {
+						code: id
+					}).then(res => {
+						if (res.data.code === '100') {
+							that.$message({
+								type: 'success',
+								message: '删除成功',
+								duration: 1000
+							})
+							that.getListData(that.currentPage)
+						}
+					}).catch(err => {
+						that.$message({
+							type: 'error',
+							message: '删除失败',
+							duration: 1000
+						})
+						console.log(err)
+					})
+				}).catch(() => {})
+			},
+			script(id) {
+				this.$router.push({
+					path: '/processScriptUpdate/' + id
+				})
+			},
+			dateFormat(row, column) {
+				let date = row[column.property]
+				if (date === undefined) {
+					return ''
+				}
+				return moment(date).format('YYYY-MM-DD HH:mm:ss')
+			},
+			//  添加联想功能
+			querySearch(queryString, cb) {
+				var searchNameList = this.searchNameList
+				var results = queryString ? searchNameList.filter(this.createFilter(queryString)) : searchNameList
+				// 调用 callback 返回建议列表的数据
+				cb(results)
+			},
+			createFilter(queryString) {
+				return (restaurant) => {
+					return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
+				}
+			},
+			handleSelect(item) {
+				console.log(item)
+			},
+			getData() {
+				let that = this
+				axios.get(URL.api_name + 'cloud/project/product_list', {
+					params: {
+						productName: ''
+					}
+				}).then(function(respose) {
+					let data = respose.data
+					that.produceList = data.data
+					that.loading = false
+				}, function(error) {
+					that.loading = false
+					that.$message({
+						type: 'error',
+						message: '查询失败',
+						duration: 1000
+					})
+				})
+			},
+			handelCurrent(val) {
+				let that = this
+				that.pageSize = val
+				that.getListData(that.currentPage)
+			},
+			getListData(num) {
+				console.log(num)
+				this.currentPage = num
+				var that = this
+				that.loading = true
+				axios.get(URL.api_name + 'cloud/project/getBusinesProduct', {
+					params: {
+						diseaseEnName: that.formInline.name,
+						geneNum: that.formInline.geneNum,
+						panelName: that.formInline.panelName,
+						productName: that.formInline.productName,
+						productCode: that.isfirst === true ? that.formInline.id : '',
+						pageSize: that.pageSize,
+						pageNumber: num
+					}
+				}).then(function(respose) {
+					let data = respose.data
+					that.tableData = data.data.list
+					that.loading = false
+					that.totalCount = data.data.total
+				}, function(error) {
+					console.log(error)
+					that.loading = false
+					that.$message({
+						type: 'error',
+						message: '查询失败',
+						duration: 1000
+					})
+				})
+			}
+		}
+	}
+</script>
+<style lang="less" scoped>
+	.coupon-logo {
+		display: inline-block;
+		width: 80px;
+		height: 80px;
+		border-radius: 50%;
+		vertical-align: bottom;
+	}
+</style>

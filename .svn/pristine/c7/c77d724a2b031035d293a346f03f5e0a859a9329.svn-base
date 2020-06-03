@@ -1,0 +1,109 @@
+<template>
+  <div class="base_msg blockContent">
+    <div class="subItems">
+			<div class="subname">
+				<span>参考文献</span>
+			</div>
+     <!--  <div class="addBar" style="padding:0 0 10px 0; text-align:right;">
+        <el-button type="primary" @click="pushListItem('add')">添加</el-button>
+      </div> -->
+      <el-table class="tableList" :data="formDataN.list" stripe style="width: 100%">
+          <el-table-column type="index" width="80" align="center">
+          </el-table-column>
+          <el-table-column prop="title" label="标题">
+          </el-table-column>
+          <el-table-column prop="url" label="链接地址">
+            <template slot-scope="scope">
+              <span v-if="!scope.row.isEdit">{{ scope.row.url }}</span>
+              <el-input v-else type="textarea" autosize v-model="scope.row.url" @blur="inputSub(scope.row.code, 'url', scope.row.url)" placeholder=""></el-input>
+            </template>
+          </el-table-column>
+          <!-- <el-table-column label="操作" width="80">
+            <template slot-scope="scope">
+                <a href="javascript:;" v-if="scope.row.isEdit" @click="cancerChange(scope.$index)" class="editBtn"><i class="el-icon-circle-close-outline"></i></a>
+                <a href="javascript:;" v-if="!scope.row.isEdit" @click="changeEdit('true', scope.$index)" class="editBtn"><i class="el-icon-edit-outline"></i></a>
+                <a href="javascript:;" @click="pushListItem('del', scope.row.code)" class="editBtn"><i class="el-icon-delete"></i></a>
+            </template>
+          </el-table-column> -->
+      </el-table>
+
+    </div>
+
+
+  </div>
+</template>
+<script>
+  export default {
+    props: {
+        formDatas:{
+            type:Object
+        }
+    },
+    created() {
+    },
+    data () {
+      return {
+        isEdit1: false,
+        isEdit2: false,
+        formData: {},
+        formData1: {},
+        formDataN: {
+          list: []
+        }
+        // pageSize: 10
+      }
+    },
+    methods: {
+      changeEdit(val, index) {
+        let that = this
+        // that.formData1.list[index].isEdit = val == 'true' ?  true : false
+        that.$set(that.formDataN.list[index], 'isEdit', true)
+      },
+      cancerChange(index) {
+        let that = this
+        // that.formData1.list[index].isEdit = false
+        that.$set(that.formDataN.list[index], 'isEdit', false)
+        // 重新给formData赋值    取消的时候，重置内容
+        // let n = Object.assign({}, that.formDatas)
+        // that.formData1 = n
+      },
+      pushListItem(type, code) {
+        // 添加，删除 的操作
+        let that = this
+        that.$emit('pushListItem', type, code)
+      },
+      inputSub(itemCode, keyName, keyValue) {
+        // 修改
+        let that = this
+        that.$emit('saveChange', that.formDatas.code, itemCode, keyName, keyValue)
+      },
+      saveChange (vale, index) {
+        let that = this
+        // that.formData1.list[index].isEdit = false
+        that.$set(that.formData1.list[index], 'isEdit', false)
+        let n = Object.assign({}, that.formData1)
+        that.formData = n
+        that.$emit('saveChange', vale)
+      }
+    },
+    watch: {
+      formDatas: function(newVal,oldVal){
+        let that = this
+        this.formData = newVal
+        this.formData1 = JSON.parse(JSON.stringify(this.formData))
+        that.formDataN.list = []
+        for (let i in that.formData1.list) {
+          // that.formData1.list[i]['isEdit'] = false
+          that.$set(that.formData1.list[i], 'isEdit', false)
+          if(that.formData1.list[i].gene != 'HER2/NEU' && that.formData1.list[i].gene != 'PTEN' && that.formData1.list[i].variant != '') {
+            that.formDataN.list.push(that.formData1.list[i])
+          }
+          
+        }
+      }
+    },
+    computed: {
+
+    }
+  }
+</script>

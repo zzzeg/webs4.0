@@ -1,0 +1,120 @@
+<template>
+  <div class="base_msg blockContent">
+    <div class="subItems">
+			<div class="subname">
+				<span>化疗相关检测结果总览</span>
+			</div>
+      <el-table class="tableList hasLine" :data="formData1" stripe style="width: 100%">
+        <el-table-column prop="gene" label="检测项" width="100" align="center">
+          <template slot-scope="scope">
+            <span v-if="!scope.row.isEdit">{{ scope.row.reportVariant.gene }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="检测结果" width="100">
+          <template slot-scope="scope">
+            <span v-if="!scope.row.isEdit">{{ scope.row.reportVariant.variant }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="基因组定位" width="200">
+          <template slot-scope="scope">
+            <span v-if="!scope.row.isEdit">{{ scope.row.reportVariant.gdnaChange }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="基因型" width="100">
+          <template slot-scope="scope">
+            <span v-if="!scope.row.isEdit">{{ scope.row.reportVariant.geneType }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="SNP位点" width="150">
+          <template slot-scope="scope">
+            <span v-if="!scope.row.isEdit">{{scope.row.reportVariant.rsId}}</span>
+          </template>
+        </el-table-column>
+        <!-- <el-table-column label="突变频率" width="100">
+          <template slot-scope="scope">
+            <span v-if="!scope.row.isEdit">{{ scope.row.reportVariant.hzInfo }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="外显子" width="100">
+          <template slot-scope="scope">
+            <span v-if="!scope.row.isEdit">{{ scope.row.reportVariant.transcriptExon }}</span>
+          </template>
+        </el-table-column> -->
+        <el-table-column label="药物方案（适应症）">
+          <template slot-scope="scope">
+            <div class="drugLine" v-if="!scope.row.isEdit" v-for="(item,index) in scope.row.reportTherapyEfficacyList" :key="index">{{ item.reportTherapy.drugName}}</div>
+          </template>
+        </el-table-column>
+        <el-table-column label="影响类型" width="150">
+          <template slot-scope="scope">
+            <div class="drugLine" v-if="!scope.row.isEdit" v-for="(item,index) in scope.row.reportTherapyEfficacyList" :key="index">{{ item.clinicalAnnType}}</div>
+          </template>
+        </el-table-column>
+        <el-table-column label="证据等级" width="100">
+          <template slot-scope="scope">
+            <div class="drugLine" v-if="!scope.row.isEdit" v-for="(item,index) in scope.row.reportTherapyEfficacyList" :key="index">{{ item.pharmgkbEvdLevel}}</div>
+          </template>
+        </el-table-column>
+     </el-table>
+    </div>
+
+
+  </div>
+</template>
+<script>
+  export default {
+    props: {
+        formDatas:{
+            type:Array
+        }
+    },
+    created() {
+    },
+    data () {
+      return {
+        isEdit1: false,
+        isEdit2: false,
+        formData: [],
+        formData1: []
+        // pageSize: 10
+      }
+    },
+    methods: {
+      changeEdit(val, index) {
+        let that = this
+        // that.formData1.list[index].isEdit = val == 'true' ?  true : false
+        that.$set(that.formData1.list[index], 'isEdit', true)
+      },
+      cancerChange(index) {
+        let that = this
+        // that.formData1.list[index].isEdit = false
+        that.$set(that.formData1.list[index], 'isEdit', false)
+        // 重新给formData赋值    取消的时候，重置内容
+        let n = Object.assign({}, that.formDatas)
+        that.formData1 = n
+      },
+      saveChange (vale, index) {
+        let that = this
+        // that.formData1.list[index].isEdit = false
+        that.$set(that.formData1.list[index], 'isEdit', false)
+        let n = Object.assign({}, that.formData1)
+        that.formData = n
+        that.$emit('saveChange', vale)
+      }
+    },
+    watch: {
+      formDatas: function(newVal,oldVal){
+        let that = this
+        this.formData = newVal
+        this.formData1 = JSON.parse(JSON.stringify(this.formData))
+        for (let i in that.formData1.list) {
+          // that.formData1.list[i]['isEdit'] = false
+          that.$set(that.formData1.list[i], 'isEdit', false)
+        }
+      }
+    },
+    computed: {
+
+    }
+  }
+</script>

@@ -1,0 +1,864 @@
+<template>
+	<div class="base_msg">
+		<div class="subtable dtitleBg">治疗方案概述</div>
+		<div class="addBtn" style="text-align: right; position:relative; z-index:2;">
+			<el-button style="position:absolute; z-index:4; top:0; right:10px;" type="primary" size="medium" v-if="tabname == 'two'" @click="saveSort()">保存排序</el-button>
+		</div>
+		<el-tabs type="border-card" v-model="tabname" style="position:relative; z-index:1;" @tab-click="tabclick">
+			<!--概述  -->
+			<el-tab-pane label="概述" name="one">
+				<div class="subItems">
+					<div class="subtitle dtitleBg submar">
+						<span>基因检测结果</span>
+						<!-- <div class="saveico" v-if="block1 && canEdit" @click="block1 = !block1, saveChange(formData1)"></div>
+						<div class="cancel" v-if="block1 && canEdit" @click="block1 = !block1, cancerChange()"></div>
+						<div class="bjimg" v-if="!block1 && canEdit" @click="block1 = !block1,changeEdit()"></div> -->
+					</div>
+					<div class="tabItem">
+						<el-row :gutter="10">
+							<el-col :span="24">
+								<el-button  v-if="tabData1.length > 0" v-for="(item, index) in tabData1" style="margin:10px 10px 0 0;" :key="index" size="mini" @click="showToggle(item)">{{ item.gene + '　' + item.variant }}</el-button>
+                				<span v-if="tabData1.length <= 0">未检出相关变异</span>
+
+                				<div v-if="istoggle" class="xexe">
+							        <popdialog :text="pvalue" :scope="itemScope" windowType="variant" :popData="popData1" :formDatas="formData1"
+							               :minMark="minMark" :checkMark="checkMark" :cacheData="cacheData" @cmmk="cmmk" @sWindow="sWindow('variant', itemScope.code)" @pushHead="pushHead"
+							               @changeTab="changeTab" @closePanel="closePanel" @blockSearch="blockSearch(formInline)"></popdialog>
+						      	</div>
+							</el-col>
+						</el-row>
+					</div>
+				</div>
+				<!-- 临床诊断 -->
+				<div class="subItems">
+					<div class="subtitle dtitleBg submar">
+						<span>临床诊断信息</span>
+					</div>
+					<div class="tabItem">
+						<el-row :gutter="10">
+							<el-col :span="24">
+								<div class="tabtext" style="margin-left:0">{{ gsData.clinicalDiagnosis }}</div>
+							</el-col>
+						</el-row>
+					</div>
+				</div>
+				<!-- 用药史 -->
+				<div class="subItems">
+					<div class="subtitle dtitleBg hismor submar">
+						<span>用药史</span>
+					</div>
+					<div class="tabItem" v-if="gsData.medicationHistoryList.length<=0">
+						<el-row :gutter="10">
+						  <el-col :span="24">
+						    <div class="tabtext" style="margin-left:0">无用药史</div>
+						  </el-col>
+						</el-row>
+					</div>
+					<div class="hismedication" v-if="gsData.medicationHistoryList.length>0">
+						<el-row class="hismor">
+							<el-col :span="18">药物名称</el-col>
+							<el-col :span="2">用药时长</el-col>
+							<el-col :span="2">疗效</el-col>
+						</el-row>
+
+						<el-row style="color:#7F8493;" v-for="(item, index) in gsData.medicationHistoryList" :key="index">
+							<el-col :span="18">
+								<div class="itemhis">
+									<span v-for="(x, y) in item.medicationDrug" :key="y" class="dunhao">{{ formatDrugName(x) }}</span>
+								</div>
+
+							</el-col>
+
+							<el-col :span="2">
+								<div class="itemhis">{{ item.durationOfMedication }}</div>
+
+							</el-col>
+
+							<el-col :span="2">
+								<div class="itemhis">{{ item.efficacy }}</div>
+
+							</el-col>
+
+						</el-row>
+					</div>
+				</div>
+			</el-tab-pane>
+
+			<!-- 推荐用药 -->
+			<el-tab-pane label="推荐用药" name='two'>
+				<div class="tableList" v-loading="loading" element-loading-text="拼命加载中">
+					<el-table :data="tabData2" style="width: 100%" emptyText="无相关用药推荐" stripe row-key="code" height="600">
+						<el-table-column label="序号" align="center" type="index" width="100"></el-table-column>
+						<el-table-column prop="drugName" label="药物名称" align="center">
+						</el-table-column>
+						<el-table-column prop="schemeType" label="治疗方案">
+							<template slot-scope="scope">
+								{{ scope.row.schemeType == '1' ? '治疗方案' : '潜在位点临床用药' }}
+							</template>
+						</el-table-column>
+						<el-table-column label="癌种">
+							<template slot-scope="scope">
+								{{ scope.row.cancer ? scope.row.cancer.name : '' }}
+							</template>
+						</el-table-column>
+						<!-- <el-table-column prop="treatmentStage" label="治疗阶段"></el-table-column> -->
+						<el-table-column label="用药方式">
+							<template slot-scope="scope">
+								{{ formateDrug(scope.row)}}
+							</template>
+						</el-table-column>
+						<el-table-column label="操作" width="100">
+							<template slot-scope="scope">
+								<a href="javascript:;" @click="pushListItem('del', scope.row.code, scope.$index)" class="editBtn"><i class="el-icon-delete"></i></a>
+							</template>
+						</el-table-column>
+					</el-table>
+				</div>
+			</el-tab-pane>
+
+			<!-- 靶向 -->
+			<el-tab-pane label="靶向" name='three'>
+		        <div class="noContentsDiv" v-if="tabData3.length == 0">
+		          暂无对药物影响的报道。
+		        </div>
+				<div class="details_cont" v-else empty-text="未检测到相关结果" v-for="(formList, index) in tabData3" :key="index">
+					<div class="details_title">
+						<div class="sleft" slot="reference">
+							<div @click="sort()" style="margin-right:5px;"><i class="el-icon-caret-right"></i></div>
+							<div class="textfa">{{index + 1}} 、{{formList.schemeType == '1' ? '治疗方案' : '潜在位点临床用药'}}</div>
+							<div class="dunhao" v-for="(drugsele, index) in formList.drugList" :key="index" @click="sWindow('drug', drugsele.drugEnName)">
+								{{drugsele.drugName == '' ? drugsele.drugEnName : drugsele.drugName}}</div>
+						</div>
+						<div class="fr" style="margin:5px 10px 0 0">
+							<div class="saveico" v-if="block6 && canEdit" @click="block6 = !block6, saveChange(formList)"></div>
+							<div class="cancel" v-if="block6 && canEdit" @click="block6 = !block6, cancerChange()"></div>
+							<div class="bjimg" v-if="!block6 && canEdit" @click="block6 = !block6,changeEdit()"></div>
+						</div>
+					</div>
+					<div class="details_content" v-show="hide">
+						<el-row>
+							<!-- <el-col :span="2">治疗阶段：</el-col>
+							<el-col :span="6">
+								<div class="tableListItem">{{formList.treatmentStage}}</div>
+							</el-col> -->
+
+							<el-col :span="2">分型：</el-col>
+							<el-col :span="6">
+								<div class="tableListItem">{{formList.cancer ? formList.cancer.name : ''}}</div>
+							</el-col>
+
+							<el-col :span="2">疗效：</el-col>
+							<el-col :span="6">
+								<div class="tableListItem">{{formList.drugReactionType == '0' ? '敏感' : '耐药'}}</div>
+							</el-col>
+						</el-row>
+
+						<div class="content_textareas" v-for="(noteList, index) in formList.reportTherapyVariantClinicalNoteList" :key="index">
+							<el-row>
+								<el-col :span="2">检测情况：</el-col>
+								<el-col :span="22">
+									<div class="tableListItem">{{noteList.reportVariant.gene + ' ' + noteList.reportVariant.variant}}</div>
+								</el-col>
+							</el-row>
+
+							<el-row>
+								<el-col :span="2">临床注释：</el-col>
+								<el-col :span="22">
+                  <div class="tableListItem" v-for="(items, xxxx) in noteList.clinicalNoteList" :key="xxxx">{{xxxx+1===noteList.length ?'':xxxx + 1}}{{xxxx+1==noteList.length?'':'、'}} {{items}}</div>
+								</el-col>
+							</el-row>
+						</div>
+
+							<el-row>
+								<el-col :span="2">附加说明：</el-col>
+								<el-col :span="22">
+									<div class="tableListItem" v-if="!block6">{{formList.remark}}</div>
+									<el-input type="textarea" v-if="block6" v-model="formList.remark" :autosize="{ minRows: 2, maxRows: 2}" placeholder="附加说明"></el-input>
+								</el-col>
+							</el-row>
+					</div>
+
+				</div>
+			</el-tab-pane>
+
+			<!--免疫-->
+			<el-tab-pane label="免疫" name='four'>
+		        <div class="noContentsDiv" v-if="tabData3.length == 0">
+		          暂无对药物影响的报道。
+		        </div>
+				<div class="details_cont" v-else v-for="(formList, index) in tabData4" :key="index">
+					<div class="details_title">
+						<div class="sleft" slot="reference">
+							<div @click="sort()" style="margin-right:5px;"><i class="el-icon-caret-right"></i></div>
+							<div class="textfa">{{index + 1}} 、{{formList.schemeType == '1' ? '治疗方案' : '潜在位点临床用药'}}</div>
+							<div class="dunhao" v-for="(drugsele, index) in formList.drugList" :key="index" @click="sWindow('drug', drugsele.drugEnName)">
+								{{drugsele.drugName == '' ? drugsele.drugEnName : drugsele.drugName}}</div>
+						</div>
+						<div class="fr" style="margin:5px 10px 0 0">
+							<div class="saveico" v-if="block6 && canEdit" @click="block6 = !block6, saveChange(formList)"></div>
+							<div class="cancel" v-if="block6 && canEdit" @click="block6 = !block6, cancerChange()"></div>
+							<div class="bjimg" v-if="!block6 && canEdit" @click="block6 = !block6,changeEdit()"></div>
+						</div>
+					</div>
+					<div class="details_content" v-show="hide">
+						<el-row>
+							<!-- <el-col :span="2">治疗阶段：</el-col>
+							<el-col :span="6">
+								<div class="tableListItem">{{formList.treatmentStage}}</div>
+							</el-col> -->
+
+							<el-col :span="2">分型：</el-col>
+							<el-col :span="6">
+								<div class="tableListItem">{{formList.cancer ? formList.cancer.name : ''}}</div>
+							</el-col>
+
+							<el-col :span="2">疗效：</el-col>
+							<el-col :span="6">
+								<div class="tableListItem">{{formList.drugReactionType == '0' ? '敏感' : '耐药'}}</div>
+							</el-col>
+						</el-row>
+
+						<div class="content_textareas" v-for="(noteList, index) in formList.reportTherapyVariantClinicalNoteList" :key="index">
+							<el-row>
+								<el-col :span="2">检测情况：</el-col>
+								<el-col :span="22">
+									<div class="tableListItem">{{noteList.reportVariant.gene + ' ' + noteList.reportVariant.variant}}</div>
+								</el-col>
+							</el-row>
+
+							<el-row>
+								<el-col :span="2">临床注释：</el-col>
+								<el-col :span="22">
+                  <div class="tableListItem" v-for="(items, xxxx) in noteList.clinicalNoteList" :key="xxxx">{{xxxx+1===noteList.length ?'':xxxx + 1}}{{xxxx+1==noteList.length?'':'、'}} {{items}}</div>
+								</el-col>
+							</el-row>
+						</div>
+
+							<el-row>
+								<el-col :span="2">附加说明：</el-col>
+								<el-col :span="22">
+									<div class="tableListItem" v-if="!block6">{{formList.remark}}</div>
+									<el-input type="textarea" v-if="block6" v-model="formList.remark" :autosize="{ minRows: 2, maxRows: 2}" placeholder="附加说明"></el-input>
+								</el-col>
+							</el-row>
+					</div>
+
+				</div>
+			</el-tab-pane>
+
+			<!-- 化疗-->
+			<el-tab-pane label="化疗" name='five'>
+		        <div class="noContentsDiv" v-if="tabData3.length == 0">
+		          暂无对药物影响的报道。
+		        </div>
+				<div class="details_cont" v-else v-for="(formList, index) in tabData5" :key="index">
+					<div class="details_title">
+						<div class="sleft" slot="reference">
+							<div @click="sort()" style="margin-right:5px;"><i class="el-icon-caret-right"></i></div>
+							<div class="textfa">{{index + 1}} 、{{formList.schemeType == '1' ? '治疗方案' : '潜在位点临床用药'}}</div>
+							<div class="dunhao" v-for="(drugsele, index) in formList.drugList" :key="index" @click="sWindow('drug', drugsele.drugEnName)">
+								{{drugsele.drugName == '' ? drugsele.drugEnName : drugsele.drugName}}</div>
+						</div>
+						<div class="fr" style="margin:5px 10px 0 0">
+							<div class="saveico" v-if="block6 && canEdit" @click="block6 = !block6, saveChange(formList)"><!-- 保存 --></div>
+							<div class="cancel" v-if="block6 && canEdit" @click="block6 = !block6, cancerChange()"><!-- 取消 --></div>
+							<div class="bjimg" v-if="!block6 && canEdit" @click="block6 = !block6,changeEdit()"><!-- 编辑 --></div>
+						</div>
+					</div>
+					<div class="details_content" v-show="hide">
+						<el-row>
+							<el-col :span="2">分型：</el-col>
+							<el-col :span="6">
+								<div class="tableListItem">{{formList.cancer ? formList.cancer.name : ''}}</div>
+							</el-col>
+
+							<el-col :span="2">疗效：</el-col>
+							<el-col :span="6">
+								<div class="tableListItem">{{formList.clinicalAnnType}}</div>
+							</el-col>
+
+               <el-col :span="2">证据等级：</el-col>
+							<el-col :span="6">
+								<div class="tableListItem">{{formList.pharmgkbEvdLevel}}</div>
+							</el-col>
+						</el-row>
+
+						<div class="content_textareas" v-for="(noteList, index) in formList.reportTherapyVariantClinicalNoteList" :key="index" style="border: 1px solid #D9DDDF;margin-bottom: 10px;">
+							<el-row>
+								<el-col :span="2">检测情况：</el-col>
+								<el-col :span="22">
+									<div class="tableListItem">{{noteList.reportVariant.gene + '&nbsp;&nbsp;&nbsp;' + noteList.reportVariant.rsId+ '&nbsp;&nbsp;&nbsp;' + noteList.reportVariant.geneType}}</div>
+								</el-col>
+							</el-row>
+
+							<el-row>
+								<el-col :span="2">临床注释：</el-col>
+								<el-col :span="22">
+                  <div class="tableListItem" v-for="(items, xxxx) in noteList.clinicalNoteList" :key="xxxx">{{xxxx+1===noteList.length ?'':xxxx + 1}}{{xxxx+1==noteList.length?'':'、'}} {{items}}</div>
+								</el-col>
+							</el-row>
+						</div>
+
+						<el-row>
+							<el-col :span="2">附加说明：</el-col>
+							<el-col :span="22">
+								<div class="tableListItem" v-if="!block6">{{formList.remark}}</div>
+								<el-input type="textarea" v-if="block6" v-model="formList.remark" :autosize="{ minRows: 2, maxRows: 2}"
+								 placeholder="附加说明"></el-input>
+							</el-col>
+						</el-row>
+					</div>
+				</div>
+			</el-tab-pane>
+
+		</el-tabs>
+
+	</div>
+</template>
+<script>
+	import popdialog from '@/components/examine/examineModel/popModel/popdialog'
+	import Sortable from "sortablejs"
+	import axios from 'axios'
+	import URL from '@/common/js/URL.js'
+	import Pager from '@/components/common/pager'
+	import moment from 'moment'
+	export default {
+		props: {
+			formDatas: {
+				type: Array
+			},
+	        popData: {
+	          type: Object
+	        },
+	        checkMark: {
+	          type: String
+	        }
+		},
+		created() {
+			this.tabclick(this.$route.params.code) //列表数据
+			this.getGsData() // 获取基本信息
+			this.getDrugList() // 获取药物列表
+		},
+		data() {
+			return {
+				code: this.$route.params.id,
+				block1: false,
+				block2: false,
+				block3: false,
+				block4: false,
+				block5: false,
+				block6: false,
+				canEdit: true,
+				show: true,
+				hide: true,
+				checked: true,
+				formData: [],
+				formData1: [],
+				tabData1: [],
+				tabData2: [],
+				tabData3: [],
+				tabData4: [],
+				tabData5: [],
+				popData: [],
+				formInline: {
+					gene: '',
+					variant: '',
+					drugSearchName: '',
+					variantType: ''
+				},
+				loading: false,
+				currentPage: 1,
+				pageSize: 10,
+				pageNumber: 1,
+				totalCount: 0,
+				tabname: 'one',
+				activeName: 'one',
+				activeName1: 'first',
+				activeName2: 'first',
+				textName: 'first',
+				tableData: [{ // 嵌套信息
+					date: '2016-05-02',
+					name: '王小虎',
+					address: '上海市普陀区金沙江路 1518 弄'
+				}, {
+					date: '2016-05-04',
+					name: '王小虎',
+					address: '上海市普陀区金沙江路 1517 弄'
+				}, {
+					date: '2016-05-01',
+					name: '王小虎',
+					address: '上海市普陀区金沙江路 1519 弄'
+				}, {
+					date: '2016-05-03',
+					name: '王小虎',
+					address: '上海市普陀区金沙江路 1516 弄'
+				}],
+				gsData: {},
+				drugTypeList: [],
+				cacheData: {},
+		        minMark: '1',
+		        checkNum: false,
+		        popData1: {
+		          headList: [],
+		          datas: {
+		            cancers: {},
+		            desc: '',
+		            drugControls: [],
+		            gene: '',
+		            listReportVariant: [],
+		            molecularNetworkImg: '',
+		            panels: [],
+		            pathwayInfos: [],
+		            termsImg: ''
+		          }
+		        },
+		        property: '',
+		        pvalue: '',
+		        row: {},
+		        istoggle: false,
+		        itemScope: {}
+			}
+		},
+		methods: {
+			showToggle(item) {
+				let that = this
+				that.itemScope = item
+				that.istoggle = !that.istoggle
+				console.log(item)
+			},
+			cellClick(row, column, cell, event) {
+		        // con
+		        let that = this
+		        if(row.isEdit || row.isAdd) {// 编辑状态不给点击
+		          return false
+		        }
+		        that.property = column.property
+		        that.pvalue = row[column.property]
+		        that.row = row
+		        if(column.property == 'variant' || column.property == 'gene') {
+		          that.toogleExpand(row)
+		        }
+				if(row.checkCell == '') {
+					row.checkCell = column.property
+				} else {
+					row.checkCell = ''
+				}
+		      },
+		      toogleExpand(row) {
+		        let $table = this.$refs.table
+		        this.formData1.list.map((item) => {
+		          if (row.code != item.code) {
+		            $table.toggleRowExpansion(item, false)
+			      item.checkCell = ''
+		          }
+		        })
+		        $table.toggleRowExpansion(row)
+	      	},
+			changeEdit(val, editorName) { // 编辑
+				let that = this
+				that[editorName] = val == 'true' ? true : false
+			},
+			cancerChange(index) { // 取消
+				let that = this
+				// 				that.$set(that.formData[index], 'isEdit', false)
+				// 				let n = Object.assign({}, that.formDatas)
+				// 	    	that.formData1 = n
+				// 	    	that.$set(that.formData[index], 'isOpen', true)
+			},
+			saveChange(vale) { // 保存
+				let that = this
+				let n = {}
+				n['reportTherapyList'] = {}
+				n.reportTherapyList['code'] = vale.code
+				n.reportTherapyList['remark'] = vale.remark
+				this.$emit('saveChange', n)
+			},
+			search() { // 查询
+				if (this.currentPage > 1) {
+					this.currentPage = 1
+				}
+				this.getListData(this.currentPage)
+			},
+			sWindow(type, keyVal) {
+				// 查询的类型   基因、疾病、药物    keyVal 是查询参数
+				let that = this
+				let n = {}
+				n['drugEnName'] = keyVal.drugEnName
+				that.$emit('sWindow', type, keyVal)
+			},
+			handleClick() { // 显然隐藏
+				this.show = !this.show;
+			},
+			sort(index) {
+				let that = this
+				that.hide = !this.hide
+
+			},
+			handelCurrent(val) { // 分页
+				let that = this
+				that.pageSize = val
+				that.getListData(that.currentPage)
+			},
+			changeSelect(n) {
+				let that = this
+				that.status = parseInt(n)
+				that.formInline.status = parseInt(n)
+				that.getListData(1, n)
+			},
+			handleClose(tag, index) {
+				this.formData1.splice(index, 1);
+			},
+			hisClick(tab, event) {
+				console.log(tab, event);
+			},
+			handleClick(tab, event) {
+				console.log(tab, event);
+			},
+			tabclick(tab, event) { //获取数据
+				// 参数，只在当前function里生效
+				let that = this
+				let a = that.tabname
+				let url = ''
+				if (a == 'one') {
+					url = 'report/variant/listDetected'  // 改了，查基本信息的
+					// url = 'cloud/report/updateSubjectInfo'
+				} else if (a == 'two') {
+					url = 'report/therapy/recommended'
+					that.rowDrop() // 排序调用，返回太慢了，只能在用之前调用
+				} else if (a == 'three') {
+					url = 'report/therapy/recommendedTarget'
+				} else if (a == 'four') {
+					url = 'report/therapy/recommendedInhibitors'
+				} else if (a == 'five') {
+					url = 'report/therapy/recommendedChemotherpy'
+				}
+
+				axios.get(URL.api_name + url, {
+					params: {
+						projectCode: that.code,
+						pageNumber: 1,
+						pageSize: that.pageSize,
+					}
+				}).then(function(respose) {
+					that.tabData = []
+					if (respose.data.code == '100') {
+						if (a == 'one') {
+							that.tabData1 = respose.data.data
+						} else if (a == 'two') {
+							that.tabData2 = respose.data.data
+						} else if (a == 'three') {
+							that.tabData3 = respose.data.data
+						} else if (a == 'four') {
+							that.tabData4 = respose.data.data
+						} else if (a == 'five') {
+							that.tabData5 = respose.data.data
+						}
+
+					} else {
+						that.$message({
+							type: 'error',
+							message: '接口错误：' + respose.data.message,
+							duration: 1000
+						})
+					}
+				}).catch(err => { // 接口通讯错误
+					that.$message({
+						type: 'error',
+						message: '接口错误：' + err.data.message,
+						duration: 1000
+					})
+				})
+			},
+			textclick(tab, event) {
+				let that = this
+				that.loading = true
+				let n = this.textName
+				let url = ''
+				if (n == 'first') {
+					url = 'report/getVariantDetails'
+				} else if (n == 'second') {
+					url = 'report/getVariantDetails'
+				}
+				axios.get(URL.api_name + url, {
+					params: {
+						code: that.formList.code,
+					}
+				}).then(function(respose) {
+					that.loading = false
+					if (respose.data.code == '100') {
+						that.formData = respose.data.data
+
+					} else {
+						// 请求失败了
+						that.$message({
+							type: 'error',
+							message: '接口错误：' + respose.data.message,
+							duration: 1000
+						})
+					}
+				}).catch(err => {
+					// 接口通讯错误
+					that.loading = false
+					that.$message({
+						type: 'error',
+						message: '接口错误：' + err.data.message,
+						duration: 1000
+					})
+				})
+			},
+			setCode(code) {
+				let that = this
+			},
+			pushHead(type, scope) {
+				let that = this
+				let n = {
+					canClose: true,
+					mark: type,
+					checkNum: false
+				}
+				if (type == 'drug') {
+					n['label'] = item.drugName ? item.drugName : item.drugEnName
+				}
+				let isneedinsert = true
+				for (let i in that.popData1.headList) {
+					if (that.popData1.headList[i].label == n.label) {
+						isneedinsert = false
+						that.changeTab(that.popData1.headList[i].mark, i)
+						break
+					}
+				}
+				if (isneedinsert) {
+					n['data'] = scope
+					that.popData1.headList.push(n)
+					that.cacheData = n['data']
+					let xx = that.popData1.headList.length - 1
+					that.changeTab(type, xx)
+				}
+				// 临时内容
+				console.log(that.cacheData)
+				//跳转到当前选中的栏目
+				that.checkMark = type
+			},
+			getGsData () {
+				// 获取基本信息
+				let that = this
+				let url = 'cloud/report/viewSubjectInfo'
+				let condition = {
+		              projectCode: that.code
+		            }
+		        axios.get(URL.api_name + url, {
+		          params: condition
+		        }).then((res) => {
+		        	if(res.data.code == '100') {
+		        		that.gsData = res.data.data
+		        	}
+		        }).catch((error)=> {
+		        	// 接口报错了
+		        })
+			},
+			getDrugList() { // 药物列表查询
+		        let that = this
+		        axios.get(URL.api_name + 'report/getDrugControlList', {
+		          params: {
+		            projectCode: that.code,
+		            pageSize : 9999,
+		            pageNumber : 1
+		          }
+		        }).then(function(respose){
+		            if ( respose.data.code === '100' ) {
+		              that.drugTypeList = respose.data.data.list
+		              // for(let i = 0 ; i < that.drugTypeList.length; i++) {
+		              //   let n = that.drugTypeList[i].drugName === "" ? '' : '-[' + that.drugTypeList[i].drugName + ']'
+		              //   that.drugTypeList[i]['drugNameZ'] = that.drugTypeList[i].drugEnName + n
+		              // }
+		            } else {
+		              that.$message({
+		                type: 'error',
+		                message: '药物查询失败' + respose.data.message,
+		                duration: '1000'
+		              })
+		            }
+		        }),function(error){
+		          that.$message({
+		            type: 'error',
+		            message: '查询失败',
+		            duration: '1000'
+		          })
+		        }
+		    },
+			formatDrugName (val) {
+		    	let that = this
+		    	let n = ''
+		    	for(let i in that.drugTypeList) {
+		    		if (val == that.drugTypeList[i].id) {
+		    			n = that.drugTypeList[i].drugName == '' ? that.drugTypeList[i].drugEnName : that.drugTypeList[i].drugName
+		    			break
+		    		}
+		    	}
+		    	return n
+		    },
+		    formateDrug(val) {
+		    	// 格式化用药方式
+		    	let that = this
+		    	let n = ''
+		    	let xx = []
+		    	if (val.drugEnName != '') {
+		    		xx = val.drugEnName.split('+')
+		    		n = xx.length > 1 ? '联合用药' : '单药'
+		    	}
+		    	return n
+		    },
+		    pushListItem (type, code, index) {
+		    	//
+		    	let that = this
+		    	that.tabData2.splice(index, 1)
+		    	that.$emit('pushListItem', type, code)
+		    },
+		    rowDrop() {
+		      var that = this
+			  var sortable1 = new Sortable(document.querySelector('.el-table__body-wrapper tbody'), {
+			    sort: true,
+			    animation: 300,
+			    onEnd: function (evt) {  //拖拽结束发生该事件
+			      that.tabData2.splice(evt.newIndex, 0, that.tabData2.splice(evt.oldIndex, 1)[0]);
+			      var newArray = that.tabData2.slice(0);
+			      // that.tabData2 = [];
+			      that.$nextTick(function () {
+			        that.tabData2 = newArray;
+			      })
+			    },
+			  })
+		    },
+		    saveSort() {
+		    	// 保存排序
+		    	let that = this
+		    	// console.log(that.tabData2)
+		    	// return false
+		    	let url = 'report/therapy/recommended/sort'
+		    	let n = {
+		    		projectCode: this.$route.params.id,
+		    		therapyEfficacyList: that.tabData2
+		    	}
+		    	axios.post(URL.api_name + url, n).then(function(res){
+			      if (res.data.code == '100') {
+			        // 成功
+			        that.$message({
+			          type: 'success',
+			          message: '提交成功',
+			          duration: 1000
+			        })
+			      }
+			    })
+		    },
+		    sWindow(type, keyVal) {
+				// 查询的类型   基因、疾病、药物    keyVal 是查询参数
+				console.log('keyVal is :' + keyVal)
+				let that = this
+				that.$emit('sWindow', type, keyVal)
+			},
+			changeTab(item, i) {
+				// 改变选中的选项
+				let that = this
+				for (let ec in that.popData1.headList) {
+				  that.popData1.headList[ec].checkNum = false
+				}
+				// that.popData1.headList[i].checkNum = true
+				that.$set(that.popData1.headList[i], 'checkNum', true)
+				that.checkMark = item
+				if (that.popData1.headList[i].data) {
+				  that.cacheData = that.popData1.headList[i].data
+				}
+			},
+			closePanel(i) {
+				// 关闭可关闭的当前选项卡
+				let that = this
+				that.cacheData = {}
+				that.popData1.headList.splice(i, 1)
+				let n = parseInt(i) - 1
+				let items = that.popData1.headList[n].mark
+				that.changeTab(items, n)
+			},
+			cmmk(i) {
+				this.minMark = i
+			},
+			pushHead(type, scope) {
+				let that = this
+				let n = {
+				  canClose: true,
+				  mark: type,
+				  checkNum: false
+				}
+				if (type == 'disease') {
+				  n['label'] = scope.name
+				} else if (type == 'drug') {
+				  n['label'] = scope.drugName ? scope.drugName : scope.drugEnName
+				}
+				let isneedinsert = true
+				for (let i in that.popData1.headList) {
+				  if (that.popData1.headList[i].label == n.label) {
+				    isneedinsert = false
+				    that.changeTab(that.popData1.headList[i].mark, i)
+				    break
+				  }
+				}
+				if (isneedinsert) {
+				  n['data'] = scope
+				  that.popData1.headList.push(n)
+				  that.cacheData = n['data']
+				  let xx = that.popData1.headList.length - 1
+				  that.changeTab(type, xx)
+				}
+				// 临时内容
+				console.log(that.cacheData)
+				//跳转到当前选中的栏目
+				that.checkMark = type
+			},
+		},
+		watch: {
+			formDatas: function(newVal, oldVal) {
+				let that = this
+				that.formData = newVal
+				that.formData1 = JSON.parse(JSON.stringify(that.formData))
+				for(let i in that.formData) {
+					that.$set(that.formData[i], 'isEdit', false)
+					that.$set(that.formData[i], 'isOpen', false)
+					that.$set(that.formData1[i], 'isEdit', false)
+					that.$set(that.formData1[i], 'isOpen', false)
+				}
+			},
+			popData: function(newVal, oldVal) {
+				let that = this
+				// 重设基本选择位置
+				that.popData1 = newVal
+				that.checkMark = that.popData1.headList[0].mark
+			}
+		},
+		filters: {
+			formatDate(time) {
+				let date = new Date(time)
+				return formatDate(date, 'yyyy-MM-dd')
+			},
+		},
+		components: {
+			Pager: Pager,popdialog
+		},
+		computed: {
+			isCollapse() {
+				return this.$store.getters.isOpened;
+			}
+		},
+		mounted() {
+			// this.rowDrop()
+			// this.columnDrop()
+		},
+	}
+</script>
+<style scope="scoped">
+	.el-table__body-wrapper{
+		overflow-x: auto!important;
+	}
+</style>
+<style>
+.xexe .divover{line-height:48px;}
+.xexe .pcont .el-row{ padding: 20px 0; font-size: 14px; color: #666;}
+</style>

@@ -1,0 +1,393 @@
+<template>
+  <div class="lists">
+    <div class="main-cont1">
+      <h2 class="main--h1"><a href="javascript:;" class="fr" @click="goMore('999')">更多</a>{{ msg }}</h2>
+      <div class="noData" style="color:#999; margin:20px 0;" v-if="!tableData">暂无数据</div>
+      <div class="items">
+        <div v-for="(item, index) in tableData" class="item" :key="index" v-if="index < 4" v-on:click="goMore(item.code)">
+					<div class="logoImg">
+						<img :src="src + item.icon + '&token=' + uploadHeader.token" />
+						<!-- 获取图标接口  + 图片返回值 + '&token=' + 存蓄的uploadHeader方法下的token-->
+					</div>
+          <h4 class="itemer" >{{ item.productName }}</h4>
+          <div class="item_introduce">
+              <div class="homeDescription">
+                {{ item.description }}
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="height:10px; display: inline-block; width: 100%; background:#F7F8FB;"></div>
+    <div class="main-cont1" style="background:#fff;">
+      <div class="clearfix" style="overflow:hidden">
+        <h2 class="main--h1" style="padding-top:15px; display:inline-block;">{{ msg2 }}</h2>
+        <!-- <div class="noData" style="color:#999; margin:20px 0;" v-if="!tableData2">暂无数据</div> -->
+        <div class="search-wrapper">
+          <el-form :inline="true" :model="formInline">
+            <el-form-item label="状态">
+              <el-select v-model="formInline.status" clearable placeholder="请选择状态">
+                <el-option v-for="item in statusList" :key="item.value" :label="item.label" :value="item.value"></el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="检测项目 ">
+              <el-input v-model="formInline.projectName" size="medium" placeholder="请输入检测项目"></el-input>
+            </el-form-item>
+            <el-form-item label="受检人">
+              <el-input v-model="formInline.sickName" size="medium" placeholder="请输入受检人"></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" size="medium" @click="search">查询</el-button>
+            </el-form-item>
+          </el-form>
+        </div>
+      </div>
+      <!-- table表格 -->
+      <div class="table-data" v-loading="loading" element-loading-text="拼命加载中">
+      <el-table :data="tableData2" style="width: 100%" stripe>
+        <el-table-column label="序号" width="100" align="center">
+          <template slot-scope="scope">
+            {{ (currentPage - 1) * pageSize + scope.$index + 1 }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="code" label="报告编号" sortable></el-table-column>
+        <el-table-column label="受检人" width="200">
+          <template slot-scope="scope">
+            {{ JSON.parse(scope.row.jsonValue).userName }}
+          </template>
+        </el-table-column>
+        <el-table-column label="性别" width="80">
+          <template slot-scope="scope">
+            {{ JSON.parse(scope.row.jsonValue).gender === 1 ? '男' : '女' }}
+          </template>
+        </el-table-column>
+        <el-table-column  prop="projectName"  label="检测项目" ></el-table-column>
+        <el-table-column prop="productName" label="产品名称" ></el-table-column>
+        <el-table-column prop="createTime" :formatter="dateFormat" label="时间" sortable></el-table-column>
+        <el-table-column prop="status" label="状态" width="150" sortable>
+          <template slot-scope="scope">
+            {{ scope.row.status == 1 ? '草稿' : scope.row.status == 2 ? '运行中...' : scope.row.status == 3 ? '未审核' : scope.row.status == 4 ? '解读完成' : scope.row.status == 6 ? '分析流程异常' : scope.row.status == 96 ? '审核中' : scope.row.status == 11 ? '未审核' : scope.row.status == 100 ? '订单完成' : scope.row.status == 60 ? '已收样' : scope.row.status == 65 ? '已检测' : '已删除' }}
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="250">
+          <template slot-scope="scope">
+            <el-button type="text" v-if="scope.row.status === 1" @click="goEdit(scope.row, scope.row.businessCode, scope.row.code, currentPage, scope.row.productCode, scope.row.productType)">修改</el-button>
+            <el-button type="text"  v-if="scope.row.status === 1" @click="goDel(scope.row.code)">删除</el-button>
+            <el-button type="text"  v-if="scope.row.status === 1" :loading="btnloading" @click="goRun(scope.row.code)">生成报告</el-button>
+            <!-- <el-button type="text" v-if="scope.row.status === 4" @click="goReportInfo('cn', scope.row.code, currentPage)">中文报告</el-button> -->
+            <!-- <el-button type="text" v-if="scope.row.status === 4" @click="goReportInfo('en', scope.row.code, currentPage)">英文报告</el-button> -->
+            <!-- <el-button type="text" @click="copyItem(scope.row.code)">复制</el-button> -->
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+    <!-- 分页 -->
+    <pager style="padding:20px 0 10px 0; text-align:center;" :current-page="currentPage" v-on:handleSizeChange="handelCurrent" :pageSize="pageSize" :total-count="totalCount" v-on:handleCurrentChange="getListData2"></pager>
+    </div>
+  </div>
+</template>
+<script>
+  import URL from '@/common/js/URL.js'
+  import axios from 'axios'
+  import Pager from '@/components/common/pager'
+  import moment,{ duration } from 'moment'
+  import {formatDate} from '@/common/js/Utils.js'
+
+  export default {
+    name: 'hello',
+    created () {
+      this.getListData(this.currentPage)
+      this.getListData2(this.$route.params.pager)//获取列表
+    },
+    data () {
+      return {
+        pageNumber: 1,
+        totalCount: 0,
+        isFrirst: true,
+        currentPage: 1,
+        pageSize: 10,
+        msg: '服务项目',
+        msg2: '待办项目',
+        tableData: [],
+        tableData2: [],
+        description: [],
+        btnloading: false,
+				src: URL.api_name + 'cloud/project/downloadFile?fileDownUrl=',
+        formInline: {
+          sickName: '',
+          projectName: '',
+          status: 1
+        },
+        url: URL.api_name,
+        list:[],
+        statusList: [{
+          value: 1,
+          label: '草稿'
+        },
+        {
+          value: 2,
+          label: '运行中'
+        },
+        {
+          value: 3,
+          label: '未审核'
+        },
+        {
+          value: 4,
+          label: '解读完成'
+        },
+        {
+          value: 6,
+          label: '分析流程异常'
+        }, {
+          value: 96,
+          label: '审核中'
+        }, {
+          value: 11,
+          label: '未审核'
+        }, {
+          value: 100,
+          label: '订单完成'
+        }, {
+          value: 60,
+          label: '已收样'
+        }, {
+          value: 65,
+          label: '已检测'
+        }
+        ],
+      }
+    },
+    methods: {
+      open(descriptions,businessName) {
+        let str = '';
+        console.log(descriptions)
+        for(var i = 0; i < descriptions.length; i++){
+          str = str + descriptions[i] + '<br/>'
+        }
+        this.$alert(str, businessName, {
+          confirmButtonText: '确定',
+          dangerouslyUseHTMLString: true,
+        });
+      },
+      goMore (id) {
+        localStorage.setItem('serviceCreatType', 'creat')
+        this.$router.push({
+          path: '/Processlist/' + id
+        })
+      },
+      goCreat (id, productCode, productType) { // 首页，进入单流程创建
+        this.$router.push({
+          path: '/ServiceAddCode/' + id + '/' + productCode + '/' + productType
+        })
+      },
+      goList () { // 跳转到项目列表(我的项目列表)
+        this.$router.push({
+          path: '/service/1'
+        })
+      },
+      goListInfo (language, id) {// 首页我的单项目，链接
+        this.$router.push({
+          path: '/examineDetial/' + language + '/' + id + '/1/service' 
+        })
+      },
+      clickDescription ( id ) {
+        this.$router.push({
+          path: '/homeDetail/' + id
+        })
+      },
+      dateFormat (row, column) {
+        let date = row[column.property]
+        if (date === undefined) {
+          return ''
+        }
+        return moment(date).format('YYYY-MM-DD HH:mm:ss')
+      },
+      getListData (num) {
+        this.currentPage = num
+        var that = this
+        that.loading = true
+        axios.get(URL.api_name + 'cloud/project/product_list', {
+          params: {
+            productName: ''
+          }
+        }).then(function (respose) {
+          let data = respose.data
+          that.tableData = data.data
+          that.loading = false
+        }, function (error) {
+          console.log(error)
+          that.loading = false
+          that.$message({
+            type: 'error',
+            message: '查询失败',
+            duration: 1000
+          })
+        })
+      },
+      getListData2 (val) {
+        var that = this
+        axios.get(URL.api_name + 'cloud/project_list', {
+          params: {
+            pageSize: that.pageSize,
+            pageNumber: val ? val : that.currentPage,
+            sickName:that.formInline.sickName,
+            projectName:that.formInline.projectName,
+            status: that.formInline.status
+          }
+        }).then(function (respose) {
+          if(respose.data.code === '100'){
+            let data = respose.data.data  
+            that.tableData2 = data.list
+            that.totalCount = data.total
+						that.currentPage = parseInt(val)
+          }
+        }, function (error) {
+          console.log(error)
+          that.loading = false
+          that.$message({
+            type: 'error',
+            message: '查询失败',
+            duration: 1000
+          })
+        })
+      },
+       goEdit (scope, id, typeid, pager, productCode, productType) {
+        localStorage.setItem('keyer', JSON.stringify(scope.jsonValue))
+        // let ids = scope.oldBusinessCode === null ? id : scope.oldBusinessCode
+        this.$router.push({
+          path: '/ServiceEdit/' + id + '/' + typeid + '/' + pager + '/' + productCode + '/' + productType
+        })
+      },
+       goDel (id) {
+        var that = this
+        that.$confirm('确定删除吗？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          axios.post(URL.api_name + 'cloud/del_project', {
+            code: id
+          }).then(res => {
+            if (res.data.code === '100') {
+              that.$message({
+                type: 'success',
+                message: '删除成功',
+                duration: 1000
+              })
+              that.getListData(that.currentPage)
+            }
+          }).catch(err => {
+            that.$message({
+              type: 'error',
+              message: '删除失败',
+              duration: 1000
+            })
+            console.log(err)
+          })
+        }).catch(() => {})
+      },
+       goRun (id) {
+        let that = this
+        that.btnloading = true
+        axios.get(URL.api_name + 'report/product_report', {
+          params: {
+            projectCode: id
+          }
+        }).then(function (respose) {
+          if (respose.data.code === '100') {
+            that.getListData(that.currentPage)
+            that.$message({
+              type: 'success',
+              message: '提交成功',
+              duration: 1000
+            })
+          } else {
+            that.$message({
+              type: 'error',
+              message: '提交失败：' + respose.data.message,
+              duration: 1000
+            })
+          }
+          that.btnloading = false
+        }, function (error) {
+          that.loading = false
+          that.$message({
+            type: 'error',
+            message: '提交失败：' + error,
+            duration: 1000
+          })
+        })
+      },
+      handelCurrent(val) {
+        let that = this
+        that.pageSize = val
+        that.getListData2(that.currentPage)
+      },
+      search () {//查询按钮
+        let that = this
+        that.getListData2()
+      },
+    },
+    filters: {
+      formatDate (time) {
+        let date = new Date(time)
+        return formatDate(date, 'yyyy-MM-dd hh:mm:ss')
+      }
+    },
+    components: {
+      Pager: Pager,
+    },
+    computed: {
+      userInfo () {
+        return JSON.parse(localStorage.getItem('userInfo'))
+      },
+      currUser () {
+        if (JSON.parse(localStorage.getItem('user'))) {
+          return JSON.parse(localStorage.getItem('user'))
+        } else {
+          return ''
+        }
+      },
+			uploadHeader() {
+				return {
+					token: JSON.parse(localStorage.getItem('authtoken'))
+				}
+			}
+    }
+  }
+</script>
+<style scoped>
+	a{ text-decoration: none; color:#43a047; }
+	h1, h2 { font-size:20px;line-height: 2;}
+	.main--h1{overflow: hidden; color:#4A4A4A; font-size:18px;margin: 0px 0 0 20px;}
+	.main--h1:before{content:''; background:#008AFF; display: inline-block; width: 3px; height:18px;margin:0px 8px -3px 0px; border-radius: 2px;}
+	.main--h1 .fr{ float: right; font-size:14px; color:#fff;margin-left: 10px; background: #008AFF; line-height: 35px;border-radius: 2px; padding: 0 1.3rem; font-size:14px; display: inline-block; }
+	h4{ line-height: 1.1; font-size:14px; color:#4A4A4A; font-family: '微软雅黑'; padding:10px 0px 18px 0px; height:10px; overflow: hidden;white-space: nowrap;text-overflow:ellipsis; cursor:pointer;}
+	.main-cont1{}
+	.main-cont1:first-child{ min-height:220px; }
+	.item{float: left; width: calc(25% - 12px);box-sizing: border-box; padding:10px 20px 20px 20px;margin:10px 15px 0 0px;background: #fff;transition: all .4s;height: 176px;}
+  .item:hover{ box-shadow:4px 4px 8px 0px rgba(164,164,164,0.5); cursor: pointer;}
+  .item:last-child{margin:10px 0 0 0;}
+	.item p .btne{ padding: 5px 9px!important; }
+	.item p { text-align: right;}
+	.item h4.itemer{ color:#7F8493; font-size:18px; height:25px; line-height: 25px;padding: 0;font-weight: 500; display: inline-block; vertical-align: middle;}
+	.item .item_introduce{ height:96px; line-height: 20px; margin-bottom:10px; overflow: hidden; color:#7F8493; font-size:14px;}
+	i{font-size: 18px;display: inline-block;margin-right:5px;vertical-align: bottom;}
+  .mores a{ text-decoration:none; color:#43a047; }
+  li{ list-style: none; }
+  .items_li{ padding: 20px 20px 0 0; }
+  .items_li li {  }
+  .list .homeDescription:hover{cursor: pointer;color:#847878}
+  .items_li li a{line-height: 30px; color:#43a047; text-decoration: none;}
+  .items_li li a:hover{ text-decoration: underline; }
+  .items_li li span{float: right; font-size:14px; color:#43a047;}
+  .icons_item{ display: inline-block; vertical-align: middle; margin:-5px 10px 0 0; line-height: 1; font-size:18px;  width: 18px; height: 18px;}
+  .icons_item {background: url(../common/icons/item_ico.png) no-repeat center;}
+  .el-form-item{margin-bottom:0px;}
+	.search-wrapper{display:inline-block; vertical-align:middle; margin: -6px 8px 10px 0px; float:right;}
+	.el-button--text{padding-right: 15px;}
+  .logoImg{margin: 5px 10px 5px 0; display: inline-block; vertical-align: middle;}
+	.logoImg img{width: 28px;height: 28px; transition: all .4s;}
+	.item:hover .logoImg img{transform: scale(1.4) rotate(-45deg); opacity: .5;}
+</style>

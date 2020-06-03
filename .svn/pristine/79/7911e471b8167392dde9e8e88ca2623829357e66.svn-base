@@ -1,0 +1,148 @@
+<template>
+  <div class="base_msg blockContent">
+    <div class="subItems">
+			<div class="subname">
+				<span>微卫星稳定性检出情况</span>
+			</div>
+      <div class="addBar" v-if="!formData1.list" style="padding:0px 0 10px 0; text-align:right;">
+        <el-button type="primary" @click="pushListItem('add')">添加</el-button>
+        <!-- <el-button type="primary" @click="">发送邮件</el-button> -->
+      </div>
+      <div class="">
+        <el-table class="tableList hasLine" :data="formData1.list" border stripe style="width: 100%">
+  	      	<el-table-column prop="gene" label="基因名称" width="280" align="center">
+  	      	</el-table-column>
+  	      	<el-table-column prop="variant" label="检测数据">
+              <template slot-scope="scope">
+                <span v-if="!scope.row.isEdit">{{ scope.row.variant }}</span>
+                <el-select v-if="scope.row.isEdit" v-model="scope.row.variant">
+                  <el-option label="阳性" value="阳性"></el-option>
+                  <el-option label="阴性" value="阴性"></el-option>
+                </el-select>
+              </template>
+  	      	</el-table-column>
+
+  	      	<el-table-column label="操作" width="80">
+  	      		<template slot-scope="scope">
+  	            	<a href="javascript:;" v-if="scope.row.isEdit" @click="cancerChange(scope.$index)" class="editBtn"><i class="el-icon-circle-close-outline"></i></a>
+                  <a href="javascript:;" v-if="!scope.row.isEdit" @click="changeEdit('true', scope.$index)" class="editBtn"><i class="el-icon-edit-outline"></i></a>
+                  <!-- <a href="javascript:;" v-if="!scope.row.isEdit" @click="pushListItem('del', scope.row.code)" class="editBtn"><i class="el-icon-delete"></i></a> -->
+                  <a href="javascript:;" v-if="scope.row.isEdit" @click="saveChange(scope.row.variant, scope.row.code)" class="editBtn"><i class="el-icon-circle-check-outline"></i></a>
+  	        	</template>
+  	      </el-table-column>
+  	    </el-table>
+      </div>
+
+      <p></p>
+      <p>检测结果为：{{ formData1.variant }}</p>
+
+    </div>
+
+
+  </div>
+</template>
+<script>
+  export default {
+    props: {
+        formDatas:{
+            type:Object
+        },
+        formInline: {
+          type: Object
+        }
+    },
+    created() {
+      let that = this
+      console.log('xxxx')
+      console.log(that.formDatas.list)
+      console.log(that.formData1.list)
+    },
+    data () {
+      return {
+        isEdit1: false,
+        isEdit2: false,
+        formData: {},
+        formData1: {},
+        restaurants: [],
+        restaurantsList: [],
+        needAddsList: {
+          code: "",
+          gene: "",
+          projectCode: "",
+          variant: "",
+          variantType: ""
+        },
+      }
+    },
+    methods: {
+      showMsg(index, obj) {
+        let that = this
+        console.log(index)
+        that.formData1.list.splice(index + 1, 0, obj)
+        console.log(that.formData1.list)
+      },
+      changeEdit(val, index) {
+        let that = this
+        // that.formData1.list[index].isEdit = val == 'true' ?  true : false
+        that.$set(that.formData1.list[index], 'isEdit', true)
+      },
+      cancerChange(index) {
+        let that = this
+        // that.formData1.list[index].isEdit = false
+        that.$set(that.formData1.list[index], 'isEdit', false)
+        // 重新给formData赋值    取消的时候，重置内容
+        let n = Object.assign({}, that.formDatas)
+        that.formData1 = n
+      },
+      saveChange (vale, index) {
+      	let that = this
+      	// that.formData1.list[index].isEdit = false
+      	that.$set(that.formData1.list[index], 'isEdit', false)
+      	let n = Object.assign({}, that.formData1)
+      	that.formData = n
+        that.$emit('saveChange', vale)
+      },
+      blockSearch(formInline) {
+        // 查询
+        let that = this
+        that.$emit('search', formInline)
+      },
+      inputSub(itemCode, keyName, keyValue) {
+        // 修改
+        let that = this
+        that.$emit('saveChange', that.formDatas.code, itemCode, keyName, keyValue)
+      },
+      pushListItem(type, code) {
+        // 添加，删除 的操作
+        let that = this
+        that.$emit('pushListItem', type, code, that.needAddsList)
+        // that.$emit('pushListItem', type, code, gievsrow)
+      },
+      querySearch(queryString, cb) {
+        let restaurants = this.restaurants
+        let results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants
+        // 调用 callback 返回建议列表的数据
+        cb(results)
+      },
+      createFilter(queryString) {
+        return (restaurant) => {
+          return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
+        }
+      }
+    },
+    watch: {
+      formDatas: function(newVal,oldVal){
+      	let that = this
+        this.formData = newVal
+        this.formData1 = JSON.parse(JSON.stringify(this.formData))
+        for (let i in that.formData1.list) {
+        	// that.formData1.list[i]['isEdit'] = false
+        	that.$set(that.formData1.list[i], 'isEdit', false)
+        }
+      }
+    },
+    computed: {
+
+    }
+  }
+</script>

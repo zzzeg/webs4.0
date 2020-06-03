@@ -1,0 +1,266 @@
+<template>
+  <div class="base_msg blockContent">
+    <div class="subItems">
+			<div class="subname">
+				<span>微卫星不稳定性检出情况</span>
+			</div>
+      <div class="addBar" v-if="!formData1.list" style="padding:0px 0 10px 0; text-align:right;">
+        <el-button type="primary" size="medium" @click="pushListItem('add')">添加</el-button>
+        <!-- <el-button type="primary" @click="">发送邮件</el-button> -->
+      </div>
+      <div class="">
+        <el-table class="tableList hasLine" :data="formData1.list" empty-text="未检出相关变异" border stripe style="width: 100%">
+  	      	<el-table-column  prop="gene" label="基因名称" width="120" align="center">
+              <template slot-scope="scope">
+                 <span>{{ scope.row.gene }}</span>
+              </template>
+            </el-table-column>
+  	      	<el-table-column prop="variant" label="检测数据">
+              <template slot-scope="scope">
+                <span v-if="!scope.row.isEdit">{{ scope.row.variant }}<span :class="scope.row.hasValidata == '1' ? 'yellosj' :'bluesj'"></span><span v-if="scope.row.checkCell == 'variant'" class="allBg"></span></span>
+                <el-select v-if="scope.row.isEdit" v-model="scope.row.variant">
+                  <el-option label="阳性" value="阳性"></el-option>
+                  <el-option label="阴性" value="阴性"></el-option>
+                </el-select>
+              </template>
+  	      	</el-table-column>
+
+  	      	<el-table-column label="操作" width="80">
+  	      		<template slot-scope="scope">
+  	            	<a href="javascript:;" v-if="scope.row.isEdit" @click="cancerChange(scope.$index)" class="editBtn"><i class="el-icon-circle-close-outline"></i></a>
+                  <a href="javascript:;" v-if="!scope.row.isEdit" @click="changeEdit('true', scope.$index)" class="editBtn"><i class="el-icon-edit-outline"></i></a>
+                  <!-- <a href="javascript:;" v-if="!scope.row.isEdit" @click="pushListItem('del', scope.row.code)" class="editBtn"><i class="el-icon-delete"></i></a> -->
+                  <a href="javascript:;" v-if="scope.row.isEdit" @click="saveChange(scope.row.variant, scope.row.code)" class="editBtn"><i class="el-icon-circle-check-outline"></i></a>
+  	        	</template>
+    	      </el-table-column>
+  	    </el-table>
+      </div>
+
+      <p></p>
+      <p v-if="formData1.list&&formData1.variant!='' ">检测结果为：<a href="javascript:;" @click="typeclick">{{ formData1.variant }}</a></p>
+      <div v-if="istoggle" class="xexe">
+        <popdialog :text="pvalue" :scope="formData1" windowType="variant" :popData="popData1" :formDatas="formData1"
+               :minMark="minMark" :checkMark="checkMark" :cacheData="cacheData" @cmmk="cmmk" @sWindow="sWindow('variant', formData1.code)" @pushHead="pushHead"
+               @changeTab="changeTab" @closePanel="closePanel" @blockSearch="blockSearch(formInline)"></popdialog>
+      </div>
+
+    </div>
+
+
+  </div>
+</template>
+<script>
+  import popdialog from '@/components/examine/examineModel/popModel/popdialog'
+  export default {
+    props: {
+        formDatas:{
+            type:Object
+        },
+        formInline: {
+          type: Object
+        },
+        popData: {
+          type: Object
+        },
+        checkMark: {
+          type: String
+        }
+    },
+    created() {
+    },
+    data () {
+      return {
+        isEdit1: false,
+        isEdit2: false,
+        formData: {},
+        formData1: {},
+        restaurants: [],
+        restaurantsList: [],
+        code: this.$route.params.id,
+        needAddsList: {
+          code: "",
+          gene: "",
+          projectCode: "",
+          variant: "",
+          variantType: ""
+        },
+        cacheData: {},
+        minMark: '1',
+        checkNum: false,
+        popData1: {
+          headList: [],
+          datas: {
+            cancers: {},
+            desc: '',
+            drugControls: [],
+            gene: '',
+            listReportVariant: [],
+            molecularNetworkImg: '',
+            panels: [],
+            pathwayInfos: [],
+            termsImg: ''
+          }
+        },
+        property: '',
+        pvalue: '',
+        row: {},
+        istoggle: false
+      }
+    },
+    methods: {
+      typeclick(row, column, cell, event) {
+        // con
+        let that = this
+        that.istoggle = !that.istoggle
+      },
+      showMsg(index, obj) {
+        let that = this
+        console.log(index)
+        that.formData1.list.splice(index + 1, 0, obj)
+        console.log(that.formData1.list)
+      },
+      changeEdit(val, index) {
+        let that = this
+        // that.formData1.list[index].isEdit = val == 'true' ?  true : false
+        that.$set(that.formData1.list[index], 'isEdit', true)
+      },
+      cancerChange(index) {
+        let that = this
+        // that.formData1.list[index].isEdit = false
+        that.$set(that.formData1.list[index], 'isEdit', false)
+        // 重新给formData赋值    取消的时候，重置内容
+        let n = Object.assign({}, that.formDatas)
+        that.formData1 = n
+      },
+      saveChange (vale, code) {
+        let that = this
+        let n = {}
+        n['variant'] = vale
+        n['code'] = code
+        n['projectCode'] = that.code
+        that.$emit('saveChange', n)
+      },
+      blockSearch(formInline) {
+        // 查询
+        let that = this
+        that.$emit('search', formInline)
+      },
+      inputSub(itemCode, keyName, keyValue) {
+        // 修改
+        let that = this
+        that.$emit('saveChange', that.formDatas.code, itemCode, keyName, keyValue)
+      },
+      pushListItem(type, code) {
+        // 添加，删除 的操作
+        let that = this
+        that.$emit('pushListItem', type, code, that.needAddsList)
+        // that.$emit('pushListItem', type, code, gievsrow)
+      },
+      querySearch(queryString, cb) {
+        let restaurants = this.restaurants
+        let results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants
+        // 调用 callback 返回建议列表的数据
+        cb(results)
+      },
+      createFilter(queryString) {
+        return (restaurant) => {
+          return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0)
+        }
+      },
+      sWindow(type, keyVal) {
+        // 查询的类型   基因、疾病、药物    keyVal 是查询参数
+        console.log('keyVal is :' + keyVal)
+        let that = this
+        that.$emit('sWindow', type, keyVal)
+      },
+      changeTab(item, i) {
+        // 改变选中的选项
+        let that = this
+        for (let ec in that.popData1.headList) {
+          that.popData1.headList[ec].checkNum = false
+        }
+        // that.popData1.headList[i].checkNum = true
+        that.$set(that.popData1.headList[i], 'checkNum', true)
+        that.checkMark = item
+        if (that.popData1.headList[i].data) {
+          that.cacheData = that.popData1.headList[i].data
+        }
+      },
+      closePanel(i) {
+        // 关闭可关闭的当前选项卡
+        let that = this
+        that.cacheData = {}
+        that.popData1.headList.splice(i, 1)
+        let n = parseInt(i) - 1
+        let items = that.popData1.headList[n].mark
+        that.changeTab(items, n)
+      },
+      cmmk(i) {
+        this.minMark = i
+      },
+      pushHead(type, scope) {
+        let that = this
+        let n = {
+          canClose: true,
+          mark: type,
+          checkNum: false
+        }
+        if (type == 'disease') {
+          n['label'] = scope.name
+        } else if (type == 'drug') {
+          n['label'] = scope.drugName ? scope.drugName : scope.drugEnName
+        }
+        let isneedinsert = true
+        for (let i in that.popData1.headList) {
+          if (that.popData1.headList[i].label == n.label) {
+            isneedinsert = false
+            that.changeTab(that.popData1.headList[i].mark, i)
+            break
+          }
+        }
+        if (isneedinsert) {
+          n['data'] = scope
+          that.popData1.headList.push(n)
+          that.cacheData = n['data']
+          let xx = that.popData1.headList.length - 1
+          that.changeTab(type, xx)
+        }
+        // 临时内容
+        console.log(that.cacheData)
+        //跳转到当前选中的栏目
+        that.checkMark = type
+      },
+    },
+    watch: {
+      formDatas: function(newVal,oldVal){
+      	let that = this
+        this.formData = newVal
+        this.formData1 = JSON.parse(JSON.stringify(this.formData))
+        for (let i in that.formData1.list) {
+        	// that.formData1.list[i]['isEdit'] = false
+        	that.$set(that.formData1.list[i], 'isEdit', false)
+          that.$set(that.formData1.list[i], 'checkCell', '')
+        }
+      },
+      popData: {
+        handler: function(newVal, oldVal) {
+          let that = this
+          // 重设基本选择位置
+          that.popData1 = newVal
+        },
+        deep: true,
+        // immediate: true
+      }
+    },
+    computed: {
+
+    },
+    components: {
+      popdialog
+    }
+  }
+</script>
+<style>
+.xexe .divover{line-height:48px;}
+.xexe .pcont .el-row{ padding: 20px 0; }
+</style>

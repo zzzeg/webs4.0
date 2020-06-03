@@ -1,0 +1,119 @@
+<template>
+	<div class="base_msg blockContent">
+		<div class="subItems">
+			<div class="subname">
+				<span>结果解析</span>
+				<div class="bjimg" v-if="!block1" @click="block1 = !block1,changeEdit()"></div>
+				<div class="saveico" v-if="block1" @click="block1 = !block1, saveChange(formData1)"></div>
+			</div>
+			<div class="xxxxx" style="width:calc(100% - 2em)">
+				<p v-if="!block1">
+					<span v-for="(item, index) in formData1.results" :key="index" style="display:block; margin:10px 0;">{{ item }}</span>
+				</p>
+				<p v-if="block1" style="width:calc(100% - 6em); display:inline-block; vertical-align:top">
+					<span v-for="(item, index) in formData1.results" :key="index">
+						<el-input  class="editFrom" style="width:calc(100% - 3em); vertical-align:middle; margin:10px 0;" type="textarea" :autosize="{ minRows: 1, maxRows: 3}" v-model="formData1.results[index]" placeholder="">
+						</el-input>
+						<a href="javascript:;" @click="del(index)" class="editBtn"><i class="el-icon-delete" style="font-size: 24px;"></i></a>
+					</span>
+				</p>
+				<el-button type="success" v-if="block1" size="mini" @click="add" style="margin-top:10px">添加</el-button>
+			</div>
+		</div>
+	</div>
+</template>
+<script>
+	import {formatDate} from '@/common/js/Utils.js'
+	import moment from 'moment'
+	export default {
+		props: {
+			formDatas: {
+				type: Object
+			}
+		},
+		created() {},
+		data() {
+			return {
+				block1: false,
+				canEdit: true,
+				formData: {},
+				formData1: {},
+		        sampleTypeList : [{
+		          label: '新鲜组织',
+		          value: '新鲜组织'
+		        }, {
+		          label: '穿刺组织',
+		          value: '穿刺组织'
+		        }, {
+		          label: '石蜡块',        //
+		          value: '石蜡块'
+		        }, {
+		          label: '石蜡卷',
+		          value: '石蜡卷'
+		        }, {
+		          label: '石蜡白片',
+		          value: '石蜡白片'
+		        }, {
+		          label: '石蜡组织',
+		          value: '石蜡组织'
+		        }, {
+		          label: '血液',
+		          value: '血液'
+		        }, {
+		          label: '骨髓',
+		          value: '骨髓'
+		        }, {
+		          label: '淋巴',
+		          value: '淋巴'
+		        }, {
+		          label: '胸腔积液',
+		          value: '胸腔积液'
+		        }, {
+		          label: '腹腔积液',
+		          value: '腹腔积液'
+		        }],
+			}
+		},
+
+		methods: {
+			changeEdit(val, editorName) {
+				let that = this
+				that[editorName] = val == 'true' ? true : false
+			},
+			cancerChange(editorName) {
+				let that = this
+				that[editorName] = false
+				// 重新给formData赋值    取消的时候，重置内容
+				let n = Object.assign({}, that.formDatas)
+				that.formData1 = n
+			},
+			saveChange(vale, editorName) {
+				let that = this
+				this[editorName] = false
+				// let n = Object.assign({}, that.formData1)
+				// this.formData = n
+				this.$emit('saveChange', vale)
+			},
+			del(i) {
+				let that = this
+				that.formData1.results.splice(i, 1)
+			},
+			add() {
+				let that = this
+				that.formData1.results.push('')
+			}
+		},
+		watch: {
+			formDatas: function(newVal, oldVal) {
+				this.formData = newVal
+				this.formData1 = JSON.parse(JSON.stringify(this.formData))
+			}
+		},
+		 filters: {
+		  formatDate (time) {
+		    let date = new Date(time)
+		    return formatDate(date, 'yyyy-MM-dd')
+		  },
+		}
+	}
+</script>
